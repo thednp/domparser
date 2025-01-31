@@ -3,12 +3,11 @@
 [![NPM Version](https://img.shields.io/npm/v/@thednp/domparser.svg)](https://www.npmjs.com/package/@thednp/domparser)
 [![NPM Downloads](https://img.shields.io/npm/dm/@thednp/domparser.svg)](http://npm-stat.com/charts.html?@thednp/domparser)
 [![ci](https://github.com/thednp/domparser/actions/workflows/ci.yml/badge.svg)](https://github.com/thednp/domparser/actions/workflows/ci.yml)
-[![jsDeliver](https://data.jsdelivr.com/v1/package/npm/@thednp/domparser/badge)](https://www.jsdelivr.com/package/npm/@thednp/domparser)
 [![typescript version](https://img.shields.io/badge/typescript-5.7.3-brightgreen)](https://www.typescriptlang.org/)
 [![vitest version](https://img.shields.io/badge/vitest-3.0.4-brightgreen)](https://vitest.dev/)
 [![vite version](https://img.shields.io/badge/vite-6.0.11-brightgreen)](https://vitejs.dev/)
 
-A very light and TypeScript sourced [DOMParser](https://developer.mozilla.org/en-US/docs/Web/API/DOMParser) for isomorphic applications. Because of its size, you can include it in both your server and especially your client to greatly reduce your application bundle size since it only works with `text/html` string input.
+A very light and TypeScript sourced [DOMParser](https://developer.mozilla.org/en-US/docs/Web/API/DOMParser) for isomorphic applications. Because of its size (around 1Kb gzipped), you can include it in both your server and especially your client to greatly reduce your application bundle size since it only works with `text/html` string input.
 
 The purpose of this library is to provide a lightweight yet reliable HTML parser without having to rely on [jsdom](https://github.com/jsdom/jsdom), [json5](https://json5.org) and even tools like [cheerio](https://cheerio.js.org). On that note, it doesn't come as a drop-in replacement/shim for the original DOMParser, but an extremely useful tool for many more scenarios.
 

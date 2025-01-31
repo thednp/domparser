@@ -1,7 +1,7 @@
-var g = Object.defineProperty;
-var p = (n, s, e) => s in n ? g(n, s, { enumerable: !0, configurable: !0, writable: !0, value: e }) : n[s] = e;
-var c = (n, s, e) => p(n, typeof s != "symbol" ? s + "" : s, e);
-const f = /* @__PURE__ */ new Set([
+var f = Object.defineProperty;
+var m = (n, s, e) => s in n ? f(n, s, { enumerable: !0, configurable: !0, writable: !0, value: e }) : n[s] = e;
+var h = (n, s, e) => m(n, typeof s != "symbol" ? s + "" : s, e);
+const g = /* @__PURE__ */ new Set([
   "area",
   "base",
   "br",
@@ -25,14 +25,14 @@ const f = /* @__PURE__ */ new Set([
   "stop",
   "polygon",
   "polyline"
-]), m = (n) => /^[a-zA-Z_][a-zA-Z_0-9]+$/.test(n) ? n : `"${n}"`;
-class h {
+]), C = (n) => /^[a-zA-Z_][a-zA-Z_0-9]+$/.test(n) ? n : `"${n}"`;
+class d {
   constructor() {
-    c(this, "tags", /* @__PURE__ */ new Set());
-    c(this, "components", /* @__PURE__ */ new Set());
-    c(this, "root", { nodeName: "#document", attributes: {}, children: [] });
-    c(this, "stack", [this.root]);
-    c(this, "currentNode", this.root);
+    h(this, "tags", /* @__PURE__ */ new Set());
+    h(this, "components", /* @__PURE__ */ new Set());
+    h(this, "root", { nodeName: "#document", attributes: {}, children: [] });
+    h(this, "stack", [this.root]);
+    h(this, "currentNode", this.root);
   }
   /**
    * Returns a simple DOM representation of the parsed HTML.
@@ -63,15 +63,16 @@ class h {
         i ? r === l && (i = !1) : (i = !0, l = r), t += String.fromCharCode(r);
         continue;
       }
-      if (r === 60 && !i)
-        t.trim() && e.push({ type: "text", value: t.trim() }), t = "", a = !0;
-      else if (r === 62 && !i) {
+      if (r === 60 && !i) {
+        const c = t.trim(), u = this.getTagName(c), p = g.has(u);
+        c && e.push({ type: "text", value: c, isSelfClosing: p }), t = "", a = !0;
+      } else if (r === 62 && !i) {
         if (t) {
-          const u = t.endsWith("/");
-          u && (t = t.slice(0, -1)), e.push({
+          const c = t.endsWith("/");
+          c && (t = t.slice(0, -1)), e.push({
             type: "tag",
             value: t.trim(),
-            isSelfClosing: u
+            isSelfClosing: c
           });
         }
         t = "", a = !1;
@@ -138,17 +139,17 @@ class h {
     const i = s.slice(a[0].length);
     let l;
     for (; (l = t.exec(i)) !== null; ) {
-      const [, o, r, u, d] = l;
+      const [, o, r, c, u] = l;
       o && o !== "/" && (e[o] = r || /* istanbul ignore next @preserve */
+      c || /* istanbul ignore next @preserve */
       u || /* istanbul ignore next @preserve */
-      d || /* istanbul ignore next @preserve */
       "");
     }
     return e;
   }
 }
-c(h, "selfClosingTags", f), c(h, "quoteText", m);
+h(d, "selfClosingTags", g), h(d, "quoteText", C);
 export {
-  h as default
+  d as default
 };
 //# sourceMappingURL=index.mjs.map

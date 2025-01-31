@@ -117,8 +117,12 @@ export default class DOMParser {
       }
 
       if (charCode === 0x3c /* < */ && !inQuote) {
-        if (currentToken.trim()) {
-          tokens.push({ type: "text", value: currentToken.trim() });
+        const value = currentToken.trim();
+        const tagName = this.getTagName(value);
+        const isSelfClosing = selfClosingTags.has(tagName);
+
+        if (value) {
+          tokens.push({ type: "text", value, isSelfClosing });
         }
         currentToken = "";
         inTag = true;
