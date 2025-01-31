@@ -1,0 +1,61 @@
+{
+  "name": "@thednp/domparser",
+  "version": "0.0.1",
+  "description": "Super light HTML parser for isomorphic applications.",
+  "keywords": [
+    "html",
+    "parser",
+    "dom",
+    "parser"
+  ],
+  "license": "MIT",
+  "author": "thednp",
+  "source": "./src/index.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.mjs"
+    }
+  },
+  "scripts": {
+    "pre-test": "pnpm clean-coverage",
+    "test": "pnpm pre-test && vitest --config vitest.config.mts",
+    "clean-coverage": "rm -rf coverage .nyc_output",
+    "badges": "npx -p dependency-version-badge update-badge typescript vitest vite",
+    "format": "deno fmt src",
+    "lint": "pnpm lint:ts && pnpm check:ts",
+    "lint:ts": "deno lint src",
+    "check:ts": "tsc --noEmit",
+    "fix:ts": "deno lint src --fix",
+    "build": "vite build",
+    "prepublishOnly": "pnpm up && pnpm format && pnpm lint && pnpm build && pnpm badges"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thednp/domparser.git"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "bugs": {
+    "url": "https://github.com/thednp/domparser/issues"
+  },
+  "devDependencies": {
+    "@types/node": "^22.12.0",
+    "@vitest/coverage-istanbul": "^3.0.4",
+    "@vitest/ui": "^3.0.4",
+    "typescript": "^5.7.3",
+    "vite": "^6.0.11",
+    "vite-plugin-dts": "^4.5.0",
+    "vitest": "^3.0.4"
+  },
+  "packageManager": "pnpm@8.6.12",
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=8.6.0"
+  }
+}
