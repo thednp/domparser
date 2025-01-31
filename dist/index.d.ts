@@ -1,4 +1,4 @@
-declare type DOMNode = {
+export declare type DOMNode = {
     tagName?: string;
     nodeName: string;
     attributes: Record<string, string>;
@@ -75,13 +75,13 @@ declare class DOMParser_2 {
 }
 export default DOMParser_2;
 
-declare type HTMLToken = {
+export declare type HTMLToken = {
     type: string;
     value: string;
     isSelfClosing?: boolean;
 };
 
-declare type ParseResult = {
+export declare type ParseResult = {
     root: DOMNode;
     components: string[];
     tags: string[];

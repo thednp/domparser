@@ -1,4 +1,5 @@
 import type { DOMNode, HTMLToken, ParseResult } from "./types";
+export { DOMNode, HTMLToken, ParseResult };
 
 /** A full list of self-closing tags */
 const selfClosingTags = new Set([
