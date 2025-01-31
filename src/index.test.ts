@@ -22,7 +22,7 @@ describe(`Test DOMParser`, () => {
     const parser = new DOMParser();
 
     const { root, components, tags } = parser.parseFromString(html);
-    console.log(root, components, tags);
+    // console.log(root, components, tags);
 
     expect(components).toEqual(["text-element", "Counter"]);
     expect(tags).toEqual([

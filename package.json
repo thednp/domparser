@@ -3,14 +3,15 @@
   "version": "0.0.1",
   "description": "Super light HTML parser for isomorphic applications.",
   "keywords": [
+    "domparser",
     "html",
-    "parser",
     "dom",
     "parser"
   ],
   "license": "MIT",
   "author": "thednp",
   "source": "./src/index.ts",
+  "browser": "./dist/index.js",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "exports": {

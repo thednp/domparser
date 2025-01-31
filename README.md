@@ -68,8 +68,8 @@ const parser = new NodeParser();
 // source
 const html = source.trim();
 /* 
-// or await fs.promises('')
-const html = await fs.readFile("/path-to/index.html", "utf-8");
+// or dynamically import it on your server side
+const html = (await fs.readFile("/path-to/index.html", "utf-8")).trim();
 */
 ```
 **Note** - it's a good idea to import the default with a different name to avoid conflicts with the native DOMParser when your app streams to or hydrates the client.

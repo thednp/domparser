@@ -103,7 +103,6 @@ export default class DOMParser {
     for (let i = 0; i < htmlString.length; i++) {
       const charCode = htmlString.charCodeAt(i);
 
-      // Handle quotes inside tags
       if (inTag && (charCode === 0x22 /* " */ || charCode === 0x27 /* ' */)) {
         /* istanbul ignore else @preserve */
         if (!inQuote) {
@@ -118,18 +117,14 @@ export default class DOMParser {
 
       if (charCode === 0x3c /* < */ && !inQuote) {
         const value = currentToken.trim();
-        const tagName = this.getTagName(value);
-        const isSelfClosing = selfClosingTags.has(tagName);
-
         if (value) {
-          tokens.push({ type: "text", value, isSelfClosing });
+          tokens.push({ type: "text", value, isSelfClosing: false });
         }
         currentToken = "";
         inTag = true;
       } else if (charCode === 0x3e /* > */ && !inQuote) {
         /* istanbul ignore else @preserve */
         if (currentToken) {
-          // Check if it's a self-closing tag
           const isSelfClosing = currentToken.endsWith("/");
           if (isSelfClosing) {
             currentToken = currentToken.slice(0, -1);
@@ -169,54 +164,8 @@ export default class DOMParser {
     this.stack = [this.root];
     this.currentNode = this.root;
 
-    // iterate over tokens
     for (const token of tokens) {
-      let tagName = this.getTagName(token.value);
-      const isClosingTag = token.value.startsWith("/");
-      const isSelfClosing = token.isSelfClosing;
-
-      tagName = isClosingTag
-        ? token.value.slice(1)
-        : this.getTagName(token.value);
-
-      /* istanbul ignore else @preserve */
-      if (token.type === "tag") {
-        tagName = tagName.replace(/\/$/, ""); // Remove trailing slash for self-closing tags
-        const isComponent = tagName[0].toUpperCase() === tagName[0] ||
-          tagName.includes("-");
-
-        if (isComponent) {
-          this.components.add(tagName);
-        } else {
-          this.tags.add(tagName);
-        }
-
-        if (!isClosingTag) {
-          const newNode = {
-            tagName,
-            nodeName: tagName.toUpperCase(),
-            attributes: isSelfClosing ? {} : this.getAttributes(token.value),
-            isSelfClosing,
-            children: [],
-          };
-
-          if (isSelfClosing) {
-            // Handle self-closing tag
-            this.currentNode.children.push(newNode);
-            // Don't push to stack since self-closing tags don't wrap content
-          } else {
-            this.currentNode.children.push(newNode);
-            this.stack.push(newNode);
-            this.currentNode = newNode;
-          }
-        } else {
-          this.stack.pop();
-          /* istanbul ignore else @preserve */
-          if (this.stack.length > 0) {
-            this.currentNode = this.stack[this.stack.length - 1];
-          }
-        }
-      } else if (token.type === "text") {
+      if (token.type === "text") {
         const textNode = {
           nodeName: "#text",
           attributes: {},
@@ -224,6 +173,47 @@ export default class DOMParser {
           value: token.value,
         };
         this.currentNode.children.push(textNode);
+        continue;
+      }
+
+      // Handle tags
+      const isClosingTag = token.value.startsWith("/");
+      const tagName = isClosingTag
+        ? token.value.slice(1)
+        : this.getTagName(token.value);
+
+      const isSelfClosing = token.isSelfClosing || selfClosingTags.has(tagName);
+
+      // Register tag type
+      const isComponent = tagName[0].toUpperCase() === tagName[0] ||
+        tagName.includes("-");
+      if (isComponent) {
+        this.components.add(tagName);
+      } else {
+        this.tags.add(tagName);
+      }
+
+      if (!isClosingTag) {
+        const newNode = {
+          tagName,
+          nodeName: tagName.toUpperCase(),
+          attributes: this.getAttributes(token.value),
+          children: [],
+        };
+
+        this.currentNode.children.push(newNode);
+
+        // Only push to stack if it's not a self-closing tag
+        if (!isSelfClosing) {
+          this.stack.push(newNode);
+          this.currentNode = newNode;
+        }
+      } else {
+        // Only pop the stack if we're closing a non-self-closing tag
+        if (!isSelfClosing && this.stack.length > 1) {
+          this.stack.pop();
+          this.currentNode = this.stack[this.stack.length - 1];
+        }
       }
     }
   }
