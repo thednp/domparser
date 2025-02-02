@@ -1,153 +1,143 @@
-var g = Object.defineProperty;
-var p = (n, e, t) => e in n ? g(n, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : n[e] = t;
-var l = (n, e, t) => p(n, typeof e != "symbol" ? e + "" : e, t);
-const h = /* @__PURE__ */ new Set([
-  "area",
-  "base",
-  "br",
-  "col",
-  "embed",
-  "hr",
-  "img",
-  "input",
-  "link",
-  "meta",
-  "param",
-  "source",
-  "track",
-  "wbr",
-  "path",
-  "circle",
-  "ellipse",
-  "line",
-  "rect",
-  "use",
-  "stop",
-  "polygon",
-  "polyline"
-]), m = (n) => /^[a-zA-Z_][a-zA-Z_0-9]+$/.test(n) ? n : `"${n}"`;
-class f {
-  constructor() {
-    l(this, "tags", /* @__PURE__ */ new Set());
-    l(this, "components", /* @__PURE__ */ new Set());
-    l(this, "root", { nodeName: "#document", attributes: {}, children: [] });
-    l(this, "stack", [this.root]);
-    l(this, "currentNode", this.root);
+const C = (e) => e.toLowerCase(), b = (e) => e.toUpperCase(), x = (e, s) => e.startsWith(s), v = (e, s) => e.endsWith(s), d = (e) => e.replace(/[&<>"']/g, (s) => ({
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&#39;"
+})[s] || /* istanbul ignore next @preserve */
+s), A = (e) => {
+  const s = decodeURIComponent(e.trim());
+  return /^(?:javascript|data|vbscript):/i.test(s) ? "" : d(s);
+}, N = (e, s) => {
+  if (!s) return "";
+  const a = s.trim();
+  return e === "src" || e === "href" || e === "action" || e === "formaction" || v(e, "url") ? A(a) : d(a);
+}, k = (e, s = /* @__PURE__ */ new Set()) => {
+  const a = {}, p = e.split(/\s+/);
+  if (p.length < 2) return a;
+  const g = e.slice(p[0].length);
+  let o;
+  const n = /([^\s=]+)(?:=(?:"([^"]*)"|'([^']*)'|([^\s"']+)))?/g;
+  for (; o = n.exec(g); ) {
+    const [, t, c, i, l] = o;
+    t && t !== "/" && !s.has(C(t)) && (a[t] = N(C(t), c ?? i ?? l ?? ""));
   }
-  /**
-   * Returns a simple DOM representation of the parsed HTML.
-   * @param htmlString The string of HTML to be parsed.
-   * @return the parsed result.
-   */
-  parseFromString(e) {
-    const t = this.tokenize(e);
-    return this.parseTokens(t), {
-      root: this.root,
-      components: Array.from(this.components),
-      tags: Array.from(this.tags)
-    };
+  return a;
+}, E = {
+  nodeName: "#document",
+  children: []
+};
+function T(e = {}) {
+  const s = /* @__PURE__ */ new Set([
+    "area",
+    "base",
+    "br",
+    "col",
+    "embed",
+    "hr",
+    "img",
+    "input",
+    "link",
+    "meta",
+    "param",
+    "source",
+    "track",
+    "wbr",
+    "path",
+    "circle",
+    "ellipse",
+    "line",
+    "rect",
+    "use",
+    "stop",
+    "polygon",
+    "polyline"
+  ]), a = /* @__PURE__ */ new Set(), p = /* @__PURE__ */ new Set();
+  if (e) {
+    const { filterTags: o, filterAttrs: n } = e;
+    o && o.forEach((t) => a.add(t)), n && n.forEach((t) => p.add(t));
   }
-  /**
-   * Parse a string of HTML and return an array of tokens
-   * where each token is an object with a type property and a value property.
-   *
-   * @param htmlString The string of HTML to be tokenized.
-   * @return The array of tokens.
-   */
-  tokenize(e) {
-    const t = [];
-    let s = "", o = !1, r = !1, u = 34;
-    for (let i = 0; i < e.length; i++) {
-      const a = e.charCodeAt(i);
-      if (o && (a === 34 || a === 39)) {
-        r ? a === u && (r = !1) : (r = !0, u = a), s += String.fromCharCode(a);
+  const g = (o) => {
+    const n = [];
+    let t = "", c = !1, i = !1, l = 0;
+    for (let u = 0; u < o.length; u++) {
+      const r = o.charCodeAt(u);
+      if (c && (r === 34 || r === 39)) {
+        i ? r === l && (i = !1) : (l = r, i = !0), t += String.fromCharCode(r);
         continue;
       }
-      if (a === 60 && !r) {
-        const c = s.trim();
-        c && t.push({ type: "text", value: c, isSelfClosing: !1 }), s = "", o = !0;
-      } else if (a === 62 && !r) {
-        if (s) {
-          const c = s.endsWith("/");
-          c && (s = s.slice(0, -1)), t.push({
+      if (r === 60 && !i)
+        t.trim() && n.push({
+          type: "text",
+          value: d(t.trim()),
+          isSC: !1
+        }), t = "", c = !0;
+      else if (r === 62 && !i) {
+        if (t) {
+          const h = v(t, "/");
+          n.push({
             type: "tag",
-            value: s.trim(),
-            isSelfClosing: c
+            value: h ? t.slice(0, -1).trim() : t.trim(),
+            isSC: h
           });
         }
-        s = "", o = !1;
+        t = "", c = !1;
       } else
-        s += String.fromCharCode(a);
+        t += String.fromCharCode(r);
     }
-    return s.trim() && t.push({
+    return t.trim() && n.push({
       type: "text",
-      value: s.trim(),
-      isSelfClosing: !1
-    }), t;
-  }
-  /**
-   * Parse an array of tokens into a DOM representation.
-   * @param tokens An array of tokens to be parsed.
-   */
-  parseTokens(e) {
-    this.root = { nodeName: "#document", attributes: {}, children: [] }, this.stack = [this.root], this.currentNode = this.root;
-    for (const t of e) {
-      if (t.type === "text") {
-        const i = {
-          nodeName: "#text",
-          attributes: {},
-          children: [],
-          value: t.value
-        };
-        this.currentNode.children.push(i);
-        continue;
-      }
-      const s = t.value.startsWith("/"), o = s ? t.value.slice(1) : this.getTagName(t.value), r = t.isSelfClosing || h.has(o);
-      if (o[0].toUpperCase() === o[0] || o.includes("-") ? this.components.add(o) : this.tags.add(o), s)
-        !r && this.stack.length > 1 && (this.stack.pop(), this.currentNode = this.stack[this.stack.length - 1]);
-      else {
-        const i = {
-          tagName: o,
-          nodeName: o.toUpperCase(),
-          attributes: this.getAttributes(t.value),
-          children: []
-        };
-        this.currentNode.children.push(i), r || (this.stack.push(i), this.currentNode = i);
-      }
+      value: d(t.trim()),
+      isSC: !1
+    }), n;
+  };
+  return {
+    parseFromString(o) {
+      const n = { ...E, children: [] };
+      if (!o) return { root: n, components: [], tags: [] };
+      const t = [n], c = /* @__PURE__ */ new Set(), i = /* @__PURE__ */ new Set();
+      let l = !0;
+      return g(o).forEach((u) => {
+        const { value: r, isSC: h } = u;
+        if (u.type === "text") {
+          t[t.length - 1].children.push({
+            // attributes: {},
+            // children: [],
+            nodeName: "#text",
+            value: r
+          });
+          return;
+        }
+        const m = x(r, "/"), f = m ? r.slice(1) : r.split(/[\s/>]/)[0], S = C(f), w = h || s.has(S);
+        if (a.has(S)) {
+          m ? l = !0 : l = !1;
+          return;
+        }
+        if (l)
+          if ((f[0] === b(f[0]) || f.includes("-") ? c : i).add(f), m)
+            !w && t.length > 1 && t.pop();
+          else {
+            const y = {
+              tagName: f,
+              nodeName: b(f),
+              attributes: k(r, p),
+              children: []
+            };
+            t[t.length - 1].children.push(y), !w && t.push(y);
+          }
+      }), {
+        root: n,
+        components: Array.from(c),
+        tags: Array.from(i)
+      };
     }
-  }
-  /**
-   * Returns the name of the tag.
-   * @param tagString A string of HTML that represents a tag.
-   * @return The name of the tag.
-   */
-  getTagName(e) {
-    return e.split(/[\s/>]/)[0];
-  }
-  /**
-   * Returns an object where the keys are the names of the attributes
-   * and the values are the values of the attributes.
-   *
-   * @param tagString A string of HTML that represents a tag.
-   * @return an object where the keys are the names of the attributes and the values are the values of the attributes.
-   */
-  getAttributes(e) {
-    const t = {}, s = /([^\s=]+)(?:=(?:"([^"]*)"|'([^']*)'|([^\s"']+)))?/g, o = e.split(/\s+/);
-    if (o.length < 2) return t;
-    const r = e.slice(o[0].length);
-    let u;
-    for (; (u = s.exec(r)) !== null; ) {
-      const [, i, a, c, d] = u;
-      i && i !== "/" && (t[i] = a || /* istanbul ignore next @preserve */
-      c || /* istanbul ignore next @preserve */
-      d || /* istanbul ignore next @preserve */
-      "");
-    }
-    return t;
-  }
+  };
 }
-l(f, "selfClosingTags", h), l(f, "quoteText", m);
 export {
-  f as default
+  T as Parser,
+  d as encodeEntities,
+  k as getAttributes,
+  N as sanitizeAttrValue,
+  A as sanitizeUrl
 };
 //# sourceMappingURL=index.mjs.map

@@ -1,260 +1,329 @@
-import type { DOMNode, HTMLToken, ParseResult } from "./types";
-export { DOMNode, HTMLToken, ParseResult };
+export type ParserOptions = {
+  filterTags?: string[];
+  filterAttrs?: string[];
+};
 
-/** A full list of self-closing tags */
-const selfClosingTags = new Set([
-  "area",
-  "base",
-  "br",
-  "col",
-  "embed",
-  "hr",
-  "img",
-  "input",
-  "link",
-  "meta",
-  "param",
-  "source",
-  "track",
-  "wbr",
-  "path",
-  "circle",
-  "ellipse",
-  "line",
-  "rect",
-  "use",
-  "stop",
-  "polygon",
-  "polyline",
-]);
+export type RootNode = {
+  nodeName: string;
+  children: DOMLike[];
+};
 
-/**
- * Returns a quoted string if the key is a valid identifier,
- * otherwise returns the original key.
- * @param key
- * @returns
- */
-const quoteText = (key: string) =>
-  /^[a-zA-Z_][a-zA-Z_0-9]+$/.test(key) ? key : `"${key}"`;
+export type DOMLike = {
+  tagName?: string;
+  nodeName: string;
+  attributes: Record<string, string>;
+  children: DOMLike[];
+  value?: string;
+};
+
+export type ParseResult = {
+  root: RootNode;
+  components: string[];
+  tags: string[];
+};
+
+export type HTMLToken = {
+  type: string;
+  value: string;
+  isSC?: boolean;
+};
+
+const toLowerCase = (str: string): string => str.toLowerCase();
+const toUpperCase = (str: string): string => str.toUpperCase();
+const startsWith = (str: string, prefix: string): boolean =>
+  str.startsWith(prefix);
+const endsWith = (str: string, suffix: string): boolean => str.endsWith(suffix);
 
 /**
- * A basic HTML parser that takes a string of HTML and returns a simple DOM representation.
- * The parser handles basic HTML elements, attributes, and text content.
- * The DOM representation is a plain object with the following structure:
- * ```
- * {
- *     tagName?: string,
- *     nodeName: string,
- *     attributes: {
- *         [key: string]: string
- *     },
- *     children: [
- *         {
- *             tagName?: string,
- *             attributes: {
- *                 [key: string]: string
- *             },
- *             children: [...],
- *             value: string
- *         }
- *     ]
- * }
- * ```
+ * A basic tool for HTML entities encoding
+ * @param str the source string
+ * @returns the encoded string
  */
-export default class DOMParser {
-  static selfClosingTags = selfClosingTags;
-  static quoteText = quoteText;
-  tags = new Set<string>();
-  components = new Set<string>();
-  root: DOMNode = { nodeName: "#document", attributes: {}, children: [] };
-  stack: Array<DOMNode> = [this.root];
-  currentNode: DOMNode = this.root;
+export const encodeEntities = (str: string): string =>
+  str.replace(/[&<>"']/g, (char) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+  }[char] || /* istanbul ignore next @preserve */ char));
 
-  /**
-   * Returns a simple DOM representation of the parsed HTML.
-   * @param htmlString The string of HTML to be parsed.
-   * @return the parsed result.
-   */
-  parseFromString(htmlString: string): ParseResult {
-    const tokens = this.tokenize(htmlString);
-    this.parseTokens(tokens);
-    const root = this.root;
-    return {
-      root,
-      components: Array.from(this.components),
-      tags: Array.from(this.tags),
-    };
+/**
+ * Sanitizes URLs in attribute values
+ * @param url the URL
+ * @returns the sanitized URL
+ */
+export const sanitizeUrl = (url: string): string => {
+  const decoded = decodeURIComponent(url.trim());
+  if (/^(?:javascript|data|vbscript):/i.test(decoded)) return "";
+  return encodeEntities(decoded);
+};
+
+/**
+ * Sanitizes attribute values
+ * @param name the attribute name
+ * @param initialValue the attribute value
+ * @returns the sanitized value
+ */
+export const sanitizeAttrValue = (
+  name: string,
+  initialValue: string,
+): string => {
+  if (!initialValue) return "";
+  const value = initialValue.trim();
+
+  // Special handling for URL attributes
+  if (
+    name === "src" || name === "href" || name === "action" ||
+    name === "formaction" || endsWith(name, "url")
+  ) {
+    return sanitizeUrl(value);
   }
 
-  /**
-   * Parse a string of HTML and return an array of tokens
-   * where each token is an object with a type property and a value property.
-   *
-   * @param htmlString The string of HTML to be tokenized.
-   * @return The array of tokens.
-   */
-  tokenize(htmlString: string): Array<HTMLToken> {
-    const tokens = [];
-    let currentToken = "";
-    let inTag = false;
-    let inQuote = false;
-    let quoteChar = 0x22;
+  return encodeEntities(value);
+};
 
-    for (let i = 0; i < htmlString.length; i++) {
-      const charCode = htmlString.charCodeAt(i);
+/**
+ * Get attributes from a string token and return an object
+ * where the keys are the names of the attributes and the values
+ * are the sanitized values of the attributes.
+ *
+ * @param tagStr the tring token
+ * @param unsafeAttrs an optional set of unsafe attributes
+ * @returns the attributes object
+ */
+export const getAttributes = (
+  tagStr: string,
+  unsafeAttrs: Set<string> = new Set(),
+): Record<string, string> => {
+  const attrs: Record<string, string> = {};
+  const parts = tagStr.split(/\s+/);
+  if (parts.length < 2) return attrs;
 
-      if (inTag && (charCode === 0x22 /* " */ || charCode === 0x27 /* ' */)) {
-        /* istanbul ignore else @preserve */
+  const attrStr = tagStr.slice(parts[0].length);
+  let match: unknown;
+  const attrRegex = /([^\s=]+)(?:=(?:"([^"]*)"|'([^']*)'|([^\s"']+)))?/g;
+
+  while ((match = attrRegex.exec(attrStr))) {
+    const [, name, d, s, u] = match as RegExpMatchArray;
+    if (name && name !== "/" && !unsafeAttrs.has(toLowerCase(name))) {
+      attrs[name] = sanitizeAttrValue(toLowerCase(name), d ?? s ?? u ?? "");
+    }
+  }
+
+  return attrs;
+};
+
+const rootNode: RootNode = {
+  nodeName: "#document",
+  children: [],
+};
+
+/**
+ * **DOMParser**
+ *
+ * A tiny yet very fast and powerful HTML parser that
+ * takes a string of HTML and returns a simple DOM representation.
+ *
+ * **Features**
+ * * The parser is around 1.2Kb and is optimized for speed and memory efficiency.
+ * * The parser handles basic HTML elements, custom elements,
+ * UI frameworks components, special attributes, and text nodes.
+ * * The parser provides basic sanitization for specific attributes
+ * and options to filter tags and attributes; _by default the filters are empty_.
+ * * You can also make use of its sanitization tools in your own application.
+ * * Fully tested with Vitest.
+ *
+ * The DOM representation is a plain object with the following structure:
+ * ```ts
+ *  type DOMLike = {
+ *   tagName?: string; // applied only to Element nodes
+ *   nodeName: string;
+ *   attributes: Record<string, string>;
+ *   children: DOMLike[];
+ *   value?: string; // applied only to #text nodes
+ * };
+ * ```
+ *
+ * @example
+ * ```ts
+ * const config = {
+ *   // Common dangerous tags that could lead to XSS
+ *   filterTags: [
+ *     "script", "style", "iframe", "object", "embed", "base", "form",
+ *     "input", "button", "textarea", "select", "option"
+ *   ],
+ *   // Unsafe attributes that could lead to XSS
+ *   filterAttrs: [
+ *     "onerror", "onload", "onunload", "onclick", "ondblclick", "onmousedown",
+ *     "onmouseup", "onmouseover", "onmousemove", "onmouseout", "onkeydown",
+ *     "onkeypress", "onkeyup", "onchange", "onsubmit", "onreset", "onselect",
+ *     "onblur", "onfocus", "formaction", "href", "xlink:href", "action"
+ *   ]
+ * }
+ * const parser = Parser(config);
+ * const { root, components, tags } = parser.parseFromString("<h1>Title</h1>");
+ * // > "root" is a DOMLike node, "components" is an array of component names, "tags" is an array of tag names
+ * ```
+ *
+ * @param config an optional configuration object
+ * @returns the parsed result
+ */
+export function Parser(config: Partial<ParserOptions> = {}) {
+  const selfClosingTags = new Set([
+    "area",
+    "base",
+    "br",
+    "col",
+    "embed",
+    "hr",
+    "img",
+    "input",
+    "link",
+    "meta",
+    "param",
+    "source",
+    "track",
+    "wbr",
+    "path",
+    "circle",
+    "ellipse",
+    "line",
+    "rect",
+    "use",
+    "stop",
+    "polygon",
+    "polyline",
+  ]);
+
+  // Common dangerous tags that could lead to XSS
+  const unsafeTags = new Set<string>();
+
+  // Unsafe attributes that could lead to XSS
+  const unsafeAttrs = new Set<string>();
+
+  // Apply config
+  /* istanbul ignore else @preserve */
+  if (config) {
+    const { filterTags, filterAttrs } = config;
+    if (filterTags) filterTags.forEach((tag) => unsafeTags.add(tag));
+    if (filterAttrs) filterAttrs.forEach((attr) => unsafeAttrs.add(attr));
+  }
+
+  const tokenize = (html: string): HTMLToken[] => {
+    const tokens: HTMLToken[] = [];
+    let token = "", inTag = false, inQuote = false, quote = 0;
+
+    for (let i = 0; i < html.length; i++) {
+      const char = html.charCodeAt(i);
+
+      if (inTag && (char === 34 || char === 39)) { // " or ' | 0x22 or 0x27
         if (!inQuote) {
+          quote = char;
           inQuote = true;
-          quoteChar = charCode;
-        } else if (charCode === quoteChar) {
-          inQuote = false;
-        }
-        currentToken += String.fromCharCode(charCode);
+        } else if (char === quote) inQuote = false;
+        token += String.fromCharCode(char);
         continue;
       }
 
-      if (charCode === 0x3c /* < */ && !inQuote) {
-        const value = currentToken.trim();
-        if (value) {
-          tokens.push({ type: "text", value, isSelfClosing: false });
-        }
-        currentToken = "";
+      if (char === 60 /* 0x3c */ && !inQuote) { // <
+        token.trim() && tokens.push({
+          type: "text",
+          value: encodeEntities(token.trim()),
+          isSC: false,
+        });
+        token = "";
         inTag = true;
-      } else if (charCode === 0x3e /* > */ && !inQuote) {
+      } else if (char === 62 /* 0x3e */ && !inQuote) { // > | 0x3e
         /* istanbul ignore else @preserve */
-        if (currentToken) {
-          const isSelfClosing = currentToken.endsWith("/");
-          if (isSelfClosing) {
-            currentToken = currentToken.slice(0, -1);
-          }
+        if (token) {
+          const isSC = endsWith(token, "/");
           tokens.push({
             type: "tag",
-            value: currentToken.trim(),
-            isSelfClosing,
+            value: isSC ? token.slice(0, -1).trim() : token.trim(),
+            isSC,
           });
         }
-        currentToken = "";
+        token = "";
         inTag = false;
       } else {
-        currentToken += String.fromCharCode(charCode);
+        token += String.fromCharCode(char);
       }
     }
 
-    /* istanbul ignore if @preserve */
-    if (currentToken.trim()) {
-      tokens.push({
-        type: "text",
-        value: currentToken.trim(),
-        isSelfClosing: false,
-      });
-    }
-
+    token.trim() && tokens.push({
+      type: "text",
+      value: encodeEntities(token.trim()),
+      isSC: false,
+    });
     return tokens;
-  }
+  };
 
-  /**
-   * Parse an array of tokens into a DOM representation.
-   * @param tokens An array of tokens to be parsed.
-   */
-  parseTokens(tokens: Array<HTMLToken>) {
-    // reset parser state
-    this.root = { nodeName: "#document", attributes: {}, children: [] };
-    this.stack = [this.root];
-    this.currentNode = this.root;
+  return {
+    parseFromString(htmlString?: string) {
+      const root: RootNode = { ...rootNode, children: [] };
+      if (!htmlString) return { root, components: [], tags: [] };
 
-    for (const token of tokens) {
-      if (token.type === "text") {
-        const textNode = {
-          nodeName: "#text",
-          attributes: {},
-          children: [],
-          value: token.value,
-        };
-        this.currentNode.children.push(textNode);
-        continue;
-      }
+      const stack = [root];
+      const components = new Set<string>();
+      const tags = new Set<string>();
+      let parentIsSafe = true;
 
-      // Handle tags
-      const isClosingTag = token.value.startsWith("/");
-      const tagName = isClosingTag
-        ? token.value.slice(1)
-        : this.getTagName(token.value);
+      tokenize(htmlString).forEach((token) => {
+        const { value, isSC } = token;
 
-      const isSelfClosing = token.isSelfClosing || selfClosingTags.has(tagName);
-
-      // Register tag type
-      const isComponent = tagName[0].toUpperCase() === tagName[0] ||
-        tagName.includes("-");
-      if (isComponent) {
-        this.components.add(tagName);
-      } else {
-        this.tags.add(tagName);
-      }
-
-      if (!isClosingTag) {
-        const newNode = {
-          tagName,
-          nodeName: tagName.toUpperCase(),
-          attributes: this.getAttributes(token.value),
-          children: [],
-        };
-
-        this.currentNode.children.push(newNode);
-
-        // Only push to stack if it's not a self-closing tag
-        if (!isSelfClosing) {
-          this.stack.push(newNode);
-          this.currentNode = newNode;
+        if (token.type === "text") {
+          stack[stack.length - 1].children.push({
+            // attributes: {},
+            // children: [],
+            nodeName: "#text",
+            value,
+          } as DOMLike);
+          return;
         }
-      } else {
-        // Only pop the stack if we're closing a non-self-closing tag
-        if (!isSelfClosing && this.stack.length > 1) {
-          this.stack.pop();
-          this.currentNode = this.stack[this.stack.length - 1];
+
+        const isClosing = startsWith(value, "/");
+        const tagName = isClosing ? value.slice(1) : value.split(/[\s/>]/)[0];
+        const tagNameLower = toLowerCase(tagName);
+        const isSelfClosing = isSC || selfClosingTags.has(tagNameLower);
+
+        // Skip unsafe tags
+        if (unsafeTags.has(tagNameLower)) {
+          if (isClosing) {
+            parentIsSafe = true;
+          } else {
+            parentIsSafe = false;
+          }
+          return;
         }
-      }
-    }
-  }
 
-  /**
-   * Returns the name of the tag.
-   * @param tagString A string of HTML that represents a tag.
-   * @return The name of the tag.
-   */
-  getTagName(tagString: string): string {
-    return tagString.split(/[\s/>]/)[0];
-  }
+        if (!parentIsSafe) return;
 
-  /**
-   * Returns an object where the keys are the names of the attributes
-   * and the values are the values of the attributes.
-   *
-   * @param tagString A string of HTML that represents a tag.
-   * @return an object where the keys are the names of the attributes and the values are the values of the attributes.
-   */
-  getAttributes(tagString: string): Record<string, string> {
-    const attributes: Record<string, string> = {};
-    const attrRegex = /([^\s=]+)(?:=(?:"([^"]*)"|'([^']*)'|([^\s"']+)))?/g;
-    const tagParts = tagString.split(/\s+/);
+        // Register tag type
+        (tagName[0] === toUpperCase(tagName[0]) || tagName.includes("-")
+          ? components
+          : tags).add(tagName);
 
-    if (tagParts.length < 2) return attributes;
+        if (!isClosing) {
+          const node = {
+            tagName,
+            nodeName: toUpperCase(tagName),
+            attributes: getAttributes(value, unsafeAttrs),
+            children: [],
+          };
 
-    const attrString = tagString.slice(tagParts[0].length);
-    let match;
+          stack[stack.length - 1].children.push(node);
+          !isSelfClosing && stack.push(node);
+        } else if (!isSelfClosing && stack.length > 1) {
+          stack.pop();
+        }
+      });
 
-    while ((match = attrRegex.exec(attrString)) !== null) {
-      const [, name, doubleQuoted, singleQuoted, unquoted] = match;
-      /* istanbul ignore else @preserve */
-      if (name && name !== "/") {
-        attributes[name] = doubleQuoted ||
-          /* istanbul ignore next @preserve */ singleQuoted ||
-          /* istanbul ignore next @preserve */ unquoted ||
-          /* istanbul ignore next @preserve */ "";
-      }
-    }
-
-    return attributes;
-  }
+      return {
+        root,
+        components: Array.from(components),
+        tags: Array.from(tags),
+      } satisfies ParseResult;
+    },
+  };
 }

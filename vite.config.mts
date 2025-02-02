@@ -2,7 +2,7 @@ import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
 import dts from "vite-plugin-dts";
 
-const NAME = 'NodeParser';
+const NAME = 'Parser';
 
 const fileName = {
   es: `index.mjs`,

@@ -1,7 +1,7 @@
 {
   "name": "@thednp/domparser",
   "version": "0.0.1",
-  "description": "Super light HTML parser for isomorphic applications.",
+  "description": "🍝 Super light HTML parser for isomorphic applications.",
   "keywords": [
     "domparser",
     "html",
@@ -13,6 +13,7 @@
   "source": "./src/index.ts",
   "browser": "./dist/index.js",
   "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "module": "./dist/index.mjs",
   "exports": {
     ".": {
@@ -24,6 +25,7 @@
   "scripts": {
     "pre-test": "pnpm clean-coverage",
     "test": "pnpm pre-test && vitest --config vitest.config.mts",
+    "test-ui": "pnpm pre-test && vitest --config vitest.config.mts --ui",
     "clean-coverage": "rm -rf coverage .nyc_output",
     "badges": "npx -p dependency-version-badge update-badge typescript vitest vite",
     "format": "deno fmt src",
@@ -46,7 +48,7 @@
     "url": "https://github.com/thednp/domparser/issues"
   },
   "devDependencies": {
-    "@types/node": "^22.12.0",
+    "@types/node": "^22.13.0",
     "@vitest/coverage-istanbul": "^3.0.4",
     "@vitest/ui": "^3.0.4",
     "typescript": "^5.7.3",
