@@ -7,13 +7,13 @@
 [![vitest version](https://img.shields.io/badge/vitest-3.0.4-brightgreen)](https://vitest.dev/)
 [![vite version](https://img.shields.io/badge/vite-6.0.11-brightgreen)](https://vitejs.dev/)
 
-A very light and TypeScript sourced [DOMParser](https://developer.mozilla.org/en-US/docs/Web/API/DOMParser) with basic sanitization features. Because of its size (around 1.2Kb gzipped), you can include it in both your server and especially your client to greatly reduce your application bundle size since it only works with `text/html` string input.
+A very light and TypeScript sourced [DOMParser](https://developer.mozilla.org/en-US/docs/Web/API/DOMParser) with basic sanitization features. Because of its size (around 1.2Kb gzipped), you can include it in both your server and especially your client to greatly reduce your application bundle size.
 
 The purpose of this library is to provide a lightweight yet reliable HTML parser without having to depend on [jsdom](https://github.com/jsdom/jsdom), [json5](https://json5.org) and even tools like [cheerio](https://cheerio.js.org). On that note, it doesn't come as a drop-in replacement/shim for the native DOMParser, but an extremely useful tool for many more scenarios.
 
 
 ## Which apps can use it
-* plugins that transform SVG files/markup to components for UI frameworks like React/Solid;
+* plugins that transform SVG files/markup to components for UI frameworks like React/Solid, [example](https://github.com/thednp/vite-plugin-vanjs-svg);
 * plugins that manage a website's metadata;
 * plugins that implement unit testing in a virtual/isolated enviroment;
 * apps that perform web research and/or web-scrapping;
@@ -40,9 +40,8 @@ bun install @thednp/domparser
 
 
 ## Basic Usage
-In your regular day to day usage, you will find yourself writing something like this:
 
-Let's take a source as example:
+Let's take a sample HTML source for this example:
 ```html
 <html>
     <head>
@@ -291,6 +290,12 @@ import {
 * the script properly handles `CustomElement`s, UI Library components, and even camelCase tags like `clipPath` or attributes like `preserveAspectRatio`;
 * the current implementation does provide basic sanitization, by default all values are sanitized and all tags and attributes are allowed, but it all comes to you to implement the best and most secure application you are required to develop;
 * if you encounter any issue, please report it [here](https://github.com/thednp/domparser/issues), thanks!
+
+
+## Backstory
+I've recently created some tools to generate SVG components for [VanJS](https://github.com/thednp/vite-plugin-vanjs-svg) and other tools, and I noticed my "hello world" app bundle was 102Kb and looking into the dependencies, I found that the parser and tooling was all bundled in my app client side code and I thought: that's not good. Then I immediately started to work on this thing.
+
+The result: bundle size 10Kb, render time significantly faster.
 
 
 ## License
