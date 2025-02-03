@@ -1,33 +1,33 @@
-const C = (e) => e.toLowerCase(), b = (e) => e.toUpperCase(), x = (e, s) => e.startsWith(s), v = (e, s) => e.endsWith(s), d = (e) => e.replace(/[&<>"']/g, (s) => ({
+const y = (t) => t.toLowerCase(), b = (t) => t.toUpperCase(), x = (t, s) => t.startsWith(s), w = (t, s) => t.endsWith(s), m = (t, s) => t.charCodeAt(s), C = (t) => t.replace(/[&<>"']/g, (s) => ({
   "&": "&amp;",
   "<": "&lt;",
   ">": "&gt;",
   '"': "&quot;",
   "'": "&#39;"
 })[s] || /* istanbul ignore next @preserve */
-s), A = (e) => {
-  const s = decodeURIComponent(e.trim());
-  return /^(?:javascript|data|vbscript):/i.test(s) ? "" : d(s);
-}, N = (e, s) => {
+s), k = (t) => {
+  const s = decodeURIComponent(t.trim());
+  return /^(?:javascript|data|vbscript):/i.test(s) ? "" : C(s);
+}, N = (t, s) => {
   if (!s) return "";
   const a = s.trim();
-  return e === "src" || e === "href" || e === "action" || e === "formaction" || v(e, "url") ? A(a) : d(a);
-}, k = (e, s = /* @__PURE__ */ new Set()) => {
-  const a = {}, p = e.split(/\s+/);
+  return t === "src" || t === "href" || t === "action" || t === "formaction" || w(t, "url") ? k(a) : C(a);
+}, E = (t, s = /* @__PURE__ */ new Set()) => {
+  const a = {}, p = t.split(/\s+/);
   if (p.length < 2) return a;
-  const g = e.slice(p[0].length);
+  const S = t.slice(p[0].length);
   let o;
-  const n = /([^\s=]+)(?:=(?:"([^"]*)"|'([^']*)'|([^\s"']+)))?/g;
-  for (; o = n.exec(g); ) {
-    const [, t, c, i, l] = o;
-    t && t !== "/" && !s.has(C(t)) && (a[t] = N(C(t), c ?? i ?? l ?? ""));
+  const r = /([^\s=]+)(?:=(?:"([^"]*)"|'([^']*)'|([^\s"']+)))?/g;
+  for (; o = r.exec(S); ) {
+    const [, e, l, c, f] = o;
+    e && e !== "/" && !s.has(y(e)) && (a[e] = N(y(e), l ?? c ?? f ?? ""));
   }
   return a;
-}, E = {
+}, U = {
   nodeName: "#document",
   children: []
 };
-function T(e = {}) {
+function W(t = {}) {
   const s = /* @__PURE__ */ new Set([
     "area",
     "base",
@@ -53,91 +53,101 @@ function T(e = {}) {
     "polygon",
     "polyline"
   ]), a = /* @__PURE__ */ new Set(), p = /* @__PURE__ */ new Set();
-  if (e) {
-    const { filterTags: o, filterAttrs: n } = e;
-    o && o.forEach((t) => a.add(t)), n && n.forEach((t) => p.add(t));
+  if (t) {
+    const { filterTags: o, filterAttrs: r } = t;
+    o && o.forEach((e) => a.add(e)), r && r.forEach((e) => p.add(e));
   }
-  const g = (o) => {
-    const n = [];
-    let t = "", c = !1, i = !1, l = 0;
-    for (let u = 0; u < o.length; u++) {
-      const r = o.charCodeAt(u);
-      if (c && (r === 34 || r === 39)) {
-        i ? r === l && (i = !1) : (l = r, i = !0), t += String.fromCharCode(r);
+  const S = (o) => {
+    const r = [];
+    let e = "", l = !1, c = !1, f = 0, d = !1;
+    for (let i = 0; i < o.length; i++) {
+      const n = m(o, i);
+      if (d) {
+        e += String.fromCharCode(n), w(e, "--") && m(o, i + 1) === 62 && (r.push({
+          nodeType: "comment",
+          value: e.trim(),
+          isSC: !1
+        }), e = "", d = !1, i++);
         continue;
       }
-      if (r === 60 && !i)
-        t.trim() && n.push({
-          type: "text",
-          value: d(t.trim()),
+      if (l && (n === 34 || n === 39)) {
+        c ? n === f && (c = !1) : (f = n, c = !0), e += String.fromCharCode(n);
+        continue;
+      }
+      if (n === 60 && !c) {
+        if (e.trim() && r.push({
+          nodeType: "text",
+          value: C(e.trim()),
           isSC: !1
-        }), t = "", c = !0;
-      else if (r === 62 && !i) {
-        if (t) {
-          const h = v(t, "/");
-          n.push({
-            type: "tag",
-            value: h ? t.slice(0, -1).trim() : t.trim(),
-            isSC: h
+        }), e = "", l = !0, m(o, i + 1) === 33 && m(o, i + 2) === 45 && m(o, i + 3) === 45) {
+          d = !0, e += "!--", i += 3;
+          continue;
+        }
+      } else if (n === 62 && !c && l && !d) {
+        if (e) {
+          const g = w(e, "/"), h = x(e, "!doctype");
+          r.push({
+            nodeType: h ? "doctype" : "tag",
+            value: g ? e.slice(0, -1).trim() : e.trim(),
+            isSC: g
           });
         }
-        t = "", c = !1;
+        e = "", l = !1;
       } else
-        t += String.fromCharCode(r);
+        e += String.fromCharCode(n);
     }
-    return t.trim() && n.push({
-      type: "text",
-      value: d(t.trim()),
+    return e.trim() && r.push({
+      nodeType: "text",
+      value: C(e.trim()),
       isSC: !1
-    }), n;
+    }), r;
   };
   return {
     parseFromString(o) {
-      const n = { ...E, children: [] };
-      if (!o) return { root: n, components: [], tags: [] };
-      const t = [n], c = /* @__PURE__ */ new Set(), i = /* @__PURE__ */ new Set();
-      let l = !0;
-      return g(o).forEach((u) => {
-        const { value: r, isSC: h } = u;
-        if (u.type === "text") {
-          t[t.length - 1].children.push({
-            // attributes: {},
-            // children: [],
-            nodeName: "#text",
-            value: r
+      const r = { ...U, children: [] };
+      if (!o) return { root: r, components: [], tags: [] };
+      const e = [r], l = /* @__PURE__ */ new Set(), c = /* @__PURE__ */ new Set();
+      let f = !0;
+      return S(o).forEach((d) => {
+        const { nodeType: i, value: n, isSC: g } = d;
+        if (i === "doctype") return;
+        if (["text", "comment"].includes(i)) {
+          e[e.length - 1].children.push({
+            nodeName: `#${i}`,
+            nodeValue: i === "text" ? n : `<${n}>`
           });
           return;
         }
-        const m = x(r, "/"), f = m ? r.slice(1) : r.split(/[\s/>]/)[0], S = C(f), w = h || s.has(S);
-        if (a.has(S)) {
-          m ? l = !0 : l = !1;
+        const h = x(n, "/"), u = h ? n.slice(1) : n.split(/[\s/>]/)[0], T = y(u), v = g || s.has(T);
+        if (a.has(T)) {
+          h ? f = !0 : f = !1;
           return;
         }
-        if (l)
-          if ((f[0] === b(f[0]) || f.includes("-") ? c : i).add(f), m)
-            !w && t.length > 1 && t.pop();
+        if (f)
+          if ((u[0] === b(u[0]) || u.includes("-") ? l : c).add(u), h)
+            !v && e.length > 1 && e.pop();
           else {
-            const y = {
-              tagName: f,
-              nodeName: b(f),
-              attributes: k(r, p),
+            const A = {
+              tagName: u,
+              nodeName: b(u),
+              attributes: E(n, p),
               children: []
             };
-            t[t.length - 1].children.push(y), !w && t.push(y);
+            e[e.length - 1].children.push(A), !v && e.push(A);
           }
       }), {
-        root: n,
-        components: Array.from(c),
-        tags: Array.from(i)
+        root: r,
+        components: Array.from(l),
+        tags: Array.from(c)
       };
     }
   };
 }
 export {
-  T as Parser,
-  d as encodeEntities,
-  k as getAttributes,
+  W as Parser,
+  C as encodeEntities,
+  E as getAttributes,
   N as sanitizeAttrValue,
-  A as sanitizeUrl
+  k as sanitizeUrl
 };
 //# sourceMappingURL=index.mjs.map

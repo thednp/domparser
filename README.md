@@ -134,7 +134,7 @@ console.log(root);
               "children": [
                 {
                   "nodeName": "#text",
-                  "value": "Example"
+                  "nodeValue": "Example"
                 }
               ]
             }
@@ -152,7 +152,7 @@ console.log(root);
               "children": [
                 {
                   "nodeName": "#text",
-                  "value": "Hello World!"
+                  "nodeValue": "Hello World!"
                 }
               ]
             },
@@ -166,7 +166,7 @@ console.log(root);
               "children": [
                 {
                   "nodeName": "#text",
-                  "value": "This is an example."
+                  "nodeValue": "This is an example."
                 }
               ]
             },
@@ -285,8 +285,11 @@ import {
 ```
 
 
-## Notes
-* similar to the native DOMParser, this script returns a document like tree structure where the root element is a "root" property of the output;
+## Technical Notes
+* this parser should be capable to handle HTML comments `<!-- comment -->` even if they have other valid tags inside, but considering that nested comments aren't supported in the current HTML5 draft; the comment's usual structure is `{ nodeName: "#comment", nodeValue: "<!-- comment -->" }`;
+* also the parser will handle self-closing tags and some cases of incorrect markup such as `<path />` versus `<path></path>` (cases where both are valid) and `<meta name=".." />` vs `<meta name="..">` (only the second case is valid);
+* another note is that `<!doctype>` tag is always stripped because we already contain everything in a `root` node;
+* similar to the native DOMParser, this script returns a document like tree structure where the root element is a "root" property of the output; what's different is that our script will also export a list of tags and a list of components;
 * the script properly handles `CustomElement`s, UI Library components, and even camelCase tags like `clipPath` or attributes like `preserveAspectRatio`;
 * the current implementation does provide basic sanitization, by default all values are sanitized and all tags and attributes are allowed, but it all comes to you to implement the best and most secure application you are required to develop;
 * if you encounter any issue, please report it [here](https://github.com/thednp/domparser/issues), thanks!

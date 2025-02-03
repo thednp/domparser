@@ -3,7 +3,7 @@ export declare type DOMLike = {
     nodeName: string;
     attributes: Record<string, string>;
     children: DOMLike[];
-    value?: string;
+    nodeValue?: string;
 };
 
 /**
@@ -25,7 +25,7 @@ export declare const encodeEntities: (str: string) => string;
 export declare const getAttributes: (tagStr: string, unsafeAttrs?: Set<string>) => Record<string, string>;
 
 export declare type HTMLToken = {
-    type: string;
+    nodeType: string;
     value: string;
     isSC?: boolean;
 };

@@ -13,7 +13,7 @@ export type DOMLike = {
   nodeName: string;
   attributes: Record<string, string>;
   children: DOMLike[];
-  value?: string;
+  nodeValue?: string;
 };
 
 export type ParseResult = {
@@ -23,7 +23,7 @@ export type ParseResult = {
 };
 
 export type HTMLToken = {
-  type: string;
+  nodeType: string;
   value: string;
   isSC?: boolean;
 };
@@ -33,6 +33,8 @@ const toUpperCase = (str: string): string => str.toUpperCase();
 const startsWith = (str: string, prefix: string): boolean =>
   str.startsWith(prefix);
 const endsWith = (str: string, suffix: string): boolean => str.endsWith(suffix);
+const charCodeAt = (str: string, index: number): number =>
+  str.charCodeAt(index);
 
 /**
  * A basic tool for HTML entities encoding
@@ -212,10 +214,32 @@ export function Parser(config: Partial<ParserOptions> = {}) {
 
   const tokenize = (html: string): HTMLToken[] => {
     const tokens: HTMLToken[] = [];
-    let token = "", inTag = false, inQuote = false, quote = 0;
+    let token = "",
+      inTag = false,
+      inQuote = false,
+      quote = 0,
+      isComment = false;
 
     for (let i = 0; i < html.length; i++) {
-      const char = html.charCodeAt(i);
+      const char = charCodeAt(html, i);
+
+      if (isComment) {
+        token += String.fromCharCode(char);
+        if (endsWith(token, "--")) {
+          /* istanbul ignore else @preserve */
+          if (charCodeAt(html, i + 1) === 62 /* > */) {
+            tokens.push({
+              nodeType: "comment",
+              value: token.trim(),
+              isSC: false,
+            });
+            token = "";
+            isComment = false;
+            i++;
+          }
+        }
+        continue;
+      }
 
       if (inTag && (char === 34 || char === 39)) { // " or ' | 0x22 or 0x27
         if (!inQuote) {
@@ -228,18 +252,30 @@ export function Parser(config: Partial<ParserOptions> = {}) {
 
       if (char === 60 /* 0x3c */ && !inQuote) { // <
         token.trim() && tokens.push({
-          type: "text",
+          nodeType: "text",
           value: encodeEntities(token.trim()),
           isSC: false,
         });
         token = "";
         inTag = true;
-      } else if (char === 62 /* 0x3e */ && !inQuote) { // > | 0x3e
+        if (
+          charCodeAt(html, i + 1) === 33 /* ! | 0x21 */ &&
+          charCodeAt(html, i + 2) === 45 /* - | 0x2d */ &&
+          charCodeAt(html, i + 3) === 45 /* - | 0x2d */
+        ) {
+          isComment = true;
+          token += "!--";
+          i += 3;
+          continue;
+        }
+      } else if (char === 62 /* 0x3e */ && !inQuote && inTag && !isComment) { // > | 0x3e
         /* istanbul ignore else @preserve */
         if (token) {
           const isSC = endsWith(token, "/");
+          const isDocType = startsWith(token, "!doctype");
+          // console.log({ token, isDocType });
           tokens.push({
-            type: "tag",
+            nodeType: isDocType ? "doctype" : "tag",
             value: isSC ? token.slice(0, -1).trim() : token.trim(),
             isSC,
           });
@@ -252,7 +288,7 @@ export function Parser(config: Partial<ParserOptions> = {}) {
     }
 
     token.trim() && tokens.push({
-      type: "text",
+      nodeType: "text",
       value: encodeEntities(token.trim()),
       isSC: false,
     });
@@ -270,14 +306,14 @@ export function Parser(config: Partial<ParserOptions> = {}) {
       let parentIsSafe = true;
 
       tokenize(htmlString).forEach((token) => {
-        const { value, isSC } = token;
+        const { nodeType, value, isSC } = token;
+        // Skip doctype, we already have a root
+        if (nodeType === "doctype") return;
 
-        if (token.type === "text") {
+        if (["text", "comment"].includes(nodeType)) {
           stack[stack.length - 1].children.push({
-            // attributes: {},
-            // children: [],
-            nodeName: "#text",
-            value,
+            nodeName: `#${nodeType}`,
+            nodeValue: nodeType === "text" ? value : `<${value}>`,
           } as DOMLike);
           return;
         }

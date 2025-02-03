@@ -131,20 +131,46 @@ describe(`Test DOMParser`, () => {
     expect(svg.children[0].attributes["d"]).toBeDefined();
   });
 
+  test(`Test #text node`, () => {
+    expect(getAttributes("")).toEqual({});
+    const p1 = DOMParser();
+
+    expect(p1.parseFromString("Some text node").root.children[0]).toEqual({
+      nodeName: "#text",
+      nodeValue: "Some text node",
+    });
+  });
+
+  test(`Test #comment node`, () => {
+    expect(getAttributes("")).toEqual({});
+    const p1 = DOMParser();
+
+    expect(
+      p1.parseFromString("<!-- this is a comment <span>with a span</span> -->")
+        .root.children[0],
+    ).toEqual({
+      nodeName: "#comment",
+      nodeValue: "<!-- this is a comment <span>with a span</span> -->",
+    });
+  });
+
   test(`Test edge cases`, () => {
     expect(getAttributes("")).toEqual({});
     const p1 = DOMParser();
     const p2 = DOMParser();
-    expect(p1.parseFromString()).toEqual({
+    expect(p1.parseFromString(), "parse an empty string").toEqual({
       root: { nodeName: "#document", children: [] },
       components: [],
       tags: [],
     });
-    expect(p2.parseFromString("Some text node").root.children[0]).toEqual({
-      nodeName: "#text",
-      // attributes: {},
-      // children: [],
-      value: "Some text node",
+    expect(
+      p2.parseFromString("<!doctype html><span />").root.children[0],
+      "doctype tags must be stripped",
+    ).toEqual({
+      tagName: "span",
+      nodeName: "SPAN",
+      children: [],
+      attributes: {},
     });
   });
 });
