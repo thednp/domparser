@@ -143,7 +143,7 @@ const rootNode: RootNode = {
  *   nodeName: string;
  *   attributes: Record<string, string>;
  *   children: DOMLike[];
- *   value?: string; // applied only to #text nodes
+ *   nodeValue?: string; // applied only to #text | #comment nodes
  * };
  * ```
  *
