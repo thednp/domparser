@@ -4,8 +4,7 @@ const y = (t) => t.toLowerCase(), b = (t) => t.toUpperCase(), x = (t, s) => t.st
   ">": "&gt;",
   '"': "&quot;",
   "'": "&#39;"
-})[s] || /* istanbul ignore next @preserve */
-s), k = (t) => {
+})[s] || s), k = (t) => {
   const s = decodeURIComponent(t.trim());
   return /^(?:javascript|data|vbscript):/i.test(s) ? "" : C(s);
 }, N = (t, s) => {

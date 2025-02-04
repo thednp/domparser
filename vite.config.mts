@@ -1,6 +1,7 @@
 import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
 import dts from "vite-plugin-dts";
+import clean from "vite-plugin-strip-comments";
 
 const NAME = 'Parser';
 
@@ -13,6 +14,7 @@ const fileName = {
 export default defineConfig({
   base: './',
   plugins: [
+    clean(),
     dts({
       outDir: 'dist',
       copyDtsFiles: true,

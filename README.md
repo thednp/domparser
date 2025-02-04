@@ -7,13 +7,15 @@
 [![vitest version](https://img.shields.io/badge/vitest-3.0.5-brightgreen)](https://vitest.dev/)
 [![vite version](https://img.shields.io/badge/vite-6.0.11-brightgreen)](https://vitejs.dev/)
 
-A very light and TypeScript sourced [DOMParser](https://developer.mozilla.org/en-US/docs/Web/API/DOMParser) with basic sanitization features. Because of its size (around 1.2Kb gzipped), you can include it in both your server and especially your client to greatly reduce your application bundle size.
+A very light and TypeScript sourced [DOMParser](https://developer.mozilla.org/en-US/docs/Web/API/DOMParser) with basic sanitization features. Because of its size (around 1.3Kb gzipped), you can include it in both your server and especially your client to greatly reduce your application bundle size.
 
-The purpose of this library is to provide a lightweight yet reliable HTML parser without having to depend on [jsdom](https://github.com/jsdom/jsdom), [json5](https://json5.org) and even tools like [cheerio](https://cheerio.js.org). On that note, it doesn't come as a drop-in replacement/shim for the native DOMParser, but an extremely useful tool for many more scenarios.
+The purpose of this library is to provide a lightweight yet reliable HTML parser without having to depend on [jsdom](https://github.com/jsdom/jsdom), [json5](https://json5.org) and even newer tools like [cheerio](https://cheerio.js.org). Where these tools will try and reproduce a complete DOM tree with all equivalent attributes like `innerHTML`, `innerText`, `className` or box model attributes like `clientWidth`, `offsetWidth`, DOM APIs such as `getElementById`, `getElementsByTagName`, this little thing here only focuses on a basic structure making it many times more memory efficient and blazingly fast.
+
+On that note, it doesn't come as a drop-in replacement/shim for the native DOMParser, but an extremely useful tool for many more scenarios.
 
 
 ## Which apps can use it
-* plugins that transform SVG files/markup to components for UI frameworks like React/Solid, [example](https://github.com/thednp/vite-plugin-vanjs-svg);
+* plugins that transform SVG files/markup to components for UI frameworks like React/Solid, [a basic example](https://github.com/thednp/vite-plugin-vanjs-svg);
 * plugins that manage a website's metadata;
 * plugins that implement unit testing in a virtual/isolated enviroment;
 * apps that perform web research and/or web-scrapping;
@@ -41,6 +43,10 @@ bun install @thednp/domparser
 
 ## Basic Usage
 
+### Source markup
+<details>
+<summary>Click to expand</summary>
+
 Let's take a sample HTML source for this example:
 ```html
 <html>
@@ -52,11 +58,17 @@ Let's take a sample HTML source for this example:
         <h1>Hello World!</h1>
         <p class="example" aria-hidden="true">This is an example.</p>
         <custom-element />
+        <!-- some comment -->
         Some text node.
         <Counter count="0" />
     </body>
 </html>
 ```
+</details>
+
+### Initialize
+<details>
+<summary>Click to expand</summary>
 
 First let's import and initialize the parser and designate the source to be parsed:
 ```ts
@@ -72,9 +84,14 @@ const html = source.trim();
 const html = (await fs.readFile("/path-to/index.html", "utf-8")).trim();
 */
 ```
+</details>
 
+### Results - tags and components
+<details>
+<summary>Click to expand</summary>
 
 Next let's parse the source and work with the `tags` and `components`: 
+
 ```ts
 // parse the source
 const { components, tags, root } =  parser.parseFromString(html);
@@ -101,6 +118,12 @@ console.log(tags);
   'p'
 ] */
 ```
+</details>
+
+
+### Results - DOM tree
+<details>
+<summary>Click to expand</summary>
 
 Lastly and most importantly, work with the real result of the parser:
 ```ts
@@ -177,6 +200,10 @@ console.log(root);
               "children": []
             },
             {
+              "nodeName": "#comment",
+              "value": "<!-- some comment -->"
+            },
+            {
               "nodeName": "#text",
               "value": "Some text node."
             },
@@ -195,20 +222,27 @@ console.log(root);
   ]
 }*/
 ```
+</details>
+
 
 ## Options
 
-**DOMParser** does sanitize attribute values, but it can also be configured to remove potentially harmful tags and/or attributes:
+**DOMParser** sanitizes attribute values by default, but it can also be configured to remove potentially harmful tags and/or attributes:
+
+<details>
+<summary>Click to expand</summary>
+
+Here's a quick example using the options:
 ```ts
 import { Parser } from "@thednp/domparser"
 
 const config = {
-  // Common dangerous tags that could lead to XSS
+  // Common dangerous tags that could lead to XSS attacks
   filterTags: [
     "script", "style", "iframe", "object", "embed", "base", "form",
     "input", "button", "textarea", "select", "option"
   ],
-  // Unsafe attributes that could lead to XSS
+  // Unsafe attributes that could lead to XSS attacks
   filterAttrs: [
     "onerror", "onload", "onunload", "onclick", "ondblclick", "onmousedown",
     "onmouseup", "onmouseover", "onmousemove", "onmouseout", "onkeydown",
@@ -222,10 +256,11 @@ const parsedHTML = parser.parseFromString("Some long HTML")
 // all configured tags and attributes will be removed
 // from the resulted parsedHTML.root object tree
 ```
+</details>
 
 
 ## Other tools
-The module also exports some tools you can use:
+The script also exports some tools you can use:
 
 ### encodeEntities
 ```ts
@@ -296,9 +331,9 @@ import {
 
 
 ## Backstory
-I've recently created some tools to generate SVG components for [VanJS](https://github.com/thednp/vite-plugin-vanjs-svg) and other tools, and I noticed my "hello world" app bundle was 102Kb and looking into the dependencies, I found that the parser and tooling was all bundled in my app client side code and I thought: that's not good. Then I immediately started to work on this thing.
+I've recently created some tools to generate SVG components for [VanJS](https://github.com/thednp/vite-plugin-vanjs-svg) and other tools, and I noticed my "hello world" app bundle was 102Kb and looking into the dependencies, I found that an entire parser and tooling was all bundled in my app client side code and I thought: that's not good. Then I immediately started to work on this thing.
 
-The result: bundle size 10Kb, render time significantly faster.
+The result: bundle size 10Kb, render time significantly faster, basically microseconds.
 
 
 ## License
