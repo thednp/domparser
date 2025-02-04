@@ -9,7 +9,7 @@
 
 A very light and TypeScript sourced [DOMParser](https://developer.mozilla.org/en-US/docs/Web/API/DOMParser) with basic sanitization features. Because of its size (around 1.3Kb gzipped), you can include it in both your server and especially your client to greatly reduce your application bundle size.
 
-The purpose of this library is to provide a lightweight yet reliable HTML parser without having to depend on [jsdom](https://github.com/jsdom/jsdom), [json5](https://json5.org) and even newer tools like [cheerio](https://cheerio.js.org). Where these tools will try and reproduce a complete DOM tree with all equivalent attributes like `innerHTML`, `innerText`, `className` or box model attributes like `clientWidth`, `offsetWidth`, DOM APIs such as `getElementById`, `getElementsByTagName`, this little thing here only focuses on a basic structure making it many times more memory efficient and blazingly fast.
+The purpose of this library is to provide a lightweight yet reliable HTML parser without having to depend on [jsdom](https://github.com/jsdom/jsdom), [json5](https://json5.org) and even newer tools like [cheerio](https://cheerio.js.org). Where these tools will try and reproduce a complete DOM tree with all attributes specific to each type, this little thing here only focuses on a basic structure making it many times more memory efficient and blazingly fast.
 
 On that note, it doesn't come as a drop-in replacement/shim for the native DOMParser, but an extremely useful tool for many more scenarios.
 
@@ -201,11 +201,11 @@ console.log(root);
             },
             {
               "nodeName": "#comment",
-              "value": "<!-- some comment -->"
+              "nodeValue": "<!-- some comment -->"
             },
             {
               "nodeName": "#text",
-              "value": "Some text node."
+              "nodeValue": "Some text node."
             },
             {
               "tagName": "Counter",
