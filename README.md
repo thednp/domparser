@@ -97,7 +97,7 @@ const { components, tags, root } =  parser.parseFromString(html);
 <details>
 <summary>Click to expand</summary>
 
-Now we can work with the `tags` and `components`: 
+Now we can work with the `components`: 
 ```ts
 // work with the components
 console.log(components);
@@ -110,7 +110,11 @@ console.log(components);
     "Counter"
 ]
 */
+```
 
+...and `tags`: 
+
+```ts
 // work with the tags
 console.log(tags);
 /* // a list of all tags found in the markup
@@ -307,7 +311,7 @@ const sanitizeAttrValue: (name: string, initialValue: string) => string;
  * @param url the URL
  * @returns the sanitized URL
  */
-export declare const sanitizeUrl: (url: string) => string;
+const sanitizeUrl: (url: string) => string;
 ```
 
 What you want to do:
