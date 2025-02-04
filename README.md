@@ -84,18 +84,21 @@ const html = source.trim();
 const html = (await fs.readFile("/path-to/index.html", "utf-8")).trim();
 */
 ```
+
+Next let's parse the source: 
+
+```ts
+// parse the source
+const { components, tags, root } =  parser.parseFromString(html);
+```
 </details>
 
 ### Results - tags and components
 <details>
 <summary>Click to expand</summary>
 
-Next let's parse the source and work with the `tags` and `components`: 
-
+Now we can work with the `tags` and `components`: 
 ```ts
-// parse the source
-const { components, tags, root } =  parser.parseFromString(html);
-
 // work with the components
 console.log(components);
 /* [
