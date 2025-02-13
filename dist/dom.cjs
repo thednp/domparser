@@ -17,39 +17,13 @@ var __copyProps = (to, from, except, desc) => {
 };
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
-// src/index.ts
-var src_exports = {};
-__export(src_exports, {
-  DOM_ERROR: () => DOM_ERROR,
+// src/parts/dom.ts
+var dom_exports = {};
+__export(dom_exports, {
   Dom: () => Dom,
-  PARSER_ERROR: () => PARSER_ERROR,
-  Parser: () => Parser,
-  addDomPrototype: () => addDomPrototype,
-  charCodeAt: () => charCodeAt,
-  createBasicNode: () => createBasicNode,
-  createDocument: () => createDocument,
-  createElement: () => createElement,
-  createNode: () => createNode,
-  defineProperties: () => defineProperties,
-  encodeEntities: () => encodeEntities,
-  endsWith: () => endsWith,
-  fromCharCode: () => fromCharCode,
-  getAttributes: () => getAttributes,
-  isNode: () => isNode,
-  isObj: () => isObj,
-  isPrimitive: () => isPrimitive,
-  isRoot: () => isRoot,
-  isTag: () => isTag,
-  matchesSelector: () => matchesSelector,
-  sanitizeAttrValue: () => sanitizeAttrValue,
-  sanitizeUrl: () => sanitizeUrl,
-  selfClosingTags: () => selfClosingTags,
-  startsWith: () => startsWith,
-  toLowerCase: () => toLowerCase,
-  toUpperCase: () => toUpperCase,
-  tokenize: () => tokenize
+  createDocument: () => createDocument
 });
-module.exports = __toCommonJS(src_exports);
+module.exports = __toCommonJS(dom_exports);
 
 // src/parts/util.ts
 var toLowerCase = (str) => str.toLowerCase();
@@ -90,31 +64,6 @@ var selfClosingTags = /* @__PURE__ */ new Set([
   "polyline"
 ]);
 var DOM_ERROR = "DomError:";
-var PARSER_ERROR = "ParserError:";
-
-// src/parts/sanitize.ts
-var encodeEntities = (str) => str.replace(/[&<>"']/g, (char) => ({
-  "&": "&amp;",
-  "<": "&lt;",
-  ">": "&gt;",
-  '"': "&quot;",
-  "'": "&#39;"
-})[char] || /* istanbul ignore next @preserve */
-char);
-var sanitizeUrl = (url) => {
-  const decoded = decodeURIComponent(url.trim());
-  if (/^(?:javascript|data|vbscript):/i.test(decoded)) return "";
-  return encodeEntities(decoded);
-};
-var sanitizeAttrValue = (attrName, initialValue) => {
-  if (!initialValue) return "";
-  const name = toLowerCase(attrName);
-  const value = initialValue.trim();
-  if (name === "src" || name === "href" || name === "action" || name === "formaction" || endsWith(name, "url")) {
-    return sanitizeUrl(value);
-  }
-  return encodeEntities(value);
-};
 
 // src/parts/parser.ts
 var getAttributes = (tagStr, config) => {
@@ -674,6 +623,30 @@ var addDomPrototype = (node, ownerDocument) => {
 };
 var createDocument = () => createNode.call(null, "#document");
 
+// src/parts/sanitize.ts
+var encodeEntities = (str) => str.replace(/[&<>"']/g, (char) => ({
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&#39;"
+})[char] || /* istanbul ignore next @preserve */
+char);
+var sanitizeUrl = (url) => {
+  const decoded = decodeURIComponent(url.trim());
+  if (/^(?:javascript|data|vbscript):/i.test(decoded)) return "";
+  return encodeEntities(decoded);
+};
+var sanitizeAttrValue = (attrName, initialValue) => {
+  if (!initialValue) return "";
+  const name = toLowerCase(attrName);
+  const value = initialValue.trim();
+  if (name === "src" || name === "href" || name === "action" || name === "formaction" || endsWith(name, "url")) {
+    return sanitizeUrl(value);
+  }
+  return encodeEntities(value);
+};
+
 // src/parts/dom.ts
 var Dom = (startHTML = void 0, config = {}) => {
   if (startHTML && typeof startHTML !== "string") {
@@ -705,33 +678,7 @@ var Dom = (startHTML = void 0, config = {}) => {
 };
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  DOM_ERROR,
   Dom,
-  PARSER_ERROR,
-  Parser,
-  addDomPrototype,
-  charCodeAt,
-  createBasicNode,
-  createDocument,
-  createElement,
-  createNode,
-  defineProperties,
-  encodeEntities,
-  endsWith,
-  fromCharCode,
-  getAttributes,
-  isNode,
-  isObj,
-  isPrimitive,
-  isRoot,
-  isTag,
-  matchesSelector,
-  sanitizeAttrValue,
-  sanitizeUrl,
-  selfClosingTags,
-  startsWith,
-  toLowerCase,
-  toUpperCase,
-  tokenize
+  createDocument
 });
-//# sourceMappingURL=index.cjs.map
+//# sourceMappingURL=dom.cjs.map

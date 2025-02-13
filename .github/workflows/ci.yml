@@ -4,14 +4,14 @@ on:
     branches:
       - master
     paths:
-      - src/index.ts
+      - src
       - test
       - .github/workflows/ci.yml
   pull_request:
     branches:
       - master
     paths:
-      - src/index.ts
+      - src
       - test
       - .github/workflows/ci.yml
 jobs:

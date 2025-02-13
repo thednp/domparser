@@ -1,56 +1,3 @@
-"use strict";
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __getOwnPropNames = Object.getOwnPropertyNames;
-var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __export = (target, all) => {
-  for (var name in all)
-    __defProp(target, name, { get: all[name], enumerable: true });
-};
-var __copyProps = (to, from, except, desc) => {
-  if (from && typeof from === "object" || typeof from === "function") {
-    for (let key of __getOwnPropNames(from))
-      if (!__hasOwnProp.call(to, key) && key !== except)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
-  }
-  return to;
-};
-var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
-
-// src/index.ts
-var src_exports = {};
-__export(src_exports, {
-  DOM_ERROR: () => DOM_ERROR,
-  Dom: () => Dom,
-  PARSER_ERROR: () => PARSER_ERROR,
-  Parser: () => Parser,
-  addDomPrototype: () => addDomPrototype,
-  charCodeAt: () => charCodeAt,
-  createBasicNode: () => createBasicNode,
-  createDocument: () => createDocument,
-  createElement: () => createElement,
-  createNode: () => createNode,
-  defineProperties: () => defineProperties,
-  encodeEntities: () => encodeEntities,
-  endsWith: () => endsWith,
-  fromCharCode: () => fromCharCode,
-  getAttributes: () => getAttributes,
-  isNode: () => isNode,
-  isObj: () => isObj,
-  isPrimitive: () => isPrimitive,
-  isRoot: () => isRoot,
-  isTag: () => isTag,
-  matchesSelector: () => matchesSelector,
-  sanitizeAttrValue: () => sanitizeAttrValue,
-  sanitizeUrl: () => sanitizeUrl,
-  selfClosingTags: () => selfClosingTags,
-  startsWith: () => startsWith,
-  toLowerCase: () => toLowerCase,
-  toUpperCase: () => toUpperCase,
-  tokenize: () => tokenize
-});
-module.exports = __toCommonJS(src_exports);
-
 // src/parts/util.ts
 var toLowerCase = (str) => str.toLowerCase();
 var toUpperCase = (str) => str.toUpperCase();
@@ -90,31 +37,6 @@ var selfClosingTags = /* @__PURE__ */ new Set([
   "polyline"
 ]);
 var DOM_ERROR = "DomError:";
-var PARSER_ERROR = "ParserError:";
-
-// src/parts/sanitize.ts
-var encodeEntities = (str) => str.replace(/[&<>"']/g, (char) => ({
-  "&": "&amp;",
-  "<": "&lt;",
-  ">": "&gt;",
-  '"': "&quot;",
-  "'": "&#39;"
-})[char] || /* istanbul ignore next @preserve */
-char);
-var sanitizeUrl = (url) => {
-  const decoded = decodeURIComponent(url.trim());
-  if (/^(?:javascript|data|vbscript):/i.test(decoded)) return "";
-  return encodeEntities(decoded);
-};
-var sanitizeAttrValue = (attrName, initialValue) => {
-  if (!initialValue) return "";
-  const name = toLowerCase(attrName);
-  const value = initialValue.trim();
-  if (name === "src" || name === "href" || name === "action" || name === "formaction" || endsWith(name, "url")) {
-    return sanitizeUrl(value);
-  }
-  return encodeEntities(value);
-};
 
 // src/parts/parser.ts
 var getAttributes = (tagStr, config) => {
@@ -674,6 +596,30 @@ var addDomPrototype = (node, ownerDocument) => {
 };
 var createDocument = () => createNode.call(null, "#document");
 
+// src/parts/sanitize.ts
+var encodeEntities = (str) => str.replace(/[&<>"']/g, (char) => ({
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&#39;"
+})[char] || /* istanbul ignore next @preserve */
+char);
+var sanitizeUrl = (url) => {
+  const decoded = decodeURIComponent(url.trim());
+  if (/^(?:javascript|data|vbscript):/i.test(decoded)) return "";
+  return encodeEntities(decoded);
+};
+var sanitizeAttrValue = (attrName, initialValue) => {
+  if (!initialValue) return "";
+  const name = toLowerCase(attrName);
+  const value = initialValue.trim();
+  if (name === "src" || name === "href" || name === "action" || name === "formaction" || endsWith(name, "url")) {
+    return sanitizeUrl(value);
+  }
+  return encodeEntities(value);
+};
+
 // src/parts/dom.ts
 var Dom = (startHTML = void 0, config = {}) => {
   if (startHTML && typeof startHTML !== "string") {
@@ -703,35 +649,8 @@ var Dom = (startHTML = void 0, config = {}) => {
   Object.assign(rootNode, { charset, doctype });
   return rootNode;
 };
-// Annotate the CommonJS export names for ESM import in node:
-0 && (module.exports = {
-  DOM_ERROR,
+export {
   Dom,
-  PARSER_ERROR,
-  Parser,
-  addDomPrototype,
-  charCodeAt,
-  createBasicNode,
-  createDocument,
-  createElement,
-  createNode,
-  defineProperties,
-  encodeEntities,
-  endsWith,
-  fromCharCode,
-  getAttributes,
-  isNode,
-  isObj,
-  isPrimitive,
-  isRoot,
-  isTag,
-  matchesSelector,
-  sanitizeAttrValue,
-  sanitizeUrl,
-  selfClosingTags,
-  startsWith,
-  toLowerCase,
-  toUpperCase,
-  tokenize
-});
-//# sourceMappingURL=index.cjs.map
+  createDocument
+};
+//# sourceMappingURL=dom.mjs.map

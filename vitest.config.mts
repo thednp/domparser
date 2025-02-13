@@ -7,7 +7,7 @@ export default defineConfig({
       provider: "istanbul",
       reporter: ["html", "text", "lcov"],
       enabled: true,
-      include: ["src/index.ts"],
+      include: ["src"],
     }
   },
 });
