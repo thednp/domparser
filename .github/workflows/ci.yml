@@ -5,6 +5,7 @@ on:
       - master
     paths:
       - src
+      - src/parts
       - test
       - .github/workflows/ci.yml
   pull_request:
@@ -12,6 +13,7 @@ on:
       - master
     paths:
       - src
+      - src/parts
       - test
       - .github/workflows/ci.yml
 jobs:
