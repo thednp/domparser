@@ -51,7 +51,13 @@ bun install @thednp/domparser
 
 ## TypeScript Support
 
-`@thednp/domparser` is fully typed with TypeScript. Type definitions are included in the package. You can use the library with full type safety in your TypeScript projects.
+`@thednp/domparser` is fully typed with TypeScript, ensuring you can use the library with full type safety in your TypeScript projects. Type definitions are included in the package for a seamless development experience.
+
+To provide a lightweight and performant DOM representation, `@thednp/domparser` uses its own set of types (`DOMNode`, `NodeLike`, `RootNode`, `RootLike`) instead of directly using the full browser DOM API types. This design choice allows for a smaller bundle size and faster parsing, while still providing a robust API for common DOM manipulations.
+
+For instance, while you'll get excellent intellisense for properties like `tagName`, you'll notice types like `DOMNode` and `NodeLike`.  `DOMNode` represents a standard DOM node within the tree, while `NodeLike` is a more general type that encompasses objects behaving like nodes. Similarly, `RootNode` is the top-level document node, and `RootLike` is a more general type for root-like objects.
+
+This type system ensures that TypeScript accurately understands the structure and behavior of the DOM tree created by `@thednp/domparser`, providing accurate type checking and intellisense as you build and manipulate DOM structures within your TypeScript applications.
 
 
 ## Parser Basic Usage
@@ -483,7 +489,7 @@ console.log(svg.closest("#my-body"));
 ```ts
 import { Dom } from "@thednp/domparser";
 
-const doc = Dom("<html</html>", { filterTags: ["script"] });
+const doc = Dom(`<html><script src="some-url"></script></html>`, { filterTags: ["script"] });
 ```
 
 Check below a more detailed example:
