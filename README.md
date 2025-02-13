@@ -49,6 +49,11 @@ bun install @thednp/domparser
 ```
 
 
+## TypeScript Support
+
+`@thednp/domparser` is fully typed with TypeScript. Type definitions are included in the package. You can use the library with full type safety in your TypeScript projects.
+
+
 ## Parser Basic Usage
 
 ### Source markup
@@ -297,7 +302,7 @@ const parsedHTML = Parser(config).parseFromString("<html>Some long HTML</html>")
   * remember that you need to use `Object.assign(node, yourNodeModification)` and return that SAME node;
   * in the example below we've added a `classList` like method;
 * `sanitizeFn` - is useful to set a special sanitization function suitable to your need;
-  * it takes [`lowerCaseattributeName`, `attributeValue`] as arguments;
+  * it takes [`lowerCaseAttributeName`, `attributeValue`] as arguments;
   * can make use of the included sanitization tools (`encodeEntities`, `sanitizeUrl` for value sanitization), (`sanitizeAttrValue` for value sanitization and check against a given set of attribute names) as a starting point;
 * `filterTags` - tells the Parser to treat these tag names as potentially dangerous;
   * the Parser will pass them to the `sanitizeFn` function to check them and remove them;
@@ -1150,7 +1155,7 @@ const button = main.children.find(child => child.matches("[data-toggle]"))
 </details>
 
 
-#### Node & Element Text Exports
+#### Node & Element Content Exports
 
 The API provides properties for accessing the content of elements:
 
@@ -1403,8 +1408,8 @@ This library exports its components as separate modules so you can save even mor
 // import Parser or getAttributes only
 import { Parser, getAttributes, tokenize } from "@thednp/domparser/parser"
 
-// import Dom only
-import { Dom } from "@thednp/domparser/dom"
+// import Dom / createDocument only
+import { Dom, createDocument } from "@thednp/domparser/dom"
 
 // import sanitization only
 import { encodeEntities, sanitizeUrl, sanitizeAttrValue  } from "@thednp/domparser/sanitize"
@@ -1412,17 +1417,17 @@ import { encodeEntities, sanitizeUrl, sanitizeAttrValue  } from "@thednp/dompars
 </details>
 
 
-## TypeScript Support
-
-`@thednp/domparser` is fully typed with TypeScript. Type definitions are included in the package. You can use the library with full type safety in your TypeScript projects.
-
-
-* **Error Handling:** The README doesn't mention how the library handles parsing errors (e.g., malformed HTML). Does it throw errors? Does it silently ignore invalid parts?  Adding a brief note on error handling would be helpful.  For instance:
-
-
 ## Error Handling
 
-The **Parser** will attempt to parse even malformed HTML. Invalid tags or attributes might be ignored or handled in a specific way (depending on the `filterTags` and `filterAttrs` options). It does *not* throw exceptions for typical parsing errors. For critical errors [describe what constitutes a "critical error," if any], an exception might be thrown.
+The **Parser** will attempt to parse even malformed HTML. Invalid tags or attributes might be ignored or handled in a specific way (depending on the `filterTags` and `filterAttrs` options).
+
+For critical errors (tag open/closing mismatch), an Error will be thrown. It does *not* throw exceptions for typical parsing errors.
+
+Example:
+```ts
+Parser().parseFromString("<html><p><span></p></html>");
+//=> "ParserError: Mismatched closing tag: </p>. Expected closing tag for <span>."
+```
 
 
 ## Technical Notes
