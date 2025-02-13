@@ -1,5 +1,5 @@
-type TagNames = keyof HTMLElementTagNameMap;
-type TagAttr<T extends TagNames> = HTMLElementTagNameMap[T];
+type TagNames = keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap;
+type TagAttr<T extends TagNames> = (HTMLElementTagNameMap & SVGElementTagNameMap)[T];
 /**
  * Represents a text node in the DOM
  */
@@ -52,7 +52,7 @@ type BaseNode = {
 type NodeLike = {
     tagName: string & TagNames;
     nodeName: string;
-    attributes: Record<string | keyof TagAttr<NodeLike["tagName"]>, string>;
+    attributes: Record<string, string>;
     childNodes: (NodeLike | TextLike | CommentLike)[];
     children: NodeLike[];
 };
@@ -73,7 +73,7 @@ type DOMNode = Omit<NodeLike, "attributes"> & BaseNode & {
     removeChild: (delChild: ChildNode) => void;
     remove: () => void;
     readonly tagName: string & TagNames;
-    readonly attributes: Map<string | keyof TagAttr<DOMNode["tagName"]>, string>;
+    readonly attributes: Map<string, string>;
     readonly textContent: string;
     readonly innerText: string;
     readonly innerHTML: string;
@@ -97,8 +97,8 @@ type RootNode = Omit<RootLike, "all" | "children" | "childNodes"> & Omit<BaseNod
     removeChild: (delChild: ChildNode) => void;
     replaceChildren: (...newChildren: DOMNode[]) => void;
     getElementById: (id: string) => DOMNode | null;
-    createElement: (tagName: string, first?: MaybeChildNode | NodeLikeAttributes, ...childNodes: MaybeChildNode[]) => DOMNode;
-    createElementNS: (namespace: string, tagName: string, first?: MaybeChildNode | NodeLikeAttributes, ...childNodes: MaybeChildNode[]) => DOMNode;
+    createElement: (tagName: string & TagNames, first?: MaybeChildNode | NodeLikeAttributes, ...childNodes: MaybeChildNode[]) => DOMNode;
+    createElementNS: (namespace: string, tagName: string & keyof SVGElementTagNameMap, first?: MaybeChildNode | NodeLikeAttributes, ...childNodes: MaybeChildNode[]) => DOMNode;
     createComment: (value: string) => CommentNode;
     createTextNode: (value: string) => TextNode;
 };

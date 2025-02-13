@@ -21,6 +21,7 @@ import type {
   MaybeChildNode,
   NodeLikeAttributes,
   RootNode,
+  TagNames,
   TextNode,
   TextToken,
 } from "./types";
@@ -180,7 +181,9 @@ export function createNode(
     // Root document methods
     ...(isRoot({ nodeName } as RootNode) && {
       createElement(
-        tagName: string,
+        tagName:
+          & string
+          & (keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap),
         first?: NodeLikeAttributes | MaybeChildNode,
         ...rest: MaybeChildNode[]
       ) {
@@ -193,11 +196,13 @@ export function createNode(
       },
       createElementNS(
         _ns: string,
-        tagName: string,
+        tagName:
+          & string
+          & (keyof SVGElementTagNameMap & keyof HTMLElementTagNameMap),
         first?: NodeLikeAttributes | MaybeChildNode,
         ...rest: MaybeChildNode[]
       ) {
-        return (node as RootNode).createElement(tagName, first, ...rest);
+        return createElement.call(node as RootNode, tagName, first, ...rest);
       },
       createComment(content: string) {
         return createBasicNode("#comment", content);
@@ -208,12 +213,6 @@ export function createNode(
       getElementById(id: string) {
         return ALL.find((node) => node.attributes.get("id") === id) ?? null;
       },
-      // register(newNode: DOMNode) {
-      //   ALL.push(newNode);
-      // },
-      // deregister(delNode: DOMNode) {
-      //   ALL.splice(ALL.indexOf(delNode), 1);
-      // },
     }),
 
     // Element methods
@@ -366,7 +365,7 @@ const convertToNode = (n: string | number | ChildNode) => {
  */
 export function createElement(
   this: RootNode,
-  tagName: string,
+  tagName: string & TagNames,
   first?: NodeLikeAttributes | MaybeChildNode,
   ...args: MaybeChildNode[]
 ): DOMNode {

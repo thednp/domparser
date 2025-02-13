@@ -463,7 +463,7 @@ function createNode(nodeName, ...childNodes) {
         );
       },
       createElementNS(_ns, tagName, first, ...rest) {
-        return node.createElement(tagName, first, ...rest);
+        return createElement.call(node, tagName, first, ...rest);
       },
       createComment(content) {
         return createBasicNode("#comment", content);
@@ -474,12 +474,6 @@ function createNode(nodeName, ...childNodes) {
       getElementById(id) {
         return ALL.find((node2) => node2.attributes.get("id") === id) ?? null;
       }
-      // register(newNode: DOMNode) {
-      //   ALL.push(newNode);
-      // },
-      // deregister(delNode: DOMNode) {
-      //   ALL.splice(ALL.indexOf(delNode), 1);
-      // },
     },
     // Element methods
     ...!nodeIsRoot && {

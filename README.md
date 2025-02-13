@@ -49,17 +49,6 @@ bun install @thednp/domparser
 ```
 
 
-## TypeScript Support
-
-`@thednp/domparser` is fully typed with TypeScript, ensuring you can use the library with full type safety in your TypeScript projects. Type definitions are included in the package for a seamless development experience.
-
-To provide a lightweight and performant DOM representation, `@thednp/domparser` uses its own set of types (`DOMNode`, `NodeLike`, `RootNode`, `RootLike`) instead of directly using the full browser DOM API types. This design choice allows for a smaller bundle size and faster parsing, while still providing a robust API for common DOM manipulations.
-
-For instance, while you'll get excellent intellisense for properties like `tagName`, you'll notice types like `DOMNode` and `NodeLike`.  `DOMNode` represents a standard DOM node within the tree, while `NodeLike` is a more general type that encompasses objects behaving like nodes. Similarly, `RootNode` is the top-level document node, and `RootLike` is a more general type for root-like objects.
-
-This type system ensures that TypeScript accurately understands the structure and behavior of the DOM tree created by `@thednp/domparser`, providing accurate type checking and intellisense as you build and manipulate DOM structures within your TypeScript applications.
-
-
 ## Parser Basic Usage
 
 ### Source markup
@@ -1423,6 +1412,27 @@ import { encodeEntities, sanitizeUrl, sanitizeAttrValue  } from "@thednp/dompars
 </details>
 
 
+## TypeScript Support
+
+`@thednp/domparser` is fully typed with TypeScript and type definitions are included in the package for a smooth development experience.
+
+To provide a lightweight and performant DOM representation, the **Parser** creates "Node" like objects only with essential properties: `nodeName`, `tagName`, [`attributes`, `children`, `childNodes`] for `Element` like nodes and `nodeValue` for basic nodes like `#text`.
+
+This is why it's important to distinguish from native browser DOM API, the types have been simplified to set the right expectations and avoid accessing unsuported properties or methods. These are the main nodes in the results of the parser:
+* `RootLike` - is for the `Document` node;
+* `NodeLike` - is an `Element` like node;
+* `CommentLike` - is a `#comment` node;
+* `TextLike` - is a `#text` node;
+* `ChildLike` - is either `NodeLike`, `TextLike` or `CommentLike`.
+
+Then we have **Dom** which overrides some properties and enhance the node prototype with ancestor accessors, selector engine and attributes API. Here are the types for the enhanced nodes:
+* `RootNode` - extends `RootLike`;
+* `DOMNode` extends `NodeLike`;
+* `CommentNode` extends `CommentLike`;
+* `TextNode` extends `TextLike`;
+* `ChildNode` is either `TextNode`, `CommentNode` or `DOMNode`.
+
+
 ## Error Handling
 
 The **Parser** will attempt to parse even malformed HTML. Invalid tags or attributes might be ignored or handled in a specific way (depending on the `filterTags` and `filterAttrs` options).
@@ -1434,6 +1444,8 @@ Example:
 Parser().parseFromString("<html><p><span></p></html>");
 //=> "ParserError: Mismatched closing tag: </p>. Expected closing tag for <span>."
 ```
+
+The **Dom** has it's own error reporting revolving around the types of its arguments.
 
 
 ## Technical Notes

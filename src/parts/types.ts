@@ -1,6 +1,7 @@
 // types.ts
-export type TagNames = keyof HTMLElementTagNameMap;
-export type TagAttr<T extends TagNames> = HTMLElementTagNameMap[T];
+export type TagNames = keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap;
+export type TagAttr<T extends TagNames> =
+  (HTMLElementTagNameMap & SVGElementTagNameMap)[T];
 
 /**
  * Represents a text node in the DOM
@@ -58,7 +59,7 @@ export type BaseNode = {
 export type NodeLike = {
   tagName: string & TagNames;
   nodeName: string;
-  attributes: Record<string | keyof TagAttr<NodeLike["tagName"]>, string>;
+  attributes: Record<string, string>;
   childNodes: (NodeLike | TextLike | CommentLike)[];
   children: NodeLike[];
 };
@@ -80,7 +81,7 @@ export type DOMNode = Omit<NodeLike, "attributes"> & BaseNode & {
   removeChild: (delChild: ChildNode) => void;
   remove: () => void;
   readonly tagName: string & TagNames;
-  readonly attributes: Map<string | keyof TagAttr<DOMNode["tagName"]>, string>;
+  readonly attributes: Map<string, string>;
   readonly textContent: string;
   readonly innerText: string;
   readonly innerHTML: string;
@@ -110,13 +111,13 @@ export type RootNode =
     replaceChildren: (...newChildren: DOMNode[]) => void;
     getElementById: (id: string) => DOMNode | null;
     createElement: (
-      tagName: string,
+      tagName: string & TagNames,
       first?: MaybeChildNode | NodeLikeAttributes,
       ...childNodes: MaybeChildNode[]
     ) => DOMNode;
     createElementNS: (
       namespace: string,
-      tagName: string,
+      tagName: string & keyof SVGElementTagNameMap,
       first?: MaybeChildNode | NodeLikeAttributes,
       ...childNodes: MaybeChildNode[]
     ) => DOMNode;

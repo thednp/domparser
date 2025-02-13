@@ -1,4 +1,4 @@
-import { e as TextNode, g as CommentNode, a as RootNode, j as ChildNodeList, D as DOMNode, c as NodeLikeAttributes, M as MaybeChildNode, b as ChildNode, C as ChildLike, P as ParserOptions } from './types-CFTqilf-.mjs';
+import { e as TextNode, g as CommentNode, a as RootNode, j as ChildNodeList, D as DOMNode, T as TagNames, c as NodeLikeAttributes, M as MaybeChildNode, b as ChildNode, C as ChildLike, P as ParserOptions } from './types-EHW0eDTa.js';
 
 /**
  * Creates a basic text or comment node.
@@ -26,7 +26,7 @@ declare function createNode(this: RootNode | null, nodeName: string, ...childNod
  * @param args Additional child nodes
  * @returns New element node
  */
-declare function createElement(this: RootNode, tagName: string, first?: NodeLikeAttributes | MaybeChildNode, ...args: MaybeChildNode[]): DOMNode;
+declare function createElement(this: RootNode, tagName: string & TagNames, first?: NodeLikeAttributes | MaybeChildNode, ...args: MaybeChildNode[]): DOMNode;
 /**
  * Enhances a node with DOM-like properties and methods
  * @param node The node to enhance

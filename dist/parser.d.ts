@@ -1,4 +1,4 @@
-import { G as GetAttributesOptions, c as NodeLikeAttributes, P as ParserOptions, R as RootLike, H as HTMLToken } from './types-CFTqilf-.js';
+import { G as GetAttributesOptions, c as NodeLikeAttributes, P as ParserOptions, R as RootLike, H as HTMLToken } from './types-EHW0eDTa.js';
 
 /**
  * Get attributes from a string token and return an object
