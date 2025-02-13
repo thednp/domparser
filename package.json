@@ -45,7 +45,7 @@
     "pre-test": "pnpm clean-coverage",
     "test": "pnpm pre-test && vitest --config vitest.config.mts",
     "test-ui": "pnpm pre-test && vitest --config vitest.config.mts --ui",
-    "clean-coverage": "rm -rf coverage .nyc_output",
+    "clean-coverage": "rm -rf coverage .nyc_output .coverage",
     "badges": "npx -p dependency-version-badge update-badge typescript vitest vite",
     "format": "deno fmt src",
     "lint": "pnpm lint:ts && pnpm check:ts",
