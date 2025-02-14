@@ -261,6 +261,23 @@ function Parser(config = {}) {
 
 // src/parts/selectors.ts
 var SELECTOR_REGEX = /([.#]?[\w-]+|\[[\w-]+(?:=[^\]]+)?\])+/g;
+var createSelectorCache = (maxSize = 100) => {
+  const cache = /* @__PURE__ */ new Map();
+  return (selector) => {
+    let matchFn = cache.get(selector);
+    if (!matchFn) {
+      if (cache.size >= maxSize) {
+        const firstKey = cache.keys().next().value;
+        if (firstKey) cache.delete(firstKey);
+      }
+      const parts = selector.split(",").map((s) => s.trim());
+      matchFn = (node) => parts.some((part) => matchesSingleSelector(node, part));
+      cache.set(selector, matchFn);
+    }
+    return matchFn;
+  };
+};
+var getSelectorMatcher = createSelectorCache();
 var parseSelector = (selector) => {
   const parts = [];
   const matches = selector.match(SELECTOR_REGEX) || /* istanbul ignore next @preserve */
@@ -306,9 +323,10 @@ var matchesSingleSelector = (node, selector) => {
 };
 var matchesSelector = (node, selector) => {
   const selectors = selector.split(",").map((s) => s.trim());
-  return selectors.some(
-    (simpleSelector) => matchesSingleSelector(node, simpleSelector)
-  );
+  return selectors.some((simpleSelector) => {
+    const matcher = getSelectorMatcher(simpleSelector);
+    return matcher(node);
+  });
 };
 
 // src/parts/prototype.ts
@@ -378,10 +396,6 @@ function createNode(nodeName, ...childNodes) {
         }
         defineProperties(child, {
           // Add text generation methods
-          innerText: {
-            enumerable: false,
-            get: () => textContent(child)
-          },
           textContent: {
             enumerable: false,
             get: () => textContent(child)

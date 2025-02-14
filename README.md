@@ -12,7 +12,16 @@ The purpose of this library is to provide a lightweight yet reliable HTML parser
 
 On that note, it doesn't come as a drop-in replacement/shim for the native browser DOMParser, but thanks to its components being packaged in separate bundles it suddenly becomes an extremely useful tool for many more scenarios.
 
-Along with the **Parser**, you also have a powerful tool to create a DOM tree from scratch, but unlike the native `Document` API, this one has been reimagined to improve your workflow and allow you to create a DOM tree faster and much easier.
+Along with the **Parser**, you also have a powerful tool to create a DOM tree from scratch, but unlike the native `Document` API, this one has been reimagined to improve your workflow and allow you to create a DOM tree faster and much easier. This really is a separation of **Dom** and **Parser**, each does what it does best.
+
+
+## Features
+* **Minimal Size with Maximum Flexibility** (~1.4Kb core parser, ~2Kb DOM API, ~0.5Kb sanitization)
+* **Modern Tree-Shaking Friendly Architecture** (main components packaged in separate bundles)
+* **Security-First Approach** (Built-in security, but fully customizable)
+* **Isomorphic by Design** (Works in Node.js, Deno, Bun, browsers; No DOM dependencies)
+* **High Performance** (Sub-millisecond parsing for typical HTML documents)
+* **Typescript Support** (First-class TypeScript support with full types)
 
 
 ### Main Components

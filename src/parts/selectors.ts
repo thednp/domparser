@@ -6,6 +6,42 @@ import type { DOMNode, SelectorPart } from "./types";
 const SELECTOR_REGEX = /([.#]?[\w-]+|\[[\w-]+(?:=[^\]]+)?\])+/g;
 
 /**
+ * Create a selector cache to help improve `match` based queries
+ * (querySelector, querySelectorAll).
+ *
+ * @param maxSize the maximum amount of selector
+ */
+const createSelectorCache = (maxSize = 100) => {
+  const cache = new Map<string, (node: DOMNode) => boolean>();
+
+  return (selector: string): (node: DOMNode) => boolean => {
+    let matchFn = cache.get(selector);
+
+    if (!matchFn) {
+      // If cache is full, remove oldest entry
+      if (cache.size >= maxSize) {
+        const firstKey = cache.keys().next().value;
+        /* istanbul ignore else @preserve */
+        if (firstKey) cache.delete(firstKey);
+      }
+
+      // Parse selector parts once and create a matcher function
+      const parts = selector.split(",").map((s) => s.trim());
+
+      matchFn = (node: DOMNode): boolean =>
+        parts.some((part) => matchesSingleSelector(node, part));
+
+      cache.set(selector, matchFn);
+    }
+
+    return matchFn;
+  };
+};
+
+// Create a single cache instance
+const getSelectorMatcher = createSelectorCache();
+
+/**
  * Parses a CSS selector string into an array of selector parts.
  * Each part represents a segment of the selector (e.g., tag name, class, id, attribute).
  * @param selector The CSS selector string to parse.
@@ -75,7 +111,8 @@ export const matchesSelector = (node: DOMNode, selector: string): boolean => {
   const selectors = selector.split(",").map((s) => s.trim());
 
   // Node matches if it matches any of the individual selectors
-  return selectors.some((simpleSelector) =>
-    matchesSingleSelector(node, simpleSelector)
-  );
+  return selectors.some((simpleSelector) => {
+    const matcher = getSelectorMatcher(simpleSelector);
+    return matcher(node);
+  });
 };

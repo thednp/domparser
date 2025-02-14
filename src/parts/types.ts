@@ -9,7 +9,6 @@ export type TagAttr<T extends TagNames> =
 export type TextNode = TextLike & {
   remove: () => void;
   readonly textContent: string;
-  readonly innerText: string;
   readonly ownerDocument: RootNode;
   readonly parentNode: RootNode | DOMNode;
 };
@@ -24,7 +23,6 @@ export type TextLike = {
 export type CommentNode = CommentLike & {
   remove: () => void;
   readonly textContent: string;
-  readonly innerText: string;
   readonly ownerDocument: RootNode;
   readonly parentNode: RootNode | DOMNode;
 };
@@ -83,7 +81,6 @@ export type DOMNode = Omit<NodeLike, "attributes"> & BaseNode & {
   readonly tagName: string & TagNames;
   readonly attributes: Map<string, string>;
   readonly textContent: string;
-  readonly innerText: string;
   readonly innerHTML: string;
   readonly outerHTML: string;
 };

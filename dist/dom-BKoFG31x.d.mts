@@ -1,4 +1,4 @@
-import { e as TextNode, g as CommentNode, a as RootNode, j as ChildNodeList, D as DOMNode, T as TagNames, c as NodeLikeAttributes, M as MaybeChildNode, b as ChildNode, C as ChildLike, P as ParserOptions } from './types-EHW0eDTa.mjs';
+import { e as TextNode, g as CommentNode, a as RootNode, j as ChildNodeList, D as DOMNode, T as TagNames, c as NodeLikeAttributes, M as MaybeChildNode, b as ChildNode, C as ChildLike, P as ParserOptions } from './types-DPG4EwRD.mjs';
 
 /**
  * Creates a basic text or comment node.

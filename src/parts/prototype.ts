@@ -153,10 +153,6 @@ export function createNode(
 
         defineProperties(child, {
           // Add text generation methods
-          innerText: {
-            enumerable: false,
-            get: () => textContent(child),
-          },
           textContent: {
             enumerable: false,
             get: () => textContent(child),

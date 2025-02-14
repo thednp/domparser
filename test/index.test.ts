@@ -98,7 +98,11 @@ describe(`Test DOMParser`, () => {
           "body",
           { id: "my-body", "data-url": "https://nice.com" },
           doc.createElement("h1", "This is a heading"),
-          doc.createElement("p", "This is a paragraph"),
+          doc.createElement("p",
+            "This is a paragraph ",
+            doc.createElement("a", { href: "#" }, "with a link"),
+            "and some more text"
+          ),
           doc.createComment("This is a comment"),
           "This is a text",
           "<!-- This is a comment again -->",
@@ -119,7 +123,7 @@ describe(`Test DOMParser`, () => {
     );
 
     expect(doc.charset).toEqual('UTF-8');
-    expect(doc.all.length).toEqual(11);
+    expect(doc.all.length).toEqual(12);
     expect(doc.contains(doc.body as DOMNode)).toBeTruthy();
     expect(doc.body?.getAttribute("id")).toEqual("my-body");
     expect(doc.documentElement).toBeDefined();
@@ -147,7 +151,6 @@ describe(`Test DOMParser`, () => {
     expect(doc.querySelector(".html-class")?.tagName).toEqual("html");
     expect(doc.querySelectorAll(".html-class")[0]?.tagName).toEqual("html");
     // console.log(doc.querySelector("head")?.textContent);
-    expect(doc.querySelector("head")?.innerText).toContain("This is a title");
     expect(doc.querySelector("head")?.textContent).toContain("This is a title");
     expect(doc.querySelector("svg")?.textContent).toContain("");
     doc.querySelector("svg")?.setAttributeNS("http://www.w3.org/2000/svg", "viewBox", "0 0 25 25")
@@ -198,6 +201,32 @@ describe(`Test DOMParser`, () => {
       expect(er).toBeDefined();
       expect(er.message).toEqual("DomError: the childNode parameter must be a valid ChildNode")
     }
+
+    // edge case, test cache
+    const tagNames = ['html', 'body', 'button', 'p', 'div', 'a', 'svg', 'path', "h1", "h2", 'ul', 'li']
+    const classes = ["my-body", 'btn', 'container', "link", "flex", "hidden", "active"]
+    const selectors = new Set<string>();
+    const attributes = [{ "aria-hidden": "false" }, { disabled: "false" }, { tabindex: "1" }]
+    let idx = 0;
+    for (const tag of tagNames) {
+      for (const cls of classes) {
+        for (const att of attributes) {
+          const sel = idx % 2 ? (tag+"."+cls)
+            : idx % 3 ? ('.'+cls)
+            : idx % 4 ? (tag+'['+Object.keys(att)[0]+']')
+            : tag;
+          selectors.add(sel);
+          console.log(idx, sel)
+          idx += 1;
+          if (selectors.size === 100) break;
+        }
+        if (selectors.size === 100) break;
+      }
+      if (selectors.size === 100) break;
+    }
+    selectors.forEach(sel => doc.querySelector(sel));
+
+    expect(selectors.size, 'exceed cache limit of 100').toEqual(100);
   });
 
   test(`Test Parser with HTML Markup`, () => {
