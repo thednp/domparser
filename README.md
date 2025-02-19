@@ -20,7 +20,6 @@ You also have a powerful tool to create a DOM tree from scratch, but unlike the 
 ### Features
 * **Minimal Size with Maximum Flexibility** (~1.1Kb core parser, ~3.5Kb parser with DOM API, ~2.5Kb DOM API)
 * **Modern Tree-Shaking Friendly Architecture** (both versions packaged in separate bundles)
-* **Security-First Approach** (Built-in security, but fully customizable)
 * **Isomorphic by Design** (Works in Node.js, Deno, Bun, browsers; No DOM dependencies)
 * **High Performance** (Sub-millisecond parsing for typical HTML templates; very fast `match` based queries)
 * **Typescript Support** (First-class TypeScript support with full types).
@@ -28,7 +27,7 @@ You also have a powerful tool to create a DOM tree from scratch, but unlike the 
 
 ### Main Components
 * **Parser** - the core parser which creates a basic DOM tree very fast and very memory efficient;
-* **DomParser** - provides everything the basic **Parser** does, but also alows allows you to generate a DOM tree that can be manipulated and queried; it can even validate open and closing tags;
+* **DomParser** - everything the basic **Parser** comes with, but also allows you to generate a DOM tree that can be manipulated and queried; it can even validate open and closing tags;
 * **DOM** - a separate module that allows you to create a `Document` like object with similar API.
 
 
@@ -92,7 +91,7 @@ Let's take a sample HTML source for this example. We want to showcase all the ca
 </details>
 
 
-### Initialize
+### Parser Initialize
 
 First let's import and initialize the **Parser** and designate the source to be parsed:
 ```ts
@@ -267,6 +266,8 @@ Below we have a near complete representation of the given HTML markup, keep in m
 
 ## DomParser Usage
 The **DomParser** returns a similar result as the basic **Parser**, however it also allows you to manipulate the DOM tree or create one similar to how `Document` API works, if no starting HTML markup is provided, you only have a basic `Document` like you can manipulate.
+
+**NOTE** - Unlike the light **Parser** this version _will_ distinguish nodes like `Element`, `SVGElement` from `TextNode` or `CommentNode` nodes, which means that the `children` property contains `Element` | `SVGElement` while the `childNodes` property contains all types of nodes.
 
 ### Initialize DomParser
 First let's import and initialize **DomParser** and get to build a DOM tree from scratch:
