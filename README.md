@@ -862,7 +862,7 @@ console.log(doc.contains(title));
 
 #### Node Children Relationship
 
-The `Node` prototype will only expose `readonly` properties (getters) to access `children` and `childNodes` for any node instance present in the DOM tree. The rule of thumbs is that if a node isn't appended to a parent, it should be present in the output of these accessors.
+The `Node` prototype will only expose `readonly` properties (getters) to access `children` and `childNodes` for any node instance present in the DOM tree. The rule of thumbs is that if a node isn't appended to a parent, it should _not_ be present in the output of these accessors.
 
 <details>
 <summary>Click to expand</summary>
@@ -1067,7 +1067,7 @@ const button = main.children.find(child => child.matches("[data-toggle]"))
 The API provides properties for accessing the content of elements:
 
 * **`innerHTML`**
-  * **Getter:** - returns the HTML markup contained *within* the element. This includes all child nodes (elements, text nodes, and comment nodes), serialized to a formatted HTML string.
+  * **Getter:** - returns the HTML markup contained *within* the element. This includes all child nodes (`Element` like nodes and text nodes), serialized to a formatted HTML string.
 * **`outerHTML`**
   * **Getter:** returns the complete HTML markup of the element, including the element itself and its contents.
 * **`textContent`**

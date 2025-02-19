@@ -260,9 +260,7 @@ var DOM = (() => {
     if (!childNodes.length) return "";
     const childIsText = childNodes.length === 1 && !isTag(childNodes[0]);
     const space = depth && !childIsText ? "  ".repeat(depth) : "";
-    return childNodes.map(
-      (n) => isTag(n) ? outerHTML(n, depth) : space + n.nodeValue
-    ).join("\n");
+    return childNodes.filter((n) => n.nodeName !== "#comment").map((n) => isTag(n) ? outerHTML(n, depth) : space + n.nodeValue).join("\n");
   };
   var outerHTML = (node, depth = 0) => {
     const space = depth ? "  ".repeat(depth) : "";

@@ -56,9 +56,8 @@ const innerHTML = ({ childNodes }: DOMNode, depth = 0): string => {
   const space = depth && !childIsText ? "  ".repeat(depth) : "";
 
   return childNodes
-    .map((n) =>
-      isTag(n) ? outerHTML(n as unknown as DOMNode, depth) : space + n.nodeValue
-    )
+    .filter((n) => n.nodeName !== "#comment")
+    .map((n) => isTag(n) ? outerHTML(n, depth) : space + n.nodeValue)
     .join("\n");
 };
 

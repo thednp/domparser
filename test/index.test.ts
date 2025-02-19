@@ -51,7 +51,7 @@ describe(`Test DOMParser`, () => {
     // return;
     
     expect(doc.parentElement).toBeUndefined();
-    expect(doc.documentElement?.outerHTML.length).toEqual(633);
+    expect(doc.documentElement?.outerHTML.length).toEqual(541);
     expect(doc.all.length).toEqual(15);
     expect(doc.head?.children[2].childNodes[0].ownerDocument).toEqual(doc);
     expect((doc.head?.parentNode as DOMNode).tagName).toEqual("html");
