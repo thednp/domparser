@@ -275,7 +275,7 @@ First let's import and initialize **DomParser** and get to build a DOM tree from
 import { DomParser } from '@thednp/domparser';
 
 // initialize
-const { root: doc } = DomParser.parseFromString();
+const { root: doc } = DomParser(/* options */).parseFromString();
 ```
 
 Now we can use `Document` like methods to create a DOM tree structure:
@@ -391,7 +391,7 @@ console.log(svg.closest("#my-body"));
 ```ts
 import { DomParser } from "@thednp/domparser/dom-parser";
 
-const doc = DomParser().parseFromString(`<html><script src="some-url"></script></html>`, { filterTags: ["script"] });
+const doc = DomParser({ filterTags: ["script"] }).parseFromString(`<html><script src="some-url"></script></html>`);
 ```
 
 Check below a more detailed example:
