@@ -666,7 +666,6 @@ ${space}` : "";
         let parentIsSafe = true;
         let newNode;
         tokenize(htmlString).forEach((token) => {
-          console.log(token);
           const { nodeType, value, isSC } = token;
           if (nodeType === "doctype") {
             root.doctype = `<${value}>`;

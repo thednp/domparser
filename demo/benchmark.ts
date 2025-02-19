@@ -7,7 +7,7 @@
  * deno demo/benchmark.ts
  * ```
  */
-import { Dom } from '../src/parts/dom.ts';
+import { DomParser } from '../src/parts/dom-parser.ts';
 import { selectorCache } from '../src/parts/selectors.ts';
 
 const html = `
@@ -16,7 +16,7 @@ const html = `
   </div>
 `;
 
-const dom = Dom(html);
+const dom = DomParser().parseFromString(html).root;
 
 // Warm up
 dom.querySelectorAll('p.text');

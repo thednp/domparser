@@ -167,7 +167,6 @@ export const DomParser = (
       let newNode: ChildNode;
 
       tokenize(htmlString).forEach((token) => {
-        console.log(token);
         const { nodeType, value, isSC } = token;
         // Skip doctype, but store it as a root property
         if (nodeType === "doctype") {

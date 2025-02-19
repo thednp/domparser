@@ -271,7 +271,6 @@ export const tokenize = (html: string): HTMLToken[] => {
       if (char === 60 && endSpecialTag && !inTag && !inTemplate && !inQuote) { // <
         inStyleScript = false;
       }
-      // console.log('277', {char: html[i], token, inStyleScript })
       if (char === 96) { // ` | 0x60
         inTemplate = !inTemplate;
       }
