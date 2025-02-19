@@ -1,5 +1,5 @@
 "use strict";
-var DOM = (() => {
+var DomParser = (() => {
   var __defProp = Object.defineProperty;
   var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
   var __getOwnPropNames = Object.getOwnPropertyNames;
@@ -20,36 +20,10 @@ var DOM = (() => {
   var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
 
-  // src/index.ts
-  var src_exports = {};
-  __export(src_exports, {
-    ATTR_REGEX: () => ATTR_REGEX,
-    DOM_ERROR: () => DOM_ERROR,
-    DomParser: () => DomParser,
-    Parser: () => Parser,
-    charCodeAt: () => charCodeAt,
-    createBasicNode: () => createBasicNode,
-    createDocument: () => createDocument,
-    createElement: () => createElement,
-    createNode: () => createNode,
-    defineProperties: () => defineProperties,
-    endsWith: () => endsWith,
-    fromCharCode: () => fromCharCode,
-    getAttributes: () => getAttributes,
-    getBaseAttributes: () => getBaseAttributes,
-    isNode: () => isNode,
-    isObj: () => isObj,
-    isPrimitive: () => isPrimitive,
-    isRoot: () => isRoot,
-    isTag: () => isTag,
-    matchesSelector: () => matchesSelector,
-    selectorCache: () => selectorCache,
-    selfClosingTags: () => selfClosingTags,
-    startsWith: () => startsWith,
-    toLowerCase: () => toLowerCase,
-    toUpperCase: () => toUpperCase,
-    tokenize: () => tokenize,
-    trim: () => trim
+  // src/parts/dom-parser.ts
+  var dom_parser_exports = {};
+  __export(dom_parser_exports, {
+    DomParser: () => DomParser
   });
 
   // src/parts/util.ts
@@ -593,54 +567,6 @@ ${space}` : "";
   }
   var createDocument = () => createNode.call(null, "#document");
 
-  // src/parts/parser.ts
-  function Parser() {
-    return {
-      parseFromString(htmlString) {
-        const root = { nodeName: "#document", children: [] };
-        if (!htmlString) return { root, tags: [], components: [] };
-        const stack = [root];
-        const components = /* @__PURE__ */ new Set();
-        const tags = /* @__PURE__ */ new Set();
-        tokenize(htmlString).forEach((token) => {
-          const { nodeType, value, isSC } = token;
-          const currentParent = stack[stack.length - 1];
-          if (nodeType === "doctype") return;
-          if (["text", "comment"].includes(nodeType)) {
-            currentParent.children.push(
-              {
-                nodeName: `#${nodeType}`,
-                nodeValue: value
-              }
-            );
-            return;
-          }
-          const isClosing = value.startsWith("/");
-          const tagName = isClosing ? value.slice(1) : value.split(/[\s/>]/)[0];
-          const isSelfClosing = isSC || selfClosingTags.has(tagName);
-          (tagName[0] === toUpperCase(tagName[0]) || tagName.includes("-") ? components : tags).add(tagName);
-          if (!isClosing) {
-            const node = {
-              tagName,
-              nodeName: toUpperCase(tagName),
-              attributes: getBaseAttributes(value),
-              children: []
-            };
-            currentParent.children.push(node);
-            !isSelfClosing && stack.push(node);
-          } else if (!isSelfClosing && stack.length > 1) {
-            stack.pop();
-          }
-        });
-        return {
-          root,
-          components: Array.from(components),
-          tags: Array.from(tags)
-        };
-      }
-    };
-  }
-
   // src/parts/dom-parser.ts
   var DomParser = (config) => {
     if (config && !isObj(config)) {
@@ -743,6 +669,6 @@ ${space}` : "";
       }
     };
   };
-  return __toCommonJS(src_exports);
+  return __toCommonJS(dom_parser_exports);
 })();
-//# sourceMappingURL=index.js.map
+//# sourceMappingURL=dom-parser.js.map

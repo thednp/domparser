@@ -1,56 +1,6 @@
-"use strict";
 var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __getOwnPropNames = Object.getOwnPropertyNames;
-var __hasOwnProp = Object.prototype.hasOwnProperty;
 var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __export = (target, all) => {
-  for (var name in all)
-    __defProp(target, name, { get: all[name], enumerable: true });
-};
-var __copyProps = (to, from, except, desc) => {
-  if (from && typeof from === "object" || typeof from === "function") {
-    for (let key of __getOwnPropNames(from))
-      if (!__hasOwnProp.call(to, key) && key !== except)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
-  }
-  return to;
-};
-var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
-
-// src/index.ts
-var src_exports = {};
-__export(src_exports, {
-  ATTR_REGEX: () => ATTR_REGEX,
-  DOM_ERROR: () => DOM_ERROR,
-  DomParser: () => DomParser,
-  Parser: () => Parser,
-  charCodeAt: () => charCodeAt,
-  createBasicNode: () => createBasicNode,
-  createDocument: () => createDocument,
-  createElement: () => createElement,
-  createNode: () => createNode,
-  defineProperties: () => defineProperties,
-  endsWith: () => endsWith,
-  fromCharCode: () => fromCharCode,
-  getAttributes: () => getAttributes,
-  getBaseAttributes: () => getBaseAttributes,
-  isNode: () => isNode,
-  isObj: () => isObj,
-  isPrimitive: () => isPrimitive,
-  isRoot: () => isRoot,
-  isTag: () => isTag,
-  matchesSelector: () => matchesSelector,
-  selectorCache: () => selectorCache,
-  selfClosingTags: () => selfClosingTags,
-  startsWith: () => startsWith,
-  toLowerCase: () => toLowerCase,
-  toUpperCase: () => toUpperCase,
-  tokenize: () => tokenize,
-  trim: () => trim
-});
-module.exports = __toCommonJS(src_exports);
 
 // src/parts/util.ts
 var ATTR_REGEX = /([^\s=]+)(?:=(?:"([^"]*)"|'([^']*)'|([^\s"']+)))?/g;
@@ -593,54 +543,6 @@ function createElement(tagName, first, ...args) {
 }
 var createDocument = () => createNode.call(null, "#document");
 
-// src/parts/parser.ts
-function Parser() {
-  return {
-    parseFromString(htmlString) {
-      const root = { nodeName: "#document", children: [] };
-      if (!htmlString) return { root, tags: [], components: [] };
-      const stack = [root];
-      const components = /* @__PURE__ */ new Set();
-      const tags = /* @__PURE__ */ new Set();
-      tokenize(htmlString).forEach((token) => {
-        const { nodeType, value, isSC } = token;
-        const currentParent = stack[stack.length - 1];
-        if (nodeType === "doctype") return;
-        if (["text", "comment"].includes(nodeType)) {
-          currentParent.children.push(
-            {
-              nodeName: `#${nodeType}`,
-              nodeValue: value
-            }
-          );
-          return;
-        }
-        const isClosing = value.startsWith("/");
-        const tagName = isClosing ? value.slice(1) : value.split(/[\s/>]/)[0];
-        const isSelfClosing = isSC || selfClosingTags.has(tagName);
-        (tagName[0] === toUpperCase(tagName[0]) || tagName.includes("-") ? components : tags).add(tagName);
-        if (!isClosing) {
-          const node = {
-            tagName,
-            nodeName: toUpperCase(tagName),
-            attributes: getBaseAttributes(value),
-            children: []
-          };
-          currentParent.children.push(node);
-          !isSelfClosing && stack.push(node);
-        } else if (!isSelfClosing && stack.length > 1) {
-          stack.pop();
-        }
-      });
-      return {
-        root,
-        components: Array.from(components),
-        tags: Array.from(tags)
-      };
-    }
-  };
-}
-
 // src/parts/dom-parser.ts
 var DomParser = (config) => {
   if (config && !isObj(config)) {
@@ -743,34 +645,7 @@ var DomParser = (config) => {
     }
   };
 };
-// Annotate the CommonJS export names for ESM import in node:
-0 && (module.exports = {
-  ATTR_REGEX,
-  DOM_ERROR,
-  DomParser,
-  Parser,
-  charCodeAt,
-  createBasicNode,
-  createDocument,
-  createElement,
-  createNode,
-  defineProperties,
-  endsWith,
-  fromCharCode,
-  getAttributes,
-  getBaseAttributes,
-  isNode,
-  isObj,
-  isPrimitive,
-  isRoot,
-  isTag,
-  matchesSelector,
-  selectorCache,
-  selfClosingTags,
-  startsWith,
-  toLowerCase,
-  toUpperCase,
-  tokenize,
-  trim
-});
-//# sourceMappingURL=index.cjs.map
+export {
+  DomParser
+};
+//# sourceMappingURL=dom-parser.mjs.map

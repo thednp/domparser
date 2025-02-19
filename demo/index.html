@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOMParser Demo</title>
+    <style>
+      *, *:before, *:after {
+          box-sizing: inherit;
+      }
+      html { font-family: Arial, Helvetica, sans-serif;}
+      textarea {
+        min-width: 350px;
+        min-height: 400px;
+        max-width: 50vw;
+      }
+      div { display: flex; gap: 3rem; div, label {display: block} }
+    </style>
+  </head>
+
+  <body>
+    <main>
+      <h1><b>DOMParser</b> Demo</h1>
+      <div>
+        <div>
+          <label for="input">Paste HTML in Here</label>
+          <textarea name="input" id="input">
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Example</title>
+    <style id="my-style">p {margin: 0}</style>
+  </head>
+  <body>
+    <h1>Sample</h1>
+    <!--
+      this is a comment
+      <span>this is a span inside comment</span>
+    -->
+    <path d='M0 0L5 5'></path>
+    <path d='M0 0L10 5' />
+    <icon id="fancy" class="no-display" />
+    <button class="button" data-url="https://test.com">
+      <icon id="icon" />
+      Click me
+    </button>
+    <Command id="comment">
+      <some-element>Text</some-element>
+    </Command>
+    <button data-click="yes" onclick="sayWhat();" disabled />
+  </body>
+</html>
+          </textarea>
+        </div>
+        <output></output>
+        <pre></pre>
+      </div>
+    </main>
+
+    <script type="module">
+      import { Parser, DomParser } from "../src/index.ts";
+      // console.log(Parser);
+      function debounce(func, delay = 350) {
+        let timeoutId; // Variable to store the timeout ID
+
+        return function (...args) { // Return a new function that will be debounced
+          clearTimeout(timeoutId); // Clear any existing timeout
+
+          timeoutId = setTimeout(() => { // Set a new timeout
+            func.apply(this, args); // Call the original function after the delay
+          }, delay);
+        };
+      }
+      const [input] = document.getElementsByTagName("textarea");
+      const [output] = document.getElementsByTagName("output");
+      const [pre] = document.getElementsByTagName("pre");
+      const onChange = debounce(() => {
+        console.time("parsing");
+        // const htmlParsed = Parser({ filterTags: ["script", "pre"] }).parseFromString(input.value);
+        const htmlParsed = Parser().parseFromString(input.value);
+        console.timeEnd("parsing");
+        pre.innerText = input.value;
+        output.innerHTML = `
+<p><b>Tags</b>: ${htmlParsed.tags.join(', ')}</p>
+<p><b>Components</b>: ${htmlParsed.components.join(', ')}</p>
+<details>
+<summary>DOM Tree (Click to expand)</summary>
+
+<pre>
+${JSON.stringify(htmlParsed.root, null, 2)}
+</pre>
+</details>
+`.trim();
+        console.log(htmlParsed)
+      })
+
+      input.addEventListener('input', onChange);
+      onChange();
+    </script>
+  </body>
+</html>

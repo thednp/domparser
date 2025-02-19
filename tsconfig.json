@@ -10,6 +10,7 @@
    "allowJs": true,
    "forceConsistentCasingInFileNames": true,
    "useDefineForClassFields": true,
+   "allowImportingTsExtensions": true,
    "strict": true,
    "sourceMap": true,
    "resolveJsonModule": true,

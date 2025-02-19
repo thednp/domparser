@@ -1,8 +1,6 @@
-// export * from "./parts/util";
-export * from "./parts/util";
-export * from "./parts/types";
-export * from "./parts/sanitize";
-export * from "./parts/prototype";
-export { matchesSelector } from "./parts/selectors";
-export { getAttributes, Parser, tokenize } from "./parts/parser";
-export { Dom } from "./parts/dom";
+export * from "./parts/util.ts";
+export * from "./parts/types.ts";
+export * from "./parts/prototype.ts";
+export { matchesSelector, selectorCache } from "./parts/selectors.ts";
+export { Parser } from "./parts/parser.ts";
+export { DomParser } from "./parts/dom-parser.ts";

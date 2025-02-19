@@ -1,56 +1,6 @@
-"use strict";
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __getOwnPropNames = Object.getOwnPropertyNames;
-var __hasOwnProp = Object.prototype.hasOwnProperty;
+"use strict";Object.defineProperty(exports, "__esModule", {value: true}); function _nullishCoalesce(lhs, rhsFn) { if (lhs != null) { return lhs; } else { return rhsFn(); } } function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }var __defProp = Object.defineProperty;
 var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __export = (target, all) => {
-  for (var name in all)
-    __defProp(target, name, { get: all[name], enumerable: true });
-};
-var __copyProps = (to, from, except, desc) => {
-  if (from && typeof from === "object" || typeof from === "function") {
-    for (let key of __getOwnPropNames(from))
-      if (!__hasOwnProp.call(to, key) && key !== except)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
-  }
-  return to;
-};
-var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
-
-// src/index.ts
-var src_exports = {};
-__export(src_exports, {
-  ATTR_REGEX: () => ATTR_REGEX,
-  DOM_ERROR: () => DOM_ERROR,
-  DomParser: () => DomParser,
-  Parser: () => Parser,
-  charCodeAt: () => charCodeAt,
-  createBasicNode: () => createBasicNode,
-  createDocument: () => createDocument,
-  createElement: () => createElement,
-  createNode: () => createNode,
-  defineProperties: () => defineProperties,
-  endsWith: () => endsWith,
-  fromCharCode: () => fromCharCode,
-  getAttributes: () => getAttributes,
-  getBaseAttributes: () => getBaseAttributes,
-  isNode: () => isNode,
-  isObj: () => isObj,
-  isPrimitive: () => isPrimitive,
-  isRoot: () => isRoot,
-  isTag: () => isTag,
-  matchesSelector: () => matchesSelector,
-  selectorCache: () => selectorCache,
-  selfClosingTags: () => selfClosingTags,
-  startsWith: () => startsWith,
-  toLowerCase: () => toLowerCase,
-  toUpperCase: () => toUpperCase,
-  tokenize: () => tokenize,
-  trim: () => trim
-});
-module.exports = __toCommonJS(src_exports);
 
 // src/parts/util.ts
 var ATTR_REGEX = /([^\s=]+)(?:=(?:"([^"]*)"|'([^']*)'|([^\s"']+)))?/g;
@@ -62,7 +12,7 @@ var getBaseAttributes = (tagStr) => {
   let match;
   while (match = ATTR_REGEX.exec(attrStr)) {
     const [, name, d, s, u] = match;
-    name !== "/" && (attrs[name] = d ?? s ?? u ?? "");
+    name !== "/" && (attrs[name] = _nullishCoalesce(_nullishCoalesce(_nullishCoalesce(d, () => ( s)), () => ( u)), () => ( "")));
   }
   return attrs;
 };
@@ -71,7 +21,7 @@ var getAttributes = (tagStr, config) => {
   const baseAttrs = getBaseAttributes(tagStr);
   const attrs = {};
   for (const [key, value] of Object.entries(baseAttrs)) {
-    if (!unsafeAttrs || !unsafeAttrs?.has(toLowerCase(key))) {
+    if (!unsafeAttrs || !_optionalChain([unsafeAttrs, 'optionalAccess', _ => _.has, 'call', _2 => _2(toLowerCase(key))])) {
       attrs[key] = value;
     }
   }
@@ -276,7 +226,7 @@ var matchesSingleSelector = (node, selector) => {
         return node.attributes.get("id") === part.value;
       }
       case ".": {
-        const classes = node.attributes.get("class")?.split(/\s+/) || [];
+        const classes = _optionalChain([node, 'access', _3 => _3.attributes, 'access', _4 => _4.get, 'call', _5 => _5("class"), 'optionalAccess', _6 => _6.split, 'call', _7 => _7(/\s+/)]) || [];
         return classes.includes(part.value);
       }
       case "[": {
@@ -339,7 +289,7 @@ function createNode(nodeName, ...childNodes) {
   const CHILDREN = [];
   const CHILDNODES = [];
   const nodeIsRoot = nodeName === "#document";
-  const ownerDocument = this ?? void 0;
+  const ownerDocument = _nullishCoalesce(this, () => ( void 0));
   const node = {
     nodeName,
     append(...nodes) {
@@ -351,7 +301,7 @@ function createNode(nodeName, ...childNodes) {
         if (isTag(child)) {
           ALL.push(child);
           CHILDREN.push(child);
-          ownerDocument?.register(child);
+          _optionalChain([ownerDocument, 'optionalAccess', _8 => _8.register, 'call', _9 => _9(child)]);
           defineProperties(child, {
             innerHTML: {
               enumerable: false,
@@ -413,7 +363,7 @@ function createNode(nodeName, ...childNodes) {
         return createBasicNode("#text", content);
       },
       getElementById(id) {
-        return ALL.find((node2) => node2.attributes.get("id") === id) ?? null;
+        return _nullishCoalesce(ALL.find((node2) => node2.attributes.get("id") === id), () => ( null));
       }
     },
     // Element methods
@@ -454,7 +404,7 @@ function createNode(nodeName, ...childNodes) {
         if (idx1 > -1) ALL.splice(idx1, 1);
         if (idx2 > -1) CHILDREN.splice(idx2, 1);
         childNode.cleanup();
-        ownerDocument?.deregister(childNode);
+        _optionalChain([ownerDocument, 'optionalAccess', _10 => _10.deregister, 'call', _11 => _11(childNode)]);
       }
       const idx3 = indexOf(CHILDNODES);
       if (idx3 > -1) CHILDNODES.splice(idx3, 1);
@@ -464,7 +414,7 @@ function createNode(nodeName, ...childNodes) {
       node.append(...newChildren);
     },
     querySelector(selector) {
-      return ALL.find((node2) => node2.matches(selector)) ?? null;
+      return _nullishCoalesce(ALL.find((node2) => node2.matches(selector)), () => ( null));
     },
     querySelectorAll(selector) {
       return ALL.filter((node2) => node2.matches(selector));
@@ -477,7 +427,7 @@ function createNode(nodeName, ...childNodes) {
     getElementsByClassName(className) {
       return ALL.filter((node2) => {
         const classAttr = node2.attributes.get("class");
-        return classAttr?.split(/\s+/).includes(className) ?? false;
+        return _nullishCoalesce(_optionalChain([classAttr, 'optionalAccess', _12 => _12.split, 'call', _13 => _13(/\s+/), 'access', _14 => _14.includes, 'call', _15 => _15(className)]), () => ( false));
       });
     }
   };
@@ -524,7 +474,7 @@ function createNode(nodeName, ...childNodes) {
       }
     });
   }
-  if (childNodes?.length) {
+  if (_optionalChain([childNodes, 'optionalAccess', _16 => _16.length])) {
     node.append(...childNodes);
   }
   return node;
@@ -568,12 +518,12 @@ function createElement(tagName, first, ...args) {
     }
   });
   node.hasAttribute = (attrName) => attributes.has(attrName);
-  node.getAttribute = (attrName) => attributes.get(attrName) ?? null;
+  node.getAttribute = (attrName) => _nullishCoalesce(attributes.get(attrName), () => ( null));
   node.setAttribute = (attrName, attrValue) => {
     attributes.set(attrName, attrValue);
   };
   node.hasAttributeNS = (_namespace, attrName) => attributes.has(attrName);
-  node.getAttributeNS = (_namespace, attrName) => attributes.get(attrName) ?? null;
+  node.getAttributeNS = (_namespace, attrName) => _nullishCoalesce(attributes.get(attrName), () => ( null));
   node.setAttributeNS = (_namespace, attrName, attrValue) => {
     attributes.set(attrName, attrValue);
   };
@@ -593,54 +543,6 @@ function createElement(tagName, first, ...args) {
 }
 var createDocument = () => createNode.call(null, "#document");
 
-// src/parts/parser.ts
-function Parser() {
-  return {
-    parseFromString(htmlString) {
-      const root = { nodeName: "#document", children: [] };
-      if (!htmlString) return { root, tags: [], components: [] };
-      const stack = [root];
-      const components = /* @__PURE__ */ new Set();
-      const tags = /* @__PURE__ */ new Set();
-      tokenize(htmlString).forEach((token) => {
-        const { nodeType, value, isSC } = token;
-        const currentParent = stack[stack.length - 1];
-        if (nodeType === "doctype") return;
-        if (["text", "comment"].includes(nodeType)) {
-          currentParent.children.push(
-            {
-              nodeName: `#${nodeType}`,
-              nodeValue: value
-            }
-          );
-          return;
-        }
-        const isClosing = value.startsWith("/");
-        const tagName = isClosing ? value.slice(1) : value.split(/[\s/>]/)[0];
-        const isSelfClosing = isSC || selfClosingTags.has(tagName);
-        (tagName[0] === toUpperCase(tagName[0]) || tagName.includes("-") ? components : tags).add(tagName);
-        if (!isClosing) {
-          const node = {
-            tagName,
-            nodeName: toUpperCase(tagName),
-            attributes: getBaseAttributes(value),
-            children: []
-          };
-          currentParent.children.push(node);
-          !isSelfClosing && stack.push(node);
-        } else if (!isSelfClosing && stack.length > 1) {
-          stack.pop();
-        }
-      });
-      return {
-        root,
-        components: Array.from(components),
-        tags: Array.from(tags)
-      };
-    }
-  };
-}
-
 // src/parts/dom-parser.ts
 var DomParser = (config) => {
   if (config && !isObj(config)) {
@@ -649,8 +551,8 @@ var DomParser = (config) => {
   let unsafeTags = /* @__PURE__ */ new Set();
   let unsafeAttrs = /* @__PURE__ */ new Set();
   const { filterTags, filterAttrs, onNodeCallback } = config || {};
-  if (filterTags?.length) unsafeTags = new Set(filterTags);
-  if (filterAttrs?.length) unsafeAttrs = new Set(filterAttrs);
+  if (_optionalChain([filterTags, 'optionalAccess', _17 => _17.length])) unsafeTags = new Set(filterTags);
+  if (_optionalChain([filterAttrs, 'optionalAccess', _18 => _18.length])) unsafeAttrs = new Set(filterAttrs);
   const getAttrOptions = { unsafeAttrs };
   return {
     parseFromString(htmlString) {
@@ -721,7 +623,7 @@ var DomParser = (config) => {
             attributes
           );
           if (onNodeCallback) onNodeCallback(newNode, currentParent, root);
-          const charset = attributes?.charset;
+          const charset = _optionalChain([attributes, 'optionalAccess', _19 => _19.charset]);
           if (tagName === "meta" && charset) {
             root.charset = toUpperCase(charset);
           }
@@ -743,34 +645,7 @@ var DomParser = (config) => {
     }
   };
 };
-// Annotate the CommonJS export names for ESM import in node:
-0 && (module.exports = {
-  ATTR_REGEX,
-  DOM_ERROR,
-  DomParser,
-  Parser,
-  charCodeAt,
-  createBasicNode,
-  createDocument,
-  createElement,
-  createNode,
-  defineProperties,
-  endsWith,
-  fromCharCode,
-  getAttributes,
-  getBaseAttributes,
-  isNode,
-  isObj,
-  isPrimitive,
-  isRoot,
-  isTag,
-  matchesSelector,
-  selectorCache,
-  selfClosingTags,
-  startsWith,
-  toLowerCase,
-  toUpperCase,
-  tokenize,
-  trim
-});
-//# sourceMappingURL=index.cjs.map
+
+
+exports.DomParser = DomParser;
+//# sourceMappingURL=dom-parser.cjs.map

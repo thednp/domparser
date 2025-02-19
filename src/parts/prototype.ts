@@ -1,8 +1,10 @@
 // prototype.ts
-import { tokenize } from "./parser";
-import { matchesSelector } from "./selectors";
+// import { tokenize } from "./dom-parser.ts";
+import { tokenize } from "./util.ts";
+import { matchesSelector } from "./selectors.ts";
 import {
   defineProperties,
+  DOM_ERROR,
   isNode,
   isObj,
   isPrimitive,
@@ -10,10 +12,10 @@ import {
   isTag,
   selfClosingTags,
   toUpperCase,
-} from "./util";
+} from "./util.ts";
+
 import type {
   ChildElementList,
-  ChildLike,
   ChildNode,
   ChildNodeList,
   CommentNode,
@@ -24,7 +26,7 @@ import type {
   TagNames,
   TextNode,
   TextToken,
-} from "./types";
+} from "./types.ts";
 
 /**
  * Generates text string from node's children textContent.
@@ -103,7 +105,8 @@ export function createBasicNode<T extends ("#text" | "#comment")>(
 ): TextNode | CommentNode {
   return {
     nodeName,
-    nodeValue: nodeName === "#comment" ? `<!-- ${text} -->` : text,
+    // nodeValue: nodeName !== "#text" ? `<!-- ${text} -->` : text,
+    nodeValue: nodeName !== "#text" ? `<${text}>` : text,
   } as (TextNode | CommentNode);
 }
 
@@ -132,6 +135,9 @@ export function createNode(
     nodeName,
     append(...nodes: ChildNodeList) {
       for (const child of nodes) {
+        if (!isNode(child)) {
+          throw new Error(`${DOM_ERROR} Invalid node.`);
+        }
         CHILDNODES.push(child);
         if (isTag(child)) {
           ALL.push(child);
@@ -162,6 +168,10 @@ export function createNode(
             enumerable: false,
             get: () => node,
           },
+          parentElement: {
+            enumerable: false,
+            get: () => node,
+          },
           ownerDocument: {
             enumerable: false,
             get: () => ownerDocument,
@@ -172,6 +182,11 @@ export function createNode(
           node.removeChild(child);
         };
       }
+    },
+    cleanup: () => {
+      ALL.length = 0;
+      CHILDREN.length = 0;
+      CHILDNODES.length = 0;
     },
 
     // Root document methods
@@ -253,6 +268,7 @@ export function createNode(
         if (idx1 > -1) ALL.splice(idx1, 1);
         /* istanbul ignore else @preserve */
         if (idx2 > -1) CHILDREN.splice(idx2, 1);
+        childNode.cleanup();
 
         ownerDocument?.deregister(childNode);
       }
@@ -346,7 +362,8 @@ export function createNode(
 const convertToNode = (n: string | number | ChildNode) => {
   if (isPrimitive(n)) {
     const { nodeType, value } = tokenize(String(n))[0] as TextToken;
-    return createBasicNode(`#${nodeType}`, value.replace(/!--|--/g, "").trim());
+    // return createBasicNode(`#${nodeType}`, value.replace(/!--|--/g, "").trim());
+    return createBasicNode(`#${nodeType}`, value);
   }
   return n;
 };
@@ -385,7 +402,7 @@ export function createElement(
 
   const node = createNode.call(
     this,
-    tagName.toUpperCase(),
+    toUpperCase(tagName),
     ...childNodes,
   ) as DOMNode;
 
@@ -432,34 +449,6 @@ export function createElement(
 
   return node;
 }
-
-/**
- * Enhances a node with DOM-like properties and methods
- * @param node The node to enhance
- * @param ownerDocument The root document
- */
-export const addDomPrototype = (
-  node: ChildNode | ChildLike,
-  ownerDocument: RootNode,
-): ChildNode => {
-  // if (isNode(node) && "parentNode" in node) return node;
-  if (isTag(node)) {
-    const { tagName, attributes, childNodes } = node;
-    const newNode = createElement.call(
-      ownerDocument,
-      tagName,
-      attributes as NodeLikeAttributes,
-    );
-    newNode.append(...childNodes as ChildNodeList);
-    return Object.assign(node, newNode);
-  } else {
-    const { nodeName, nodeValue } = node;
-
-    return Object.assign(node, {
-      ...createBasicNode(nodeName, nodeValue),
-    }) as TextNode | CommentNode;
-  }
-};
 
 /**
  * Creates a new `Document` like root node.

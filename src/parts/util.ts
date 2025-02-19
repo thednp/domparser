@@ -3,13 +3,63 @@ import type {
   ChildLike,
   ChildNode,
   DOMNode,
+  GetAttributesOptions,
+  HTMLToken,
   NodeLike,
   NodeLikeAttributes,
   RootLike,
   RootNode,
-} from "./types";
+} from "./types.ts";
 
 // general utils
+
+export const ATTR_REGEX = /([^\s=]+)(?:=(?:"([^"]*)"|'([^']*)'|([^\s"']+)))?/g;
+
+/**
+ * Get attributes from a string token and return an object
+ * @param tagStr the string token
+ * @returns the attributes object
+ */
+export const getBaseAttributes = (tagStr: string) => {
+  const attrs: NodeLikeAttributes = {};
+  const parts = tagStr.split(/\s+/);
+  if (parts.length < 2) return attrs;
+
+  const attrStr = tagStr.slice(parts[0].length);
+  let match: RegExpExecArray | null;
+
+  while ((match = ATTR_REGEX.exec(attrStr))) {
+    const [, name, d, s, u] = match;
+    name !== "/" && (attrs[name] = d ?? s ?? u ?? "");
+  }
+
+  return attrs;
+};
+
+/**
+ * Get attributes from a string token and return an object.
+ * In addition to the base tool, this also filters configured
+ * unsafe attributes and sanitization.
+ * @param tagStr the string token
+ * @param config an optional set of options
+ * @returns the attributes object
+ */
+export const getAttributes = (
+  tagStr: string,
+  config?: Partial<GetAttributesOptions>,
+): NodeLikeAttributes => {
+  const { unsafeAttrs } = config || {};
+  const baseAttrs = getBaseAttributes(tagStr);
+  const attrs: NodeLikeAttributes = {};
+
+  for (const [key, value] of Object.entries(baseAttrs)) {
+    if (!unsafeAttrs || !unsafeAttrs?.has(toLowerCase(key))) {
+      attrs[key] = value;
+    }
+  }
+
+  return attrs;
+};
 
 /**
  * Converts a string to lowercase.
@@ -29,19 +79,27 @@ export const toUpperCase = (str: string): string => str.toUpperCase();
  * Checks if a string starts with a specified prefix.
  * @param str The string to check.
  * @param prefix The prefix to search for.
+ * @param position The position to start looking from.
  * @returns `true` if the string starts with the prefix, `false` otherwise.
  */
-export const startsWith = (str: string, prefix: string): boolean =>
-  str.startsWith(prefix);
+export const startsWith = (
+  str: string,
+  prefix: string,
+  position?: number,
+): boolean => str.startsWith(prefix, position);
 
 /**
  * Checks if a string ends with a specified suffix.
  * @param str The string to check.
  * @param suffix The suffix to search for.
+ * @param position The position to start looking from.
  * @returns `true` if the string ends with the suffix, `false` otherwise.
  */
-export const endsWith = (str: string, suffix: string): boolean =>
-  str.endsWith(suffix);
+export const endsWith = (
+  str: string,
+  suffix: string,
+  position?: number,
+): boolean => str.endsWith(suffix, position);
 
 /**
  * Creates a string from a character code.
@@ -134,6 +192,13 @@ export const isPrimitive = <T extends (number | string)>(
 ): val is T => typeof val === "string" || typeof val === "number";
 
 /**
+ * Trim a string value.
+ * @param str A string value
+ * @returns The trimmed value of the same string.
+ */
+export const trim = (str: string) => str.trim();
+
+/**
  * Set of self-closing HTML tags used by the `Parser`.
  */
 export const selfClosingTags = new Set([
@@ -162,5 +227,120 @@ export const selfClosingTags = new Set([
   "polyline",
 ]);
 
-export const DOM_ERROR = "DomError:";
-export const PARSER_ERROR = "ParserError:";
+/**
+ * Tokenizes an HTML string into an array of HTML tokens.
+ * These tokens represent opening tags, closing tags, text content, and comments.
+ * @param html The HTML string to tokenize.
+ * @returns An array of `HTMLToken` objects.
+ */
+export const tokenize = (html: string): HTMLToken[] => {
+  const specialTags = ["script", "style"];
+  const tokens: HTMLToken[] = [];
+  const len = html.length;
+  let token = "",
+    inTag = false,
+    inQuote = false,
+    quote = 0,
+    inTemplate = false,
+    inComment = false,
+    inStyleScript = false;
+
+  for (let i = 0; i < len; i++) {
+    const char = charCodeAt(html, i);
+
+    if (inComment) {
+      token += fromCharCode(char);
+      /* istanbul ignore else @preserve */
+      if (endsWith(token, "--") && charCodeAt(html, i + 1) === 62 /* > */) {
+        tokens.push({
+          nodeType: "comment",
+          value: `<${trim(token)}>`,
+          isSC: false,
+        });
+        inComment = false;
+        token = "";
+        i += 1;
+      }
+      continue;
+    }
+
+    if (inStyleScript) {
+      const endSpecialTag = specialTags.find((t) =>
+        startsWith(html, `/${t}`, i + 1)
+      );
+      if (char === 60 && endSpecialTag && !inTag && !inTemplate && !inQuote) { // <
+        inStyleScript = false;
+      }
+      // console.log('277', {char: html[i], token, inStyleScript })
+      if (char === 96) { // ` | 0x60
+        inTemplate = !inTemplate;
+      }
+    }
+
+    // " or ' | 0x22 or 0x27
+    if (
+      (inTag || inStyleScript) && (char === 34 || char === 39)
+    ) {
+      if (!inQuote) {
+        quote = char;
+        inQuote = true;
+      } else if (char === quote) {
+        inQuote = false;
+      }
+
+      token += fromCharCode(char);
+      continue;
+    }
+
+    // else
+    if (char === 60 && !inQuote && !inTemplate && !inStyleScript) { // <
+      trim(token) &&
+        tokens.push({
+          nodeType: "text",
+          value: trim(token),
+          isSC: false,
+        });
+      token = "";
+      inTag = true;
+
+      if (startsWith(html, "!--", i + 1)) {
+        inComment = true;
+        token += "!--";
+        i += 3;
+        continue;
+      }
+    } else if (
+      char === 62 && inTag && !inQuote && !inTemplate && !inComment &&
+      !inStyleScript
+    ) { // >
+      const startSpecialTag = specialTags.find((t) =>
+        t === token || startsWith(token, t)
+      );
+      if (startSpecialTag) {
+        inStyleScript = true;
+      }
+      // handle doctype tag
+      const isDocType = startsWith(toLowerCase(token), "!doctype");
+      /* istanbul ignore else @preserve */
+      if (token) {
+        const isSC = endsWith(token, "/");
+        tokens.push({
+          nodeType: isDocType ? "doctype" : "tag",
+          value: isSC ? trim(token.slice(0, -1)) : trim(token),
+          isSC,
+        });
+      }
+      token = "";
+      inTag = false;
+    } else {
+      token += fromCharCode(char);
+    }
+  }
+
+  trim(token) &&
+    tokens.push({ nodeType: "text", value: trim(token), isSC: false });
+
+  return tokens;
+};
+
+export const DOM_ERROR = "DomParserError:";

@@ -1,8 +1,36 @@
+var __defProp = Object.defineProperty;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+
 // src/parts/util.ts
+var ATTR_REGEX = /([^\s=]+)(?:=(?:"([^"]*)"|'([^']*)'|([^\s"']+)))?/g;
+var getBaseAttributes = (tagStr) => {
+  const attrs = {};
+  const parts = tagStr.split(/\s+/);
+  if (parts.length < 2) return attrs;
+  const attrStr = tagStr.slice(parts[0].length);
+  let match;
+  while (match = ATTR_REGEX.exec(attrStr)) {
+    const [, name, d, s, u] = match;
+    name !== "/" && (attrs[name] = d ?? s ?? u ?? "");
+  }
+  return attrs;
+};
+var getAttributes = (tagStr, config) => {
+  const { unsafeAttrs } = config || {};
+  const baseAttrs = getBaseAttributes(tagStr);
+  const attrs = {};
+  for (const [key, value] of Object.entries(baseAttrs)) {
+    if (!unsafeAttrs || !unsafeAttrs?.has(toLowerCase(key))) {
+      attrs[key] = value;
+    }
+  }
+  return attrs;
+};
 var toLowerCase = (str) => str.toLowerCase();
 var toUpperCase = (str) => str.toUpperCase();
-var startsWith = (str, prefix) => str.startsWith(prefix);
-var endsWith = (str, suffix) => str.endsWith(suffix);
+var startsWith = (str, prefix, position) => str.startsWith(prefix, position);
+var endsWith = (str, suffix, position) => str.endsWith(suffix, position);
 var fromCharCode = (char) => String.fromCharCode(char);
 var charCodeAt = (str, index) => str.charCodeAt(index);
 var defineProperties = (obj, props) => Object.defineProperties(obj, props);
@@ -11,6 +39,7 @@ var isRoot = (node) => isObj(node) && isNode(node) && node.nodeName === "#docume
 var isTag = (node) => isObj(node) && "tagName" in node;
 var isNode = (node) => isObj(node) && "nodeName" in node;
 var isPrimitive = (val) => typeof val === "string" || typeof val === "number";
+var trim = (str) => str.trim();
 var selfClosingTags = /* @__PURE__ */ new Set([
   "area",
   "base",
@@ -36,102 +65,75 @@ var selfClosingTags = /* @__PURE__ */ new Set([
   "polygon",
   "polyline"
 ]);
-var DOM_ERROR = "DomError:";
-var PARSER_ERROR = "ParserError:";
-
-// src/parts/sanitize.ts
-var encodeEntities = (str) => str.replace(/[&<>"']/g, (char) => ({
-  "&": "&amp;",
-  "<": "&lt;",
-  ">": "&gt;",
-  '"': "&quot;",
-  "'": "&#39;"
-})[char] || /* istanbul ignore next @preserve */
-char);
-var sanitizeUrl = (url) => {
-  const decoded = decodeURIComponent(url.trim());
-  if (/^(?:javascript|data|vbscript):/i.test(decoded)) return "";
-  return encodeEntities(decoded);
-};
-var sanitizeAttrValue = (attrName, initialValue) => {
-  if (!initialValue) return "";
-  const name = toLowerCase(attrName);
-  const value = initialValue.trim();
-  if (name === "src" || name === "href" || name === "action" || name === "formaction" || endsWith(name, "url")) {
-    return sanitizeUrl(value);
-  }
-  return encodeEntities(value);
-};
-
-// src/parts/parser.ts
-var getAttributes = (tagStr, config) => {
-  const { sanitizeFn, unsafeAttrs } = config || {};
-  const attrs = {};
-  const parts = tagStr.split(/\s+/);
-  if (parts.length < 2) return attrs;
-  const attrStr = tagStr.slice(parts[0].length);
-  const attrRegex = /([^\s=]+)(?:=(?:"([^"]*)"|'([^']*)'|([^\s"']+)))?/g;
-  let match;
-  while (match = attrRegex.exec(attrStr)) {
-    const [, name, d, s, u] = match;
-    const value = d ?? s ?? u ?? "";
-    if (name && name !== "/" && !unsafeAttrs?.has(toLowerCase(name))) {
-      attrs[name] = sanitizeFn ? sanitizeFn(toLowerCase(name), value) : value;
-    }
-  }
-  return attrs;
-};
 var tokenize = (html) => {
+  const specialTags = ["script", "style"];
   const tokens = [];
-  let token = "", inTag = false, inQuote = false, quote = 0, isComment = false;
-  for (let i = 0; i < html.length; i++) {
+  const len = html.length;
+  let token = "", inTag = false, inQuote = false, quote = 0, inTemplate = false, inComment = false, inStyleScript = false;
+  for (let i = 0; i < len; i++) {
     const char = charCodeAt(html, i);
-    if (isComment) {
+    if (inComment) {
       token += fromCharCode(char);
-      if (endsWith(token, "--")) {
-        if (charCodeAt(html, i + 1) === 62) {
-          tokens.push({
-            nodeType: "comment",
-            value: token.trim(),
-            isSC: false
-          });
-          token = "";
-          isComment = false;
-          i++;
-        }
+      if (endsWith(token, "--") && charCodeAt(html, i + 1) === 62) {
+        tokens.push({
+          nodeType: "comment",
+          value: `<${trim(token)}>`,
+          isSC: false
+        });
+        inComment = false;
+        token = "";
+        i += 1;
       }
       continue;
     }
-    if (inTag && (char === 34 || char === 39)) {
+    if (inStyleScript) {
+      const endSpecialTag = specialTags.find(
+        (t) => startsWith(html, `/${t}`, i + 1)
+      );
+      if (char === 60 && endSpecialTag && !inTag && !inTemplate && !inQuote) {
+        inStyleScript = false;
+      }
+      if (char === 96) {
+        inTemplate = !inTemplate;
+      }
+    }
+    if ((inTag || inStyleScript) && (char === 34 || char === 39)) {
       if (!inQuote) {
         quote = char;
         inQuote = true;
-      } else if (char === quote) inQuote = false;
+      } else if (char === quote) {
+        inQuote = false;
+      }
       token += fromCharCode(char);
       continue;
     }
-    if (char === 60 && !inQuote) {
-      token.trim() && tokens.push({
+    if (char === 60 && !inQuote && !inTemplate && !inStyleScript) {
+      trim(token) && tokens.push({
         nodeType: "text",
-        // value: encodeEntities(token.trim()),
-        value: token.trim(),
+        value: trim(token),
         isSC: false
       });
       token = "";
       inTag = true;
-      if (charCodeAt(html, i + 1) === 33 && charCodeAt(html, i + 2) === 45 && charCodeAt(html, i + 3) === 45) {
-        isComment = true;
+      if (startsWith(html, "!--", i + 1)) {
+        inComment = true;
         token += "!--";
         i += 3;
         continue;
       }
-    } else if (char === 62 && !inQuote && inTag && !isComment) {
+    } else if (char === 62 && inTag && !inQuote && !inTemplate && !inComment && !inStyleScript) {
+      const startSpecialTag = specialTags.find(
+        (t) => t === token || startsWith(token, t)
+      );
+      if (startSpecialTag) {
+        inStyleScript = true;
+      }
+      const isDocType = startsWith(toLowerCase(token), "!doctype");
       if (token) {
         const isSC = endsWith(token, "/");
-        const isDocType = startsWith(token, "!doctype");
         tokens.push({
           nodeType: isDocType ? "doctype" : "tag",
-          value: isSC ? token.slice(0, -1).trim() : token.trim(),
+          value: isSC ? trim(token.slice(0, -1)) : trim(token),
           isSC
         });
       }
@@ -141,141 +143,59 @@ var tokenize = (html) => {
       token += fromCharCode(char);
     }
   }
-  token.trim() && tokens.push({
-    nodeType: "text",
-    // value: encodeEntities(token.trim()),
-    value: token.trim(),
-    isSC: false
-  });
+  trim(token) && tokens.push({ nodeType: "text", value: trim(token), isSC: false });
   return tokens;
 };
-function Parser(config = {}) {
-  let unsafeTags = /* @__PURE__ */ new Set();
-  let unsafeAttrs = /* @__PURE__ */ new Set();
-  const { filterTags, filterAttrs, onNodeCallback, sanitizeFn } = config;
-  if (filterTags?.length) unsafeTags = new Set(filterTags);
-  if (filterAttrs?.length) unsafeAttrs = new Set(filterAttrs);
-  const getAttrOptions = { unsafeAttrs };
-  if (typeof sanitizeFn === "function") getAttrOptions.sanitizeFn = sanitizeFn;
-  return {
-    parseFromString(htmlString) {
-      const root = {
-        nodeName: "#document",
-        childNodes: [],
-        children: [],
-        all: []
-      };
-      if (!htmlString) return { root, components: [], tags: [] };
-      const stack = [root];
-      const tagStack = [];
-      const components = /* @__PURE__ */ new Set();
-      const tags = /* @__PURE__ */ new Set();
-      let parentIsSafe = true;
-      let newNode;
-      const append = (node, parent) => {
-        if (onNodeCallback) {
-          onNodeCallback(node, parent, root);
-        } else {
-          if (isTag(node)) {
-            parent.children.push(node);
-            root.all.push(node);
-          }
-          parent.childNodes.push(node);
-        }
-      };
-      tokenize(htmlString).forEach((token) => {
-        const { nodeType, value, isSC } = token;
-        if (nodeType === "doctype") {
-          root.doctype = `<${value}>`;
-          return;
-        }
-        const currentParent = stack[stack.length - 1];
-        if (["text", "comment"].includes(nodeType)) {
-          newNode = {
-            nodeName: `#${nodeType}`,
-            nodeValue: nodeType === "text" ? value : `<${value}>`
-          };
-          append(newNode, currentParent);
-          return;
-        }
-        const isClosing = startsWith(value, "/");
-        const tagName = isClosing ? value.slice(1) : value.split(/[\s/>]/)[0];
-        const tagNameLower = toLowerCase(tagName);
-        const isSelfClosing = isSC || selfClosingTags.has(tagNameLower);
-        if (!isSelfClosing) {
-          if (!isClosing) {
-            tagStack.push(tagName);
-          } else {
-            const expectedTag = tagStack.pop();
-            if (expectedTag !== tagName) {
-              if (expectedTag === void 0) {
-                throw new Error(
-                  `ParserError: Mismatched closing tag: </${tagName}>. No open tag found.`
-                );
-              } else {
-                throw new Error(
-                  `ParserError: Mismatched closing tag: </${tagName}>. Expected closing tag for <${expectedTag}>.`
-                );
-              }
-            }
-          }
-        }
-        if (unsafeTags.has(tagNameLower)) {
-          if (isClosing) {
-            parentIsSafe = true;
-          } else {
-            parentIsSafe = false;
-          }
-          return;
-        }
-        if (!parentIsSafe) return;
-        (tagName[0] === toUpperCase(tagName[0]) || tagName.includes("-") ? components : tags).add(tagName);
-        if (!isClosing) {
-          newNode = {
-            tagName,
-            nodeName: toUpperCase(tagName),
-            attributes: getAttributes(value, getAttrOptions),
-            children: [],
-            childNodes: []
-          };
-          const charset = newNode.attributes?.charset;
-          if (tagName === "meta" && charset) {
-            root.charset = toUpperCase(charset);
-          }
-          append(newNode, currentParent);
-          !isSelfClosing && stack.push(newNode);
-        } else if (!isSelfClosing && stack.length > 1) {
-          stack.pop();
-        }
-      });
-      return {
-        root,
-        components: Array.from(components),
-        tags: Array.from(tags)
-      };
-    }
-  };
-}
+var DOM_ERROR = "DomParserError:";
 
 // src/parts/selectors.ts
-var SELECTOR_REGEX = /([.#]?[\w-]+|\[[\w-]+(?:=[^\]]+)?\])+/g;
-var createSelectorCache = (maxSize = 100) => {
-  const cache = /* @__PURE__ */ new Map();
-  return (selector) => {
-    let matchFn = cache.get(selector);
+var SelectorCacheMap = class extends Map {
+  constructor() {
+    super();
+    __publicField(this, "hits", 0);
+    __publicField(this, "misses", 0);
+    this.misses = 0;
+    this.hits = 0;
+  }
+  hit() {
+    this.hits += 1;
+  }
+  miss() {
+    this.hits += 1;
+  }
+  getMatchFunction(selector, maxSize = 100) {
+    let matchFn = this.get(selector);
     if (!matchFn) {
-      if (cache.size >= maxSize) {
-        const firstKey = cache.keys().next().value;
-        if (firstKey) cache.delete(firstKey);
+      this.miss();
+      if (this.size >= maxSize) {
+        const firstKey = this.keys().next().value;
+        if (firstKey) this.delete(firstKey);
       }
       const parts = selector.split(",").map((s) => s.trim());
       matchFn = (node) => parts.some((part) => matchesSingleSelector(node, part));
-      cache.set(selector, matchFn);
+      this.set(selector, matchFn);
+    } else {
+      this.hit();
     }
     return matchFn;
-  };
+  }
+  clear() {
+    super.clear();
+    this.misses = 0;
+    this.hits = 0;
+  }
+  getStats() {
+    return {
+      size: this.size,
+      hits: this.hits,
+      misses: this.misses,
+      // prevent division by ZERO
+      hitRate: this.hits / (this.hits + this.misses || 1)
+    };
+  }
 };
-var getSelectorMatcher = createSelectorCache();
+var selectorCache = new SelectorCacheMap();
+var SELECTOR_REGEX = /([.#]?[\w-]+|\[[\w-]+(?:=[^\]]+)?\])+/g;
 var parseSelector = (selector) => {
   const parts = [];
   const matches = selector.match(SELECTOR_REGEX) || /* istanbul ignore next @preserve */
@@ -320,11 +240,8 @@ var matchesSingleSelector = (node, selector) => {
   });
 };
 var matchesSelector = (node, selector) => {
-  const selectors = selector.split(",").map((s) => s.trim());
-  return selectors.some((simpleSelector) => {
-    const matcher = getSelectorMatcher(simpleSelector);
-    return matcher(node);
-  });
+  const matcher = selectorCache.getMatchFunction(selector);
+  return matcher(node);
 };
 
 // src/parts/prototype.ts
@@ -363,7 +280,8 @@ ${space}` : "";
 function createBasicNode(nodeName, text) {
   return {
     nodeName,
-    nodeValue: nodeName === "#comment" ? `<!-- ${text} -->` : text
+    // nodeValue: nodeName !== "#text" ? `<!-- ${text} -->` : text,
+    nodeValue: nodeName !== "#text" ? `<${text}>` : text
   };
 }
 function createNode(nodeName, ...childNodes) {
@@ -376,6 +294,9 @@ function createNode(nodeName, ...childNodes) {
     nodeName,
     append(...nodes) {
       for (const child of nodes) {
+        if (!isNode(child)) {
+          throw new Error(`${DOM_ERROR} Invalid node.`);
+        }
         CHILDNODES.push(child);
         if (isTag(child)) {
           ALL.push(child);
@@ -403,6 +324,10 @@ function createNode(nodeName, ...childNodes) {
             enumerable: false,
             get: () => node
           },
+          parentElement: {
+            enumerable: false,
+            get: () => node
+          },
           ownerDocument: {
             enumerable: false,
             get: () => ownerDocument
@@ -412,6 +337,11 @@ function createNode(nodeName, ...childNodes) {
           node.removeChild(child);
         };
       }
+    },
+    cleanup: () => {
+      ALL.length = 0;
+      CHILDREN.length = 0;
+      CHILDNODES.length = 0;
     },
     // Root document methods
     ...isRoot({ nodeName }) && {
@@ -473,6 +403,7 @@ function createNode(nodeName, ...childNodes) {
         const idx2 = indexOf(CHILDREN);
         if (idx1 > -1) ALL.splice(idx1, 1);
         if (idx2 > -1) CHILDREN.splice(idx2, 1);
+        childNode.cleanup();
         ownerDocument?.deregister(childNode);
       }
       const idx3 = indexOf(CHILDNODES);
@@ -551,7 +482,7 @@ function createNode(nodeName, ...childNodes) {
 var convertToNode = (n) => {
   if (isPrimitive(n)) {
     const { nodeType, value } = tokenize(String(n))[0];
-    return createBasicNode(`#${nodeType}`, value.replace(/!--|--/g, "").trim());
+    return createBasicNode(`#${nodeType}`, value);
   }
   return n;
 };
@@ -569,7 +500,7 @@ function createElement(tagName, first, ...args) {
   childNodes.push(...nodes);
   const node = createNode.call(
     this,
-    tagName.toUpperCase(),
+    toUpperCase(tagName),
     ...childNodes
   );
   const charset = attributes.get("charset");
@@ -610,82 +541,185 @@ function createElement(tagName, first, ...args) {
   };
   return node;
 }
-var addDomPrototype = (node, ownerDocument) => {
-  if (isTag(node)) {
-    const { tagName, attributes, childNodes } = node;
-    const newNode = createElement.call(
-      ownerDocument,
-      tagName,
-      attributes
-    );
-    newNode.append(...childNodes);
-    return Object.assign(node, newNode);
-  } else {
-    const { nodeName, nodeValue } = node;
-    return Object.assign(node, {
-      ...createBasicNode(nodeName, nodeValue)
-    });
-  }
-};
 var createDocument = () => createNode.call(null, "#document");
 
-// src/parts/dom.ts
-var Dom = (startHTML = void 0, config = {}) => {
-  if (startHTML && typeof startHTML !== "string") {
-    throw new Error(`${DOM_ERROR} 1st parameter is not a string.`);
-  }
-  if (config && !isObj(config)) {
-    throw new Error(`${DOM_ERROR} 2nd parameter is not an object.`);
-  }
-  const { onNodeCallback: callback, ...rest } = config;
-  const rootNode = createDocument();
-  const defaultOpts = {
-    onNodeCallback: (node, parent) => {
-      if (typeof callback === "function") {
-        callback(node, parent, rootNode);
-      }
-      const child = addDomPrototype(node, rootNode);
-      const currentParent = isRoot(parent) ? rootNode : parent;
-      currentParent.append(child);
-      return child;
-    },
-    sanitizeFn: sanitizeAttrValue,
-    filterTags: [],
-    filterAttrs: []
+// src/parts/parser.ts
+function Parser() {
+  return {
+    parseFromString(htmlString) {
+      const root = { nodeName: "#document", children: [] };
+      if (!htmlString) return { root, tags: [], components: [] };
+      const stack = [root];
+      const components = /* @__PURE__ */ new Set();
+      const tags = /* @__PURE__ */ new Set();
+      tokenize(htmlString).forEach((token) => {
+        const { nodeType, value, isSC } = token;
+        const currentParent = stack[stack.length - 1];
+        if (nodeType === "doctype") return;
+        if (["text", "comment"].includes(nodeType)) {
+          currentParent.children.push(
+            {
+              nodeName: `#${nodeType}`,
+              nodeValue: value
+            }
+          );
+          return;
+        }
+        const isClosing = value.startsWith("/");
+        const tagName = isClosing ? value.slice(1) : value.split(/[\s/>]/)[0];
+        const isSelfClosing = isSC || selfClosingTags.has(tagName);
+        (tagName[0] === toUpperCase(tagName[0]) || tagName.includes("-") ? components : tags).add(tagName);
+        if (!isClosing) {
+          const node = {
+            tagName,
+            nodeName: toUpperCase(tagName),
+            attributes: getBaseAttributes(value),
+            children: []
+          };
+          currentParent.children.push(node);
+          !isSelfClosing && stack.push(node);
+        } else if (!isSelfClosing && stack.length > 1) {
+          stack.pop();
+        }
+      });
+      return {
+        root,
+        components: Array.from(components),
+        tags: Array.from(tags)
+      };
+    }
   };
-  const options = Object.assign({}, defaultOpts, rest);
-  const { root: { charset, doctype } } = Parser(options).parseFromString(startHTML);
-  Object.assign(rootNode, { charset, doctype });
-  return rootNode;
+}
+
+// src/parts/dom-parser.ts
+var DomParser = (config) => {
+  if (config && !isObj(config)) {
+    throw new Error(`${DOM_ERROR} 1st parameter is not an object.`);
+  }
+  let unsafeTags = /* @__PURE__ */ new Set();
+  let unsafeAttrs = /* @__PURE__ */ new Set();
+  const { filterTags, filterAttrs, onNodeCallback } = config || {};
+  if (filterTags?.length) unsafeTags = new Set(filterTags);
+  if (filterAttrs?.length) unsafeAttrs = new Set(filterAttrs);
+  const getAttrOptions = { unsafeAttrs };
+  return {
+    parseFromString(htmlString) {
+      if (htmlString && typeof htmlString !== "string") {
+        throw new Error(`${DOM_ERROR} 1st parameter is not a string.`);
+      }
+      const root = createDocument();
+      if (!htmlString) return { root, components: [], tags: [] };
+      const stack = [root];
+      const tagStack = [];
+      const components = /* @__PURE__ */ new Set();
+      const tags = /* @__PURE__ */ new Set();
+      let parentIsSafe = true;
+      let newNode;
+      tokenize(htmlString).forEach((token) => {
+        console.log(token);
+        const { nodeType, value, isSC } = token;
+        if (nodeType === "doctype") {
+          root.doctype = `<${value}>`;
+          return;
+        }
+        const currentParent = stack[stack.length - 1];
+        if (["text", "comment"].includes(nodeType)) {
+          newNode = createBasicNode(
+            `#${nodeType}`,
+            value
+          );
+          currentParent.append(newNode);
+          return;
+        }
+        const isClosing = startsWith(value, "/");
+        const tagName = isClosing ? value.slice(1) : value.split(/[\s/>]/)[0];
+        const tagNameLower = toLowerCase(tagName);
+        const isSelfClosing = isSC || selfClosingTags.has(tagNameLower);
+        if (!isSelfClosing) {
+          if (!isClosing) {
+            tagStack.push(tagName);
+          } else {
+            const expectedTag = tagStack.pop();
+            if (expectedTag !== tagName) {
+              if (expectedTag === void 0) {
+                throw new Error(
+                  `${DOM_ERROR} Mismatched closing tag: </${tagName}>. No open tag found.`
+                );
+              } else {
+                throw new Error(
+                  `${DOM_ERROR} Mismatched closing tag: </${tagName}>. Expected closing tag for <${expectedTag}>.`
+                );
+              }
+            }
+          }
+        }
+        if (unsafeTags.has(tagNameLower)) {
+          if (isClosing) {
+            parentIsSafe = true;
+          } else {
+            parentIsSafe = false;
+          }
+          return;
+        }
+        if (!parentIsSafe) return;
+        (tagName[0] === toUpperCase(tagName[0]) || tagName.includes("-") ? components : tags).add(tagName);
+        if (!isClosing) {
+          const attributes = getAttributes(value, getAttrOptions);
+          newNode = createElement.call(
+            root,
+            tagName,
+            attributes
+          );
+          if (onNodeCallback) onNodeCallback(newNode, currentParent, root);
+          const charset = attributes?.charset;
+          if (tagName === "meta" && charset) {
+            root.charset = toUpperCase(charset);
+          }
+          currentParent.append(newNode);
+          !isSelfClosing && stack.push(newNode);
+        } else if (!isSelfClosing && stack.length > 1) {
+          stack.pop();
+        }
+      });
+      if (tagStack.length > 0) {
+        const unclosedTag = tagStack.pop();
+        throw new Error(`${DOM_ERROR} Unclosed tag: <${unclosedTag}>.`);
+      }
+      return {
+        root,
+        components: Array.from(components),
+        tags: Array.from(tags)
+      };
+    }
+  };
 };
 export {
+  ATTR_REGEX,
   DOM_ERROR,
-  Dom,
-  PARSER_ERROR,
+  DomParser,
   Parser,
-  addDomPrototype,
   charCodeAt,
   createBasicNode,
   createDocument,
   createElement,
   createNode,
   defineProperties,
-  encodeEntities,
   endsWith,
   fromCharCode,
   getAttributes,
+  getBaseAttributes,
   isNode,
   isObj,
   isPrimitive,
   isRoot,
   isTag,
   matchesSelector,
-  sanitizeAttrValue,
-  sanitizeUrl,
+  selectorCache,
   selfClosingTags,
   startsWith,
   toLowerCase,
   toUpperCase,
-  tokenize
+  tokenize,
+  trim
 };
 //# sourceMappingURL=index.mjs.map

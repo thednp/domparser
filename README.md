@@ -3,31 +3,33 @@
 [![NPM Version](https://img.shields.io/npm/v/@thednp/domparser.svg)](https://www.npmjs.com/package/@thednp/domparser)
 [![ci](https://github.com/thednp/domparser/actions/workflows/ci.yml/badge.svg)](https://github.com/thednp/domparser/actions/workflows/ci.yml)
 [![typescript version](https://img.shields.io/badge/typescript-5.7.3-brightgreen)](https://www.typescriptlang.org/)
-[![vitest version](https://img.shields.io/badge/vitest-3.0.5-brightgreen)](https://vitest.dev/)
-[![vite version](https://img.shields.io/badge/vite-6.1.0-brightgreen)](https://vitejs.dev/)
+[![vitest version](https://img.shields.io/badge/vitest-3.0.6-brightgreen)](https://vitest.dev/)
+[![vite version](https://img.shields.io/badge/vite-6.1.1-brightgreen)](https://vitejs.dev/)
 
-A very light and TypeScript sourced [DOMParser](https://developer.mozilla.org/en-US/docs/Web/API/DOMParser) but only for HTML markup and featuring basic sanitization features, open/closing tag check and other tools. Because of its size (around 1.4Kb gzipped for the parser alone), you can include it in both your server and especially your client to greatly reduce your application bundle size.
+A TypeScript sourced [DOMParser](https://developer.mozilla.org/en-US/docs/Web/API/DOMParser) coming in two versions, one lighter which is very fast and memory efficient called **Parser**, and one that is closer to the native browser DOM API and features open/closing tag check and other tools which is called **DomParser**. Both versions are meant only for parsing HTML markup.
+
+Because of its size (~1Kb gzipped for the lighter version), you can include it in both your server and especially your client to greatly reduce your application bundle size, while you can still use the stronger version for development only to validate markup or other cases.
 
 The purpose of this library is to provide a lightweight yet reliable HTML parser without having to depend on [jsdom](https://github.com/jsdom/jsdom), [json5](https://json5.org) and even newer tools like [cheerio](https://cheerio.js.org). Where these tools will try and reproduce a complete DOM tree with all properties and methods specific to each node type, this little thing here only focuses on the essential DOM API making it several times faster and more memory efficient.
 
 On that note, it doesn't come as a drop-in replacement/shim for the native browser DOMParser, but thanks to its components being packaged in separate bundles it suddenly becomes an extremely useful tool for many more scenarios.
 
-Along with the **Parser**, you also have a powerful tool to create a DOM tree from scratch, but unlike the native `Document` API, this one has been reimagined to improve your workflow and allow you to create a DOM tree faster and much easier. This really is a separation of **Dom** and **Parser**, each does what it does best.
+You also have a powerful tool to create a DOM tree from scratch, but unlike the native `Document` API, this one has been reimagined to improve your workflow and allow you to create a DOM tree faster and much easier.
 
 
-## Features
-* **Minimal Size with Maximum Flexibility** (~1.4Kb core parser, ~2Kb DOM API, ~0.5Kb sanitization)
-* **Modern Tree-Shaking Friendly Architecture** (main components packaged in separate bundles)
+### Features
+* **Minimal Size with Maximum Flexibility** (~1.1Kb core parser, ~3.5Kb parser with DOM API, ~2.5Kb DOM API)
+* **Modern Tree-Shaking Friendly Architecture** (both versions packaged in separate bundles)
 * **Security-First Approach** (Built-in security, but fully customizable)
 * **Isomorphic by Design** (Works in Node.js, Deno, Bun, browsers; No DOM dependencies)
-* **High Performance** (Sub-millisecond parsing for typical HTML documents)
-* **Typescript Support** (First-class TypeScript support with full types)
+* **High Performance** (Sub-millisecond parsing for typical HTML templates; very fast `match` based queries)
+* **Typescript Support** (First-class TypeScript support with full types).
 
 
 ### Main Components
-* **Parser** - the core parser with sanitization options and essential tag verification; the sanitization is opt-in which means it's not applied and no tags or attributes are filtered; the **Parser** provides basic open/closing tag verification with proper error reporting;
-* **Dom** - uses the **Parser** to generate a DOM tree that can be manipulated and queried; it overrides the **Parser** to use basic sanitization and to store the DOM tree within its instance instead of both, which is very important for memory efficiency; it can also be used to create a DOM tree with `Document` API like methods;
-* **sanitize** - a set of tools to help you sanitize the attributes of your nodes in the DOM tree.
+* **Parser** - the core parser which creates a basic DOM tree very fast and very memory efficient;
+* **DomParser** - provides everything the basic **Parser** does, but also alows allows you to generate a DOM tree that can be manipulated and queried; it can even validate open and closing tags;
+* **DOM** - a separate module that allows you to create a `Document` like object with similar API.
 
 
 ## Which apps can use it
@@ -35,8 +37,8 @@ Along with the **Parser**, you also have a powerful tool to create a DOM tree fr
 * plugins that manage a website's metadata;
 * plugins that implement unit testing in a virtual/isolated environment;
 * apps that perform web research and/or web-scrapping;
-* apps that require basic sanitization;
 * apps that support server side rendering (SSR);
+* apps that require HTML markup validation;
 * generally all apps that rely on a very fast runtime.
 
 
@@ -150,15 +152,15 @@ console.log(root);
 /*
 {
   "nodeName": "#document",
-  "charset": "UTF-8",
-  "doctype": "<!doctype html>",
   "children": []
-  "childNodes": []
 }
 */
 ```
 
 Below we have a near complete representation of the given HTML markup, keep in mind that the contents of the `children` property is not included to shorten the DOM tree.
+
+**IMPORTANT** - The light **Parser** will not distinguish nodes like `Element`, `SVGElement` from `TextNode` or `CommentNode` nodes.
+
 <details>
 <summary>Click to expand</summary>
 
@@ -167,28 +169,17 @@ Below we have a near complete representation of the given HTML markup, keep in m
 /*
 {
   "nodeName": "#document",
-  "charset": "UTF-8",
-  "doctype": "<!doctype html>",
   "children": [
-    // all Element like nodes
-  ],
-  "childNodes": [
     {
       "tagName": "html",
       "nodeName": "HTML",
       "attributes": {},
       "children": [
-        // all Element like nodes
-      ],
-      "childNodes": [
         {
           "tagName": "head",
           "nodeName": "HEAD",
           "attributes": {},
           "children": [
-            // all Element like nodes
-          ],
-          "childNodes": [
             {
               "tagName": "meta",
               "nodeName": "META",
@@ -196,14 +187,12 @@ Below we have a near complete representation of the given HTML markup, keep in m
                 "charset": "UTF-8"
               },
               "children": [],
-              "childNodes": [],
             },
             {
               "tagName": "title",
               "nodeName": "TITLE",
               "attributes": {},
-              "children": [],
-              "childNodes": [
+              "children": [
                 {
                   "nodeName": "#text",
                   "nodeValue": "Example"
@@ -217,15 +206,12 @@ Below we have a near complete representation of the given HTML markup, keep in m
           "nodeName": "BODY",
           "attributes": {},
           "children": [
-            // all Element like nodes
-          ],
-          "childNodes": [
             {
               "tagName": "h1",
               "nodeName": "H1",
               "attributes": {},
               "children": [],
-              "childNodes": [
+              "children": [
                 {
                   "nodeName": "#text",
                   "nodeValue": "Hello World!"
@@ -239,8 +225,7 @@ Below we have a near complete representation of the given HTML markup, keep in m
                 "class": "example",
                 "aria-hidden": "true"
               },
-              "children": [],
-              "childNodes": [
+              "children": [
                 {
                   "nodeName": "#text",
                   "nodeValue": "This is an example."
@@ -252,7 +237,6 @@ Below we have a near complete representation of the given HTML markup, keep in m
               "nodeName": "CUSTOM-ELEMENT",
               "attributes": {},
               "children": []
-              "childNodes": []
             },
             {
               "nodeName": "#comment",
@@ -268,7 +252,6 @@ Below we have a near complete representation of the given HTML markup, keep in m
               "attributes": {
                 "count": "0"
               },
-              "childNodes": []
               "children": []
             }
           ]
@@ -282,100 +265,16 @@ Below we have a near complete representation of the given HTML markup, keep in m
 </details>
 
 
-## Parser Options
+## DomParser Usage
+The **DomParser** returns a similar result as the basic **Parser**, however it also allows you to manipulate the DOM tree or create one similar to how `Document` API works, if no starting HTML markup is provided, you only have a basic `Document` like you can manipulate.
 
-**Parser** doesn't sanitize attribute values by default, but it can be configured to do so and even remove potentially harmful tags and/or attributes.
-
-Here is a quick example:
-
+### Initialize DomParser
+First let's import and initialize **DomParser** and get to build a DOM tree from scratch:
 ```ts
-import { Parser } from "@thednp/domparser"
-
-const config = {
-  filterTags: ["script"],
-  filterAttrs: ["data-url"],
-  // ...other options
-}
-
-const parsedHTML = Parser(config).parseFromString("<html>Some long HTML</html>")
-```
-**Reference**:
-* `onNodeCallback` - can be used to extend the node prototype, apply additional validation or special sanitization;
-  * it comes with [`node`, `parent`, `root`] as arguments so you have the full context of that node;
-  * this option will override the default behavior of storing the nodes within the Parser instance and is used by `Dom` to also extend the prototype by adding `Node` and `Element` methods and properties;
-  * remember that you need to use `Object.assign(node, yourNodeModification)` and return that SAME node;
-  * in the example below we've added a `classList` like method;
-* `sanitizeFn` - is useful to set a special sanitization function suitable to your need;
-  * it takes [`lowerCaseAttributeName`, `attributeValue`] as arguments;
-  * can make use of the included sanitization tools (`encodeEntities`, `sanitizeUrl` for value sanitization), (`sanitizeAttrValue` for value sanitization and check against a given set of attribute names) as a starting point;
-* `filterTags` - tells the Parser to treat these tag names as potentially dangerous;
-  * the Parser will pass them to the `sanitizeFn` function to check them and remove them;
-  * in the example below you have a full list of potentially unsafe tags;
-* `filterAttrs` - similar to the above, it tells the Parser to treat these attributes as potentially dangerous and skip adding them to the nodes.
-
-Below we have a detailed example using all the options:
-<details>
-<summary>Click to expand</summary>
-
-
-
-```ts
-import { addClassListProto } from "./your/src";
-import { Parser } from "@thednp/domparser";
-
-const config = {
-  // A callback to apply various validation/sanitization
-  // will cancel the DOM tree generation so you can store
-  onNodeCallback: (node, parent, root) => {
-    const modifiedNode = addClassListProto(node, parent, root);
-    // if your addClassListProto function already does it
-    // you can ignore the assignment below
-    Object.assign(node, modifiedNode);
-    return node;
-  },
-
-  // Use a custom sanitizer
-  sanitizeFn: (attrName, attrValue) => {
-    let value = attrValue;
-    if (attrName.toLowerCase() === 'some-name') {
-      // do something specific to this attribute
-    }
-    return value;
-  },
-
-  // Common dangerous tags that could lead to XSS attacks
-  filterTags: [
-    "script", "style", "iframe", "object", "embed", "base", "form",
-    "input", "button", "textarea", "select", "option"
-  ],
-
-  // Unsafe attributes that could lead to XSS attacks
-  filterAttrs: [
-    "onerror", "onload", "onunload", "onclick", "ondblclick", "onmousedown",
-    "onmouseup", "onmouseover", "onmousemove", "onmouseout", "onkeydown",
-    "onkeypress", "onkeyup", "onchange", "onsubmit", "onreset", "onselect",
-    "onblur", "onfocus", "formaction", "href", "xlink:href", "action"
-  ]
-}
-
-const parser = Parser(config)
-const parsedHTML = parser.parseFromString("<html>Some long HTML</html>")
-// all configured tags and attributes will be removed
-// from the resulted parsedHTML.root object tree
-```
-</details>
-
-
-## Dom Usage
-The **Dom** allows you to create a DOM tree similar to how `Document` API works, it can use the **Parser** to create a DOM tree from a starting HTML markup, but overrides how new nodes are stored in a way that they don't exist in both the **Parser** and **Dom** instances.
-
-### Initialize Dom
-First let's import and initialize **Dom** and get to build a DOM tree from scratch:
-```ts
-import { Dom } from '@thednp/domparser';
+import { DomParser } from '@thednp/domparser';
 
 // initialize
-const doc = Dom();
+const { root: doc } = DomParser.parseFromString();
 ```
 
 Now we can use `Document` like methods to create a DOM tree structure:
@@ -424,7 +323,7 @@ doc.createElement("html",   // tagName
 </details>
 
 
-### Dom - Main Elements
+### DomParser - Main Elements
 The `document` like instance provides easy access to main `Element` like nodes: 
 
 ```ts
@@ -435,9 +334,9 @@ console.log(doc.body);            // <body>
 console.log(doc.all);             // An array with all `Element` like nodes in the tree
 ```
 
-### Dom - Selector Engine
+### DomParser - Selector Engine
 
-The API allows you to perform various queries: `getElementById` (exclusive to the root node), `getElementsByClassName` or `querySelector`.
+The API allows you to perform various queries: `getElementById` (exclusive to the root node), `getElementsByClassName` or `querySelector`. The selector engine uses cache to store common `match` based selectors and prevent re-processing of selectors and drastically increase performance.
 
 ```ts
 // exclusive to the root node
@@ -449,6 +348,10 @@ Check below for more examples.
 <summary>Click to expand</summary>
 
 ```ts
+import { createDocument } from "@thednp/domparser/dom";
+
+const doc = createDocument();
+
 // exclusive to the root node
 console.log(doc.getElementById('my-id'));
 // returns node with id="my-id" or null otherwise
@@ -480,14 +383,14 @@ console.log(svg.closest("#my-body"));
 </details>
 
 
-### Dom - Create DOM from HTML
+### DomParser - Create DOM from HTML
 
-**Dom** uses the **Parser** and configures it to sanitize attribute values by default, but it can also be configured to remove potentially harmful tags and/or attributes. Here's a quick example:
+**DomParser** has its own logic for parsing can be configured to remove potentially harmful tags and/or attributes. Here's a quick example:
 
 ```ts
-import { Dom } from "@thednp/domparser";
+import { DomParser } from "@thednp/domparser/dom-parser";
 
-const doc = Dom(`<html><script src="some-url"></script></html>`, { filterTags: ["script"] });
+const doc = DomParser().parseFromString(`<html><script src="some-url"></script></html>`, { filterTags: ["script"] });
 ```
 
 Check below a more detailed example:
@@ -496,21 +399,16 @@ Check below a more detailed example:
 <summary>Click to expand</summary>
 
 ```ts
-import { Dom, sanitizeAttrValue } from "@thednp/domparser";
+import { DomParser } from "@thednp/domparser/dom-parser";
 
 const parserOptions = {
   // sets a callback to call on every new node
   onNodeCallback: (node, parent, root) => {
-    // unlike the callback applied to `Parser`,
-    // the root here is the result of the `Dom` call,
     // apply any validation, sanitization to your node
     // and return the SAME node reference
     doSomeFunctionWith(node, parent, root);
     return node;
   },
-
-  // set the included sanitizer as sanitizeFn parameter
-  sanitizeFn: sanitizeAttrValue,
 
   // Common dangerous tags that could lead to XSS attacks
   filterTags: [
@@ -527,47 +425,51 @@ const parserOptions = {
   ]
 }
 
-const doc = Dom(
+const { root: doc } = DomParser(parserOptions).parseFromString(
   "<!doctype html><html><body>This is a basic body</body></html>",
-  parserOptions,
 );
-// the doctype will be added to `doc` as a property
-// all configured tags and attributes will be removed
-// from the resulted parsedHTML.root object tree
+// > the doctype will be added to `doc` as a property;
+// > all configured tags and attributes will be removed
+// from the resulted parsedHTML.root object tree.
 ```
-**Notes**:
-* if you use `onNodeCallback` in the initialization of `Dom`, the effect of your callback will be applied BEFORE the `Dom`'s internal callback without overriding it;
-* if you call `Dom` with an invalid HTML parameter or invalid parser options, (EG: `Dom({}, "invalid")`) it will throw a specific error. If you call `Dom(undefined, {...options })` would make no sense because no markup string was provided.
-
 </details>
 
 
 ### Some caveats
-* methods like `createElement`, `querySelector`, etc., are designed to be called on the root node instance (`doc.createElement(...)`) and rely on `this` being bound to the root node object. Destructuring (EG, `const { createElement } = Dom()`) will detach these methods from their intended `this` context and cause errors; a workaround would be `createElement.call(yourRootNode, ...arguments)` but that would be detrimental to the readability of the code;
-* nodes added into the DOM tree resulted from parsing a given markup will have their properties sanitized with the default sanitizer, you may want to use the `onNodeCallback` to override the sanitization or validation the way you want.
+* methods like `createElement`, `querySelector`, etc., are designed to be called on the root node instance (`doc.createElement(...)`) and rely on `this` being bound to the root node object. Destructuring (EG, `const { createElement } = DomParser.parseFromString()`) will detach these methods from their intended `this` context and cause errors; a workaround would be `createElement.call(yourRootNode, ...arguments)` but that would be detrimental to the readability of the code.
+* if you call `DomParser` with an invalid HTML parameter or invalid parser options, it will throw a specific error.
+
+Examples:
+```ts
+DomParser("invalid");
+// > DomParserError: 1st parameter is not an object
+
+DomParser.parserFromString({});
+// > DomParserError: 1st parameter is not a string 
+```
 
 
 ## API Reference 
 
 ### Document API
-When you create a new **Dom** instance, you immediately get access to a [Document-like API](https://developer.mozilla.org/en-US/docs/Web/API/Document), but only the essentials. On that note, you are provided with methods to create and remove nodes, check if nodes are added to the DOM tree, or apply queries.
+When you create a new **DomParser** instance, you immediately get access to a [Document-like API](https://developer.mozilla.org/en-US/docs/Web/API/Document), but only the essentials. On that note, you are provided with methods to create and remove nodes, check if nodes are added to the DOM tree, or apply queries.
 
 #### Document Create Root Node
 Currently there are 2 methods to create a `Document` like root node:
-* by invoking `Dom("with starting html markup", options)` or with no arguments at all;
+* by invoking `DomParser.parseFromString("with starting html markup", options)` or with no arguments at all;
 * by invoking `createDocument()`.
 
 Example with first method:
 ```ts
-import { Dom } from "@thednp/domparser";
+import { DomParser } from "@thednp/domparser/dom-parser";
 
 // create a root node
-const doc = Dom();
+const { root: doc } = DomParser.parseFromString();
 ```
 
 Example with second method:
 ```ts
-import { createDocument } from "@thednp/domparser";
+import { createDocument } from "@thednp/domparser/dom";
 
 // create a root node
 const doc = createDocument();
@@ -579,10 +481,10 @@ The root node exposes all known `Document` like methods for creating new nodes, 
 
 In most cases you'll be using something like this:
 ```ts
-import { Dom } from "@thednp/domparser";
+import { createDocument } from "@thednp/domparser/dom";
 
 // create a root node
-const doc = Dom();
+const doc = createDocument();
 
 // create an Element like node
 const html = doc.createElement("html");
@@ -593,10 +495,10 @@ Check the example below for a more detailed workflow.
 <summary>Click to expand</summary>
 
 ```ts
-import { Dom } from "@thednp/domparser";
+import { createDocument } from "@thednp/domparser/dom";
 
 // create a root document
-const doc = Dom();
+const doc = createDocument();
 
 // create `Element` like nodes
 const html = doc.createElement("html",
@@ -633,8 +535,8 @@ const comment = doc.createComment("This is a comment node");
 
 The API provides methods for creating text nodes and comment nodes, similar to the standard DOM:
 
-*   `createTextNode(text: string)` - creates a new text node with the given text content.
-*   `createComment(text: string)` - creates a new comment node with the given text content.
+* `createTextNode(text: string)` - creates a new text node with the given text content.
+* `createComment(text: string)` - creates a new comment node with the given text content.
 
 Examples:
 
@@ -642,7 +544,7 @@ Examples:
 <summary>Click to expand</summary>
 
 ```ts
-import { createDocument } from "@thednp/domparser";
+import { createDocument } from "@thednp/domparser/dom";
 
 // Create a root document
 const doc = createDocument();
@@ -678,7 +580,7 @@ You can also create text and comment nodes by simply providing a string as a chi
 <summary>Click to expand</summary>
 
 ```ts
-import { createDocument } from "@thednp/domparser";
+import { createDocument } from "@thednp/domparser/dom";
 
 // Create a root document.
 const doc = createDocument();
@@ -703,7 +605,7 @@ console.log(paragraph.childNodes);
 
 As showcased in the above example, this API is a different from the native API to greatly improve your workflow. In that sense that you can create an entire DOM tree with a single call, with node attributes and children relationships, without having to define a variable for each node, append each node to another.
 
-Also you might not need to use `Dom` in this case because we don't need a starting HTML markup, you can just import and use `createDocument` and get to create the DOM tree:
+Also you might not need to use `DomParser` in this case because we don't need a starting HTML markup, you can just import and use `createDocument` and get to create the DOM tree:
 
 <details>
 <summary>Click to expand</summary>
@@ -711,7 +613,7 @@ Also you might not need to use `Dom` in this case because we don't need a starti
 ```ts
 // alternatively you can only import createDocument
 // if you only need to manually build a DOM tree
-import { createDocument } from "@thednp/domparser";
+import { createDocument } from "@thednp/domparser/dom";
 
 // create a root document
 const doc = createDocument();
@@ -751,7 +653,7 @@ The `append` method is important for some reasons:
 <summary>Click to expand</summary>
 
 ```ts
-const doc = Dom();
+const doc = createDocument();
 
 // create a target node
 const childNode = document.createElement("div");
@@ -781,7 +683,7 @@ Along with these properties, the root node also provides accessors for `document
 <summary>Click to expand</summary>
 
 ```ts
-const doc = Dom();
+const doc = createDocument();
 
 // create a target node
 const childNode = document.createElement("html");
@@ -819,7 +721,7 @@ The Node like API also allows you to remove or replace one or more child nodes v
 <summary>Click to expand</summary>
 
 ```ts
-import { createDocument } from "@thednp/domparser";
+import { createDocument } from "@thednp/domparser/dom";
 
 // create a root document
 const doc = createDocument();
@@ -867,7 +769,7 @@ It should support multiple selectors comma separated and attribute selectors, ho
 <summary>Click to expand</summary>
 
 ```ts
-const doc = Dom();
+const doc = createDocument();
 
 doc.append(doc.createElement("div", {
   id: "my-div", class: "target", "data-visible": "true"
@@ -917,7 +819,7 @@ The `Node` API exposes `parentNode`, `ownerDocument` (getters) and `contains` (m
 <summary>Click to expand</summary>
 
 ```ts
-const doc = Dom();
+const doc = createDocument();
 
 const html = doc.createElement("html");
 const head = doc.createElement("head");
@@ -965,7 +867,7 @@ The `Node` prototype will only expose `readonly` properties (getters) to access 
 <summary>Click to expand</summary>
 
 ```ts
-import { createDocument } from "@thednp/domparser";
+import { createDocument } from "@thednp/domparser/dom";
 
 // create a root document
 const doc = createDocument();
@@ -1000,7 +902,7 @@ For consistency the `Element` prototype doesn't have a way to directly add or re
 <summary>Click to expand</summary>
 
 ```ts
-import { createDocument } from "@thednp/domparser";
+import { createDocument } from "@thednp/domparser/dom";
 
 // create a root document
 const doc = createDocument();
@@ -1044,7 +946,7 @@ Nodes enhanced with DOM methods and properties don't allow direct access to mani
 <summary>Click to expand</summary>
 
 ```ts
-import { createDocument } from "@thednp/domparser";
+import { createDocument } from "@thednp/domparser/dom";
 
 // create a root document
 const doc = createDocument();
@@ -1072,7 +974,7 @@ html.getAttribute("id");
 <summary>Click to expand</summary>
 
 ```ts
-import { createDocument } from "@thednp/domparser";
+import { createDocument } from "@thednp/domparser/dom";
 
 // create a root document
 const doc = createDocument();
@@ -1106,7 +1008,7 @@ The Element API exposes all known methods to query the DOM tree except `getEleme
 <summary>Click to expand</summary>
 
 ```ts
-import { createDocument } from "@thednp/domparser";
+import { createDocument } from "@thednp/domparser/dom";
 
 // create a root document
 const doc = createDocument();
@@ -1176,7 +1078,7 @@ Examples:
 <summary>Click to expand</summary>
 
 ```ts
-import { createDocument } from "@thednp/domparser";
+import { createDocument } from "@thednp/domparser/dom";
 
 const doc = createDocument();
 doc.append(doc.createElement("body"));
@@ -1218,7 +1120,7 @@ Paragraph 2
 
 
 ## Other tools
-The library exports every of its tools you can use in your own library or app, basically sanitization tools, attributes parser or tokenizer.
+The library exports every of its tools you can use in your own library or app, attributes parser or tokenizer.
 
 ### createDocument
 <details>
@@ -1235,7 +1137,7 @@ const createDocument = () => RootNode;
 
 Quick usage:
 ```ts
-import { createDocument } from "@thednp/domparser";
+import { createDocument } from "@thednp/domparser/dom";
 
 // create a root node
 const doc = createDocument();
@@ -1281,46 +1183,41 @@ const html = tokenize("<html></html>");
   { type: "tag", isSC: false, value: "/html"}
 ]
 */
+// isSC is short for isSelfClosing, EG: <path />
 ```
 </details>
 
 ---
 
-### getAttributes
+### getBasicAttributes
 
 <details>
 <summary>Click to expand</summary>
 
 ```ts
 /**
- * Get attributes from a string token and return an object
+ * Parse a string token and return an object
  * where the keys are the names of the attributes and the values
- * are the sanitized values of the attributes.
+ * are the values of the attributes.
  *
  * @param tagStr the tring token
- * @param config an optional set of options for unsafe attributes and sanitization function
+ * @param config an optional set of options for unsafe attributes
  * @returns the attributes object
  */
-const getAttributes: (tagStr: string, options) => Record<string, string>;
+const getBasicAttributes: (tagStr: string, options) => Record<string, string>;
 ```
 
 Quick usage:
 ```ts
-import { getAttributes } from "@thednp/domparser";
-
-// define custom sanitization function
-const mySanitizationFn = (attrName: string, attrValue: string) => {
-  // process the value in any way you want and return it
-};
+import { getBasicAttributes } from "@thednp/domparser";
 
 // define options
 const options = {
-  sanitizeFn: mySanitizationFn,
   unsafeAttrs: new Set(["data-url"]),
 }
 
 // use the tokenizer methods
-const attributes = getAttributes(
+const attributes = getBasicAttributes(
   // the target string
   `html id="html" class="html" data-url="https://example.com/api"`,
   // the options
@@ -1336,87 +1233,21 @@ const attributes = getAttributes(
 ```
 </details>
 
----
-
-### encodeEntities
-
-<details>
-<summary>Click to expand</summary>
-
-```ts
-/**
- * A basic tool for HTML entities encoding
- * @param str the source string
- * @returns encoded string
- */
-const encodeEntities: (str: string) => string;
-```
-</details>
-
----
-
-### sanitizeAttrValue
-
-<details>
-<summary>Click to expand</summary>
-
-```ts
-/**
- * Sanitizes attribute values
- * @param attrName the attribute name
- * @param initialValue the attribute value
- * @returns the sanitized value
- */
-const sanitizeAttrValue: (attrName: string, initialValue: string) => string;
-```
-</details>
-
----
-
-### sanitizeUrl
-
-<details>
-<summary>Click to expand</summary>
-
-```ts
-/**
- * Sanitizes URLs in attribute values
- * @param url the URL
- * @returns the sanitized URL
- */
-const sanitizeUrl: (url: string) => string;
-```
-
---- 
-
-What you want to do:
-```ts
-import {
-  encodeEntities,
-  getAttributes,
-  sanitizeAttrValue,
-  sanitizeUrl
-} from "@thednp/domparser"
-
-// implement sanitization in your own library or application
-```
-</details>
-
 
 ## Tree-shaking
-This library exports its components as separate modules so you can save even more space and allow for a more flexible sourcing of the code.
+This library exports its components as separate modules so you can save even more space and allow for a more flexible sourcing of the code. This is to make sure that even if your setup isn't perfectly configured to handle tree-shaking, you are still bundling only what's actually used.
 <details>
 <summary>Click to expand</summary>
 
 ```ts
-// import Parser or getAttributes only
-import { Parser, getAttributes, tokenize } from "@thednp/domparser/parser"
+// import Parser only
+import { Parser } from "@thednp/domparser/parser"
 
-// import Dom / createDocument only
-import { Dom, createDocument } from "@thednp/domparser/dom"
+// import DomParser only
+import { DomParser } from "@thednp/domparser/dom-parser"
 
-// import sanitization only
-import { encodeEntities, sanitizeUrl, sanitizeAttrValue  } from "@thednp/domparser/sanitize"
+// import createDocument only
+import { createDocument } from "@thednp/domparser/dom"
 ```
 </details>
 
@@ -1434,7 +1265,7 @@ This is why it's important to distinguish from native browser DOM API, the types
 * `TextLike` - is a `#text` node;
 * `ChildLike` - is either `NodeLike`, `TextLike` or `CommentLike`.
 
-Then we have **Dom** which overrides some properties and enhance the node prototype with ancestor accessors, selector engine and attributes API. Here are the types for the enhanced nodes:
+Then we have **DomParser** which overrides some properties and enhance the node prototype with ancestor accessors, selector engine and attributes API. Here are the types for the enhanced nodes:
 * `RootNode` - extends `RootLike`;
 * `DOMNode` extends `NodeLike`;
 * `CommentNode` extends `CommentLike`;
@@ -1444,28 +1275,26 @@ Then we have **Dom** which overrides some properties and enhance the node protot
 
 ## Error Handling
 
-The **Parser** will attempt to parse even malformed HTML. Invalid tags or attributes might be ignored or handled in a specific way (depending on the `filterTags` and `filterAttrs` options).
+Both the **Parser** and the **DomParser** will attempt to parse even malformed HTML, however invalid tags or attributes might be ignored or handled in a specific way (depending on the `filterTags` and `filterAttrs` options).
 
-For critical errors (tag open/closing mismatch), an Error will be thrown. It does *not* throw exceptions for typical parsing errors.
+For critical errors (tag open/closing mismatch), **DomParser** throws a specific Error. It does *not* throw exceptions for typical parsing errors.
 
 Example:
 ```ts
-Parser().parseFromString("<html><p><span></p></html>");
-//=> "ParserError: Mismatched closing tag: </p>. Expected closing tag for <span>."
+DomParser().parseFromString("<html><p><span></p></html>");
+//=> "DomParserError: Mismatched closing tag: </p>. Expected closing tag for <span>."
 ```
-
-The **Dom** has it's own error reporting revolving around the types of its arguments.
 
 
 ## Technical Notes
-* this parser will throw a specific error when an unmatched open/closing tag is detected;
-* this parser should be capable to handle HTML comments `<!-- comment -->` even if they have other valid tags inside, but considering that nested comments aren't supported in the current HTML5 draft; the comment's usual structure is `{ nodeName: "#comment", nodeValue: "<!-- comment -->" }`;
-* also the parser will handle self-closing tags and some cases of incorrect markup such as `<path />` versus `<path></path>` (cases where both are valid) and `<meta name=".." />` vs `<meta name="..">` (only the second case is valid);
-* another note is that `<!doctype>` tag is always stripped, but will be added to the root node in the `doctype` property;
-* if the current DOM tree contains a `<meta charset="utf-8">` the `charset` value will be added to the root property `charset`;
-* similar to the native DOMParser, this script returns a document like tree structure where the root element is a "root" property of the output; what's different is that our script will also export a list of tags and a list of components;
+* an audit of the parser reveals a number of _very strong advantages_: usage of character codes, minimal string operations, no nested loops or lookbacks and single pass processing;
+* **DomParser** will throw a specific error when an unmatched open/closing tag is detected;
+* both parser versions should be capable to handle HTML comments `<!-- comment -->` even if they have other valid tags inside, but considering that nested comments aren't supported in the current HTML5 draft; the comment's usual structure is `{ nodeName: "#comment", nodeValue: "<!-- comment -->" }`;
+* also both parser versions will handle self-closing tags and some cases of incorrect markup such as `<path />` versus `<path></path>` (cases where both are valid) and `<meta name=".." />` vs `<meta name="..">` (only the second case is valid);
+* another note is that `<!doctype>` tag is always stripped, but **DomParser** will add it to the root node in the `doctype` property, which is similar to the native browser API;
+* if the current DOM tree contains a `<meta charset="utf-8">` **DomParser** will use the `charset` value for the root property `charset`;
+* similar to the native browser DOMParser, this script returns a document like tree structure where the root element is a "root" property of the output; what's different is that our script will also export a list of tags and a list of components;
 * the script properly handles `CustomElement`s, UI Library components, and even camelCase tags like `clipPath` or attributes like `preserveAspectRatio`;
-* the current implementation does provide basic sanitization options, however by default all values are not sanitized by the **Parser** and all tags and attributes are allowed, but **Dom** does use the default sanitizer, in the end it all comes to you to implement the best and most secure application you are required to develop;
 * if you encounter any issue, please report it [here](https://github.com/thednp/domparser/issues), thanks!
 
 

@@ -1,12 +1,11 @@
 import {
-  ChildLike,
-  Dom,
   DOMNode,
   getAttributes,
-  NodeLike,
   Parser,
-  sanitizeAttrValue,
+  DomParser,
   TextNode,
+  selectorCache,
+  NodeLike,
 } from "../src/index";
 import { describe, expect, test } from "vitest";
 
@@ -41,19 +40,22 @@ describe(`Test DOMParser`, () => {
 </html>
 `.trim();
 
-    const doc = Dom(testSample);
+    const { root: doc } = DomParser().parseFromString(testSample);
     // console.log(JSON.stringify(doc, null, 2));
     // return;
-    console.log(doc.parentNode);
+    // console.log(doc.parentNode);
     // console.log(doc.head?.ownerDocument?.nodeName);
     // console.log(doc.all.length);
     // console.log(doc.head?.ownerDocument === doc);
-    // console.log(doc.documentElement?.outerHTML.length);
+    // console.log(doc.documentElement?.outerHTML);
+    // return;
     
-    expect(doc.documentElement?.outerHTML.length).toEqual(640);
+    expect(doc.parentElement).toBeUndefined();
+    expect(doc.documentElement?.outerHTML.length).toEqual(633);
     expect(doc.all.length).toEqual(15);
     expect(doc.head?.children[2].childNodes[0].ownerDocument).toEqual(doc);
     expect((doc.head?.parentNode as DOMNode).tagName).toEqual("html");
+    expect((doc.head?.parentElement as DOMNode).tagName).toEqual("html");
     expect(doc.head?.innerHTML).toContain("meta");
     expect(doc.head?.innerHTML).toContain("title");
     expect(doc.head?.innerHTML).toContain("style");
@@ -76,8 +78,8 @@ describe(`Test DOMParser`, () => {
     expect(doc.getElementsByTagName("*").length).toEqual(15);
   });
 
-  test(`Test Dom methods`, () => {
-    const doc = Dom();
+  test(`Test DOM methods`, () => {
+    const {root: doc} = DomParser().parseFromString();
 
     doc.append(
       doc.createElement(
@@ -216,7 +218,7 @@ describe(`Test DOMParser`, () => {
             : idx % 4 ? (tag+'['+Object.keys(att)[0]+']')
             : tag;
           selectors.add(sel);
-          console.log(idx, sel)
+          // console.log(idx, sel)
           idx += 1;
           if (selectors.size === 100) break;
         }
@@ -227,6 +229,20 @@ describe(`Test DOMParser`, () => {
     selectors.forEach(sel => doc.querySelector(sel));
 
     expect(selectors.size, 'exceed cache limit of 100').toEqual(100);
+    expect(selectorCache.getStats()).toEqual({
+      hitRate: 1,
+      hits: 1353,
+      misses: 0,
+      size: 100,
+    })
+    selectorCache.clear();
+    expect(selectorCache.getStats()).toEqual({
+      hitRate: 0,
+      hits: 0,
+      misses: 0,
+      size: 0,
+    })
+
   });
 
   test(`Test Parser with HTML Markup`, () => {
@@ -264,7 +280,7 @@ describe(`Test DOMParser`, () => {
     expect(root.children.length).toEqual(1);
     expect(root.children.length).toBeGreaterThan(0);
     if (root.children.length > 0) {
-      expect(root.children[0].tagName).toEqual("html");
+      expect((root.children[0] as NodeLike).tagName).toEqual("html");
     }
   });
 
@@ -282,7 +298,8 @@ describe(`Test DOMParser`, () => {
     const parser = Parser();
 
     const { root, components, tags } = parser.parseFromString(svgMarkup);
-    const svg = root.children[0];
+    // const svg = root.children[0] as NodeLike & { children: (NodeLike & { children: (NodeLike & { children: NodeLike[] })[] })[] };
+    const svg = root.children[0] as NodeLike;
 
     expect(components).toEqual([]);
     expect(tags).toEqual(["svg", "defs", "clipPath", "path"]);
@@ -291,17 +308,17 @@ describe(`Test DOMParser`, () => {
     expect(root.nodeName).toEqual("#document");
     expect(svg.nodeName).toEqual("SVG");
     expect(svg.tagName).toEqual("svg");
-    expect(svg.children.length).toEqual(2);
-    expect(svg.children[0].tagName).toEqual("defs");
-    expect(svg.children[0].nodeName).toEqual("DEFS");
-    expect(svg.children[0].children.length).toEqual(1);
-    expect(svg.children[0].children[0].tagName).toEqual("clipPath");
-    expect(svg.children[0].children[0].attributes["id"]).toEqual("5499afe1a4");
-    expect(svg.children[0].children[0].children.length).toEqual(1);
-    expect(svg.children[0].children[0].children[0].tagName).toEqual("path");
-    expect(svg.children[0].children[0].children[0].attributes["clip-rule"])
+    expect(svg.children?.length).toEqual(2);
+    expect(svg.children?.[0].tagName).toEqual("defs");
+    expect(svg.children?.[0].nodeName).toEqual("DEFS");
+    expect(svg.children?.[0].children?.length).toEqual(1);
+    expect(svg.children?.[0].children?.[0].tagName).toEqual("clipPath");
+    expect(svg.children?.[0].children?.[0]?.attributes?.["id"]).toEqual("5499afe1a4");
+    expect(svg.children?.[0].children?.[0]?.children?.length).toEqual(1);
+    expect(svg.children?.[0].children?.[0].children?.[0].tagName).toEqual("path");
+    expect(svg.children?.[0].children?.[0].children?.[0].attributes?.["clip-rule"])
       .toEqual("nonzero");
-    expect(svg.children[0].children[0].children[0].attributes["d"]).toEqual(
+    expect(svg.children?.[0].children?.[0].children?.[0].attributes?.["d"]).toEqual(
       "M 215.664062 352.992188 L 398 352.992188 L 398 586 L 215.664062 586 Z M 215.664062 352.992188",
     );
   });
@@ -324,8 +341,7 @@ describe(`Test DOMParser`, () => {
   <path d="M 215.664062 352.992188 L 398 352.992188 L 398 586 L 215.664062 586 Z M 215.664062 352.992188" clip-rule="nonzero"></path>
 </svg>`.trim();
 
-    const parser = Parser({
-      sanitizeFn: sanitizeAttrValue,
+    const parser = DomParser({
       filterTags: ["defs"],
       filterAttrs: ["clip-rule", "formaction"],
     });
@@ -337,44 +353,40 @@ describe(`Test DOMParser`, () => {
     expect(tags).toEqual(["svg", "path"]);
     expect(svg.nodeName).toEqual("SVG");
     expect(svg.tagName).toEqual("svg");
-    expect(svg.attributes["disabled"]).toBeDefined();
-    expect(svg.attributes["formaction"]).toBeUndefined();
-    expect(svg.attributes["data-template"]).toEqual(
-      "&lt;span data-uri=&#39;some-value&#39;&gt;&lt;/span&gt;",
+    expect(svg.attributes.get("disabled")).toBeDefined();
+    expect(svg.attributes.get("formaction")).toBeUndefined();
+    expect(svg.attributes.get("data-template")).toEqual(
+      "<span data-uri='some-value'></span>",
     );
     expect(svg.children.length).toEqual(1);
     expect(svg.children[0].tagName).toEqual("path");
-    expect(svg.children[0].attributes["clip-rule"]).toBeUndefined();
-    expect(svg.children[0].attributes["d"]).toBeDefined();
+    expect(svg.children[0].attributes.get("clip-rule")).toBeUndefined();
+    expect(svg.children[0].attributes.get("d")).toBeDefined();
   });
 
   test(`Test #text node`, () => {
     expect(getAttributes("")).toEqual({});
-    const p1 = Parser();
-
-    expect(p1.parseFromString("Some text node").root.childNodes[0]).toEqual({
+    expect(Parser().parseFromString("Some text node").root.children[0]).toEqual({
       nodeName: "#text",
       nodeValue: "Some text node",
     });
   });
 
   test(`Test #comment node`, () => {
-    expect(getAttributes("")).toEqual({});
-    const p1 = Parser();
-
     expect(
-      p1.parseFromString("<!-- this is a comment <span>with a span</span> -->")
-        .root.childNodes[0],
+      Parser().parseFromString("<!-- this is a comment <span>with a span</span> -->")
+        .root.children[0],
     ).toEqual({
       nodeName: "#comment",
       nodeValue: "<!-- this is a comment <span>with a span</span> -->",
     });
+    expect(Parser().parseFromString("<!-- this is a comment <span>with a span</span> -->").root.children.length).toEqual(1)
   });
 
   test(`Test edge cases`, () => {
     expect(getAttributes("")).toEqual({});
     expect(Parser().parseFromString(), "parse an empty string").toEqual({
-      root: { nodeName: "#document", children: [], childNodes: [], all: [] },
+      root: { nodeName: "#document", children: [] },
       components: [],
       tags: [],
     });
@@ -385,60 +397,94 @@ describe(`Test DOMParser`, () => {
       tagName: "span",
       nodeName: "SPAN",
       children: [],
-      childNodes: [],
       attributes: {},
     });
-    expect(Dom("<html></html>").documentElement?.innerHTML).toEqual("");
-    expect(Dom("<html></html>").documentElement?.outerHTML).toContain(
+    expect(DomParser().parseFromString("<html></html>").root.documentElement?.innerHTML).toEqual("");
+    expect(DomParser().parseFromString("<html></html>").root.documentElement?.outerHTML).toContain(
       "<html></html>",
     );
-    expect(Dom("<html></html>").documentElement?.outerHTML).toContain(
+    expect(DomParser().parseFromString("<html></html>").root.documentElement?.outerHTML).toContain(
       "<html></html>",
     );
 
-    type AdvancedNode = ChildNode & { className?: "string" };
+    type AdvancedNode = DOMNode & { className?: "string" };
     const myNodes: AdvancedNode[] = [];
-    Dom("<html></html>", {
+    DomParser({
       onNodeCallback: (n) => {
         Object.assign(n, { className: "nice" });
         myNodes.push(n as AdvancedNode);
         // console.log(n);
         return n;
       }
-    })
+    }).parseFromString("<html></html>", )
     expect(myNodes.length).toEqual(1);
     expect(myNodes[0].className).toEqual('nice');
     try {
-      Parser().parseFromString("<html></span>")
+      DomParser().parseFromString("<html></span>")
     } catch (er) {
       expect(er).toBeDefined();
-      expect(er.message).toEqual("ParserError: Mismatched closing tag: </span>. Expected closing tag for <html>.")
+      expect(er.message).toEqual("DomParserError: Mismatched closing tag: </span>. Expected closing tag for <html>.")
     }
     try {
-      Parser().parseFromString("</html>")
+      DomParser().parseFromString("</html>")
     } catch (er) {
       expect(er).toBeDefined();
-      expect(er.message).toEqual("ParserError: Mismatched closing tag: </html>. No open tag found.")
+      expect(er.message).toEqual("DomParserError: Mismatched closing tag: </html>. No open tag found.")
     }
     try {
-      Parser().parseFromString("<html><p><span><clipPath></p></html>")
+      DomParser().parseFromString("<html><p><span><clipPath></p></html>")
     } catch (er) {
       expect(er).toBeDefined();
-      expect(er.message).toEqual("ParserError: Mismatched closing tag: </p>. Expected closing tag for <clipPath>.")
-    }
-    try {
-      // @ts-expect-error
-      Dom({});
-    } catch (er) {
-      expect(er).toBeDefined();
-      expect(er.message).toEqual("DomError: 1st parameter is not a string.")
+      expect(er.message).toEqual("DomParserError: Mismatched closing tag: </p>. Expected closing tag for <clipPath>.")
     }
     try {
       // @ts-expect-error
-      Dom("<html>Test</html", "test");
+      DomParser().parseFromString({});
     } catch (er) {
       expect(er).toBeDefined();
-      expect(er.message).toEqual("DomError: 2nd parameter is not an object.")
+      expect(er.message).toEqual("DomParserError: 1st parameter is not a string.")
     }
+    try {
+      // @ts-expect-error
+      DomParser("test").parseFromString("<html>Test</html");
+    } catch (er) {
+      expect(er).toBeDefined();
+      expect(er.message).toEqual("DomParserError: 1st parameter is not an object.")
+    }
+    try {
+      // @ts-expect-error
+      DomParser().parseFromString("<html>Test</html>").root.append("Some text node");
+    } catch (er) {
+      expect(er).toBeDefined();
+      expect(er.message).toEqual("DomParserError: Invalid node.")
+    }
+    try {
+      DomParser().parseFromString("<html>Test</html");
+    } catch (er) {
+      expect(er).toBeDefined();
+      expect(er.message).toEqual("DomParserError: Unclosed tag: <html>.")
+    }
+    // expect(DomParser().parseFromString("<pre><script>let a = 0;<\/script></pre>").root.all).toHaveLength(1);
+    expect(DomParser().parseFromString("<pre>&lt;script type\"js\"&gt;let a = 0;&lt;/script&gt;</pre>").root.all).toHaveLength(1);
+    expect(
+      DomParser().parseFromString(`
+        <script>
+          var test = "<script>let a = 0;</script>";
+        </script>
+      `).root.all
+    ).toHaveLength(1);
+    expect(DomParser().parseFromString("<script>var test = `<script>let a = 0;</script>`;</script>").root.all).toHaveLength(1);
+    expect(
+      DomParser().parseFromString(
+        '<style> head { display: none } body { margin: 0 } header { content: "</style>" }</style>'
+      ).root.all
+    ).toHaveLength(1);
+    expect(DomParser({ sanitizeFn: undefined }).parseFromString(`
+      <style>
+        head { display: none }
+        body { margin: 0 }
+        header { content: '</style>' }
+      </style>`
+    ).root.all).toHaveLength(1);
   });
 });

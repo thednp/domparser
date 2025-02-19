@@ -1,28 +1,36 @@
 // selectors.ts
-import { startsWith, toLowerCase } from "./util";
-import type { DOMNode, SelectorPart } from "./types";
-
-// Selector RegExp
-const SELECTOR_REGEX = /([.#]?[\w-]+|\[[\w-]+(?:=[^\]]+)?\])+/g;
+import { startsWith, toLowerCase } from "./util.ts";
+import type { DOMNode, MatchFunction, SelectorPart } from "./types.ts";
 
 /**
  * Create a selector cache to help improve `match` based queries
  * (querySelector, querySelectorAll).
- *
- * @param maxSize the maximum amount of selector
  */
-const createSelectorCache = (maxSize = 100) => {
-  const cache = new Map<string, (node: DOMNode) => boolean>();
+class SelectorCacheMap extends Map<string, MatchFunction> {
+  private hits = 0;
+  private misses = 0;
 
-  return (selector: string): (node: DOMNode) => boolean => {
-    let matchFn = cache.get(selector);
+  constructor() {
+    super();
+    this.misses = 0;
+    this.hits = 0;
+  }
+  hit() {
+    this.hits += 1;
+  }
+  miss() {
+    this.hits += 1;
+  }
+  getMatchFunction(selector: string, maxSize = 100): MatchFunction {
+    let matchFn = this.get(selector);
 
     if (!matchFn) {
+      this.miss();
       // If cache is full, remove oldest entry
-      if (cache.size >= maxSize) {
-        const firstKey = cache.keys().next().value;
+      if (this.size >= maxSize) {
+        const firstKey = this.keys().next().value;
         /* istanbul ignore else @preserve */
-        if (firstKey) cache.delete(firstKey);
+        if (firstKey) this.delete(firstKey);
       }
 
       // Parse selector parts once and create a matcher function
@@ -31,15 +39,33 @@ const createSelectorCache = (maxSize = 100) => {
       matchFn = (node: DOMNode): boolean =>
         parts.some((part) => matchesSingleSelector(node, part));
 
-      cache.set(selector, matchFn);
+      this.set(selector, matchFn);
+    } else {
+      this.hit();
     }
 
     return matchFn;
-  };
-};
+  }
+  clear() {
+    super.clear();
+    this.misses = 0;
+    this.hits = 0;
+  }
+  getStats() {
+    return {
+      size: this.size,
+      hits: this.hits,
+      misses: this.misses,
+      // prevent division by ZERO
+      hitRate: this.hits / ((this.hits + this.misses) || 1),
+    };
+  }
+}
 
-// Create a single cache instance
-const getSelectorMatcher = createSelectorCache();
+export const selectorCache = new SelectorCacheMap();
+
+// Selector RegExp
+const SELECTOR_REGEX = /([.#]?[\w-]+|\[[\w-]+(?:=[^\]]+)?\])+/g;
 
 /**
  * Parses a CSS selector string into an array of selector parts.
@@ -107,12 +133,6 @@ const matchesSingleSelector = (node: DOMNode, selector: string): boolean => {
  * @returns `true` if the node matches the selector, `false` otherwise.
  */
 export const matchesSelector = (node: DOMNode, selector: string): boolean => {
-  // Split by commas and trim each selector
-  const selectors = selector.split(",").map((s) => s.trim());
-
-  // Node matches if it matches any of the individual selectors
-  return selectors.some((simpleSelector) => {
-    const matcher = getSelectorMatcher(simpleSelector);
-    return matcher(node);
-  });
+  const matcher = selectorCache.getMatchFunction(selector);
+  return matcher(node);
 };
