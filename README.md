@@ -612,8 +612,6 @@ Also you might not need to use `DomParser` in this case because we don't need a 
 <summary>Click to expand</summary>
 
 ```ts
-// alternatively you can only import createDocument
-// if you only need to manually build a DOM tree
 import { createDocument } from "@thednp/domparser/dom";
 
 // create a root document
