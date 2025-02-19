@@ -7,10 +7,11 @@ export type TagAttr<T extends TagNames> =
  * Represents a text node in the DOM
  */
 export type NodeLike = {
-  tagName: string & TagNames;
+  tagName: string;
   nodeName: string;
-  attributes: Record<string, string>;
+  attributes: NodeLikeAttributes;
   children: ChildLike[];
+  nodeValue?: string;
 };
 
 /**
@@ -18,13 +19,14 @@ export type NodeLike = {
  */
 export type TextNode = TextLike & {
   remove: () => void;
+  nodeName: "#text";
   readonly textContent: string;
   readonly ownerDocument: RootNode;
   readonly parentNode: RootNode | DOMNode;
 };
 
 export type TextLike = {
-  nodeName: "#text";
+  nodeName: string;
   nodeValue: string;
   // just shut up Typescript
   tagName?: string;
@@ -37,12 +39,13 @@ export type TextLike = {
  */
 export type CommentNode = CommentLike & {
   remove: () => void;
+  nodeName: "#comment";
   readonly textContent: string;
   readonly ownerDocument: RootNode;
   readonly parentNode: RootNode | DOMNode;
 };
 export type CommentLike = {
-  nodeName: "#comment";
+  nodeName: string;
   nodeValue: string;
   // just shut up Typescript
   tagName?: string;

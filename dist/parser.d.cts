@@ -1,22 +1,22 @@
-type TagNames = keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap;
 /**
  * Represents a text node in the DOM
  */
 type NodeLike = {
-    tagName: string & TagNames;
+    tagName: string;
     nodeName: string;
-    attributes: Record<string, string>;
+    attributes: NodeLikeAttributes;
     children: ChildLike[];
+    nodeValue?: string;
 };
 type TextLike = {
-    nodeName: "#text";
+    nodeName: string;
     nodeValue: string;
     tagName?: string;
     children?: ChildLike[];
     attributes?: Record<string, string>;
 };
 type CommentLike = {
-    nodeName: "#comment";
+    nodeName: string;
     nodeValue: string;
     tagName?: string;
     children?: ChildLike[];
@@ -35,6 +35,10 @@ type ParseResult = {
     components: string[];
     tags: string[];
 };
+/**
+ * Represents NodeLike attributes
+ */
+type NodeLikeAttributes = Record<string, string>;
 
 /**
  * **Parser**

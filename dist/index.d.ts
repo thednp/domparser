@@ -4,22 +4,24 @@ type TagAttr<T extends TagNames> = (HTMLElementTagNameMap & SVGElementTagNameMap
  * Represents a text node in the DOM
  */
 type NodeLike = {
-    tagName: string & TagNames;
+    tagName: string;
     nodeName: string;
-    attributes: Record<string, string>;
+    attributes: NodeLikeAttributes;
     children: ChildLike[];
+    nodeValue?: string;
 };
 /**
  * Represents a text node in the DOM
  */
 type TextNode = TextLike & {
     remove: () => void;
+    nodeName: "#text";
     readonly textContent: string;
     readonly ownerDocument: RootNode;
     readonly parentNode: RootNode | DOMNode;
 };
 type TextLike = {
-    nodeName: "#text";
+    nodeName: string;
     nodeValue: string;
     tagName?: string;
     children?: ChildLike[];
@@ -30,12 +32,13 @@ type TextLike = {
  */
 type CommentNode = CommentLike & {
     remove: () => void;
+    nodeName: "#comment";
     readonly textContent: string;
     readonly ownerDocument: RootNode;
     readonly parentNode: RootNode | DOMNode;
 };
 type CommentLike = {
-    nodeName: "#comment";
+    nodeName: string;
     nodeValue: string;
     tagName?: string;
     children?: ChildLike[];
