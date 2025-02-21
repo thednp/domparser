@@ -114,6 +114,9 @@ type RootNode = Omit<NodeAPI, "nodeName" | "ownerDocument"> & Omit<ElementAPI, "
     createComment: (value: string) => CommentNode;
     createTextNode: (value: string) => TextNode;
 };
+/**
+ * Represents a lighter root document node
+ */
 type RootLike = {
     nodeName: "#document";
     children: ChildLike[];
@@ -134,13 +137,13 @@ type TextToken = {
  * Parser configuration options
  */
 type DomParserOptions = {
-    sanitizeFn: (name: string, str: string) => string;
     onNodeCallback: (node: DOMNode, parent: RootNode | DOMNode, root: RootNode) => ChildNode;
     filterTags: string[];
     filterAttrs: string[];
 };
 /**
- * Parser result containing the DOM tree and component/tag information
+ * Parser result containing the simplidied DOM tree
+ * and component/tag information
  */
 type ParseResult = {
     root: RootLike;
@@ -148,7 +151,8 @@ type ParseResult = {
     tags: string[];
 };
 /**
- * Parser result containing the DOM tree and component/tag information
+ * Parser result containing the DOM tree
+ * and component/tag information
  */
 type DomParserResult = {
     root: RootNode;
@@ -176,7 +180,6 @@ type DOMNodeAttributes = Map<string, string>;
  */
 type GetAttributesOptions = {
     unsafeAttrs: Set<string>;
-    sanitizeFn: (name: string, str: string) => string;
 };
 /**
  * Selector match function
@@ -193,7 +196,7 @@ declare const getBaseAttributes: (tagStr: string) => NodeLikeAttributes;
 /**
  * Get attributes from a string token and return an object.
  * In addition to the base tool, this also filters configured
- * unsafe attributes and sanitization.
+ * unsafe attributes.
  * @param tagStr the string token
  * @param config an optional set of options
  * @returns the attributes object
@@ -313,9 +316,9 @@ declare const DOM_ERROR = "DomParserError:";
  */
 declare function createBasicNode<T extends ("#text" | "#comment")>(nodeName: T, text: string): TextNode | CommentNode;
 /**
- * Creates a DOM-like Node (`DOMNode` or `RootNode`) with DOM API extensions and sanitization.
- * This function extends the basic `NodeLike` from **Parser** by adding DOM-specific properties and methods,
- * as well as applying sanitization based on the provided configuration.
+ * Creates a DOM-like Node (`DOMNode` or `RootNode`) with DOM API properties and methods.
+ * This function extends the basic `NodeLike` from **Parser** by adding DOM-specific
+ * properties and methods, as well as applying filters based on the provided configuration.
  *
  * @param this - The `RootNode` when creating a `DOMNode`, or `null` otherwise (in non-strict mode)
  * @param nodeName The tag name of the node to create (or '#document' for the root).
@@ -341,7 +344,7 @@ declare const createDocument: () => RootNode;
 
 /**
  * Create a selector cache to help improve `match` based queries
- * (querySelector, querySelectorAll).
+ * (matches, querySelector, querySelectorAll).
  */
 declare class SelectorCacheMap extends Map<string, MatchFunction> {
     private hits;
@@ -371,7 +374,8 @@ declare const matchesSelector: (node: DOMNode, selector: string) => boolean;
  * **Parser**
  *
  * A tiny yet very fast and powerful parser that takes a string of HTML
- * and returns a DOM tree representation.
+ * and returns a DOM tree representation. In benchmarks it shows up to
+ * 60x faster performance when compared to jsdom.
  *
  * The DOM representation is a plain object with the following structure:
  * ```ts
@@ -392,7 +396,6 @@ declare const matchesSelector: (node: DOMNode, selector: string) => boolean;
  *  // the root node
  *  type RootLike = {
  *   nodeName: string;
- *   doctype?: string;
  *   children: NodeLike[];
  * };
  * ```

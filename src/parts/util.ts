@@ -39,7 +39,7 @@ export const getBaseAttributes = (tagStr: string) => {
 /**
  * Get attributes from a string token and return an object.
  * In addition to the base tool, this also filters configured
- * unsafe attributes and sanitization.
+ * unsafe attributes.
  * @param tagStr the string token
  * @param config an optional set of options
  * @returns the attributes object

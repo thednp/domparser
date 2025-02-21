@@ -115,7 +115,6 @@ type RootNode = Omit<NodeAPI, "nodeName" | "ownerDocument"> & Omit<ElementAPI, "
  * Parser configuration options
  */
 type DomParserOptions = {
-    sanitizeFn: (name: string, str: string) => string;
     onNodeCallback: (node: DOMNode, parent: RootNode | DOMNode, root: RootNode) => ChildNode;
     filterTags: string[];
     filterAttrs: string[];

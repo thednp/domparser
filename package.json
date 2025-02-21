@@ -1,6 +1,6 @@
 {
   "name": "@thednp/domparser",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "🍝 Super light HTML parser for isomorphic applications.",
   "keywords": [
     "domparser",
@@ -70,9 +70,11 @@
     "url": "https://github.com/thednp/domparser/issues"
   },
   "devDependencies": {
+    "@types/jsdom": "^21.1.7",
     "@types/node": "^22.13.4",
     "@vitest/coverage-istanbul": "^3.0.6",
     "@vitest/ui": "^3.0.6",
+    "jsdom": "^26.0.0",
     "tsup": "^8.3.6",
     "typescript": "^5.7.3",
     "vite": "^6.1.1",

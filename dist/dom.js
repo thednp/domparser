@@ -281,7 +281,6 @@ ${space}` : "";
   function createBasicNode(nodeName, text) {
     return {
       nodeName,
-      // nodeValue: nodeName !== "#text" ? `<!-- ${text} -->` : text,
       nodeValue: nodeName !== "#text" ? `<${text}>` : text
     };
   }

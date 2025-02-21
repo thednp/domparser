@@ -1,5 +1,4 @@
 // prototype.ts
-// import { tokenize } from "./dom-parser.ts";
 import { tokenize } from "./util.ts";
 import { matchesSelector } from "./selectors.ts";
 import {
@@ -81,8 +80,6 @@ const outerHTML = (node: DOMNode, depth = 0): string => {
       .join(" ")
     : "";
 
-  // add doctype?
-  // let output = tagName === "html" ? "<!doctype html>\n" : "";
   let output = `${space}<${tagName}${attrStr}${isSelfClosing ? " /" : ""}>`;
   output += hasChildren && !childIsText ? "\n" : "";
   output += hasChildren ? innerHTML(node, depth + 1) : "";
@@ -104,15 +101,14 @@ export function createBasicNode<T extends ("#text" | "#comment")>(
 ): TextNode | CommentNode {
   return {
     nodeName,
-    // nodeValue: nodeName !== "#text" ? `<!-- ${text} -->` : text,
     nodeValue: nodeName !== "#text" ? `<${text}>` : text,
   } as (TextNode | CommentNode);
 }
 
 /**
- * Creates a DOM-like Node (`DOMNode` or `RootNode`) with DOM API extensions and sanitization.
- * This function extends the basic `NodeLike` from **Parser** by adding DOM-specific properties and methods,
- * as well as applying sanitization based on the provided configuration.
+ * Creates a DOM-like Node (`DOMNode` or `RootNode`) with DOM API properties and methods.
+ * This function extends the basic `NodeLike` from **Parser** by adding DOM-specific
+ * properties and methods, as well as applying filters based on the provided configuration.
  *
  * @param this - The `RootNode` when creating a `DOMNode`, or `null` otherwise (in non-strict mode)
  * @param nodeName The tag name of the node to create (or '#document' for the root).
@@ -361,7 +357,6 @@ export function createNode(
 const convertToNode = (n: string | number | ChildNode) => {
   if (isPrimitive(n)) {
     const { nodeType, value } = tokenize(String(n))[0] as TextToken;
-    // return createBasicNode(`#${nodeType}`, value.replace(/!--|--/g, "").trim());
     return createBasicNode(`#${nodeType}`, value);
   }
   return n;

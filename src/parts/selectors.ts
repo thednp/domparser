@@ -4,7 +4,7 @@ import type { DOMNode, MatchFunction, SelectorPart } from "./types.ts";
 
 /**
  * Create a selector cache to help improve `match` based queries
- * (querySelector, querySelectorAll).
+ * (matches, querySelector, querySelectorAll).
  */
 class SelectorCacheMap extends Map<string, MatchFunction> {
   private hits = 0;

@@ -6,15 +6,88 @@
 [![vitest version](https://img.shields.io/badge/vitest-3.0.6-brightgreen)](https://vitest.dev/)
 [![vite version](https://img.shields.io/badge/vite-6.1.1-brightgreen)](https://vitejs.dev/)
 
-A TypeScript sourced [DOMParser](https://developer.mozilla.org/en-US/docs/Web/API/DOMParser) coming in two versions, one lighter which is very fast and memory efficient called **Parser**, and one that is closer to the native browser DOM API and features open/closing tag check and other tools which is called **DomParser**. Both versions are meant only for parsing HTML markup.
+A TypeScript-based [HTML parser](https://developer.mozilla.org/en-US/docs/Web/API/DOMParser) available in two versions: a lightweight **Parser** focused on speed and memory efficiency, and a feature-rich **DomParser** that provides a DOM-like API with additional capabilities like tag validation.
 
-Because of its size (~1Kb gzipped for the lighter version), you can include it in both your server and especially your client to greatly reduce your application bundle size, while you can still use the stronger version for development only to validate markup or other cases.
+At just ~1Kb gzipped for the core parser, it's perfect for both server and client-side applications where bundle size matters. The more comprehensive version is ideal for development environments where markup validation and DOM manipulation are needed.
 
-The purpose of this library is to provide a lightweight yet reliable HTML parser without having to depend on [jsdom](https://github.com/jsdom/jsdom), [json5](https://json5.org) and even newer tools like [cheerio](https://cheerio.js.org). Where these tools will try and reproduce a complete DOM tree with all properties and methods specific to each node type, this little thing here only focuses on the essential DOM API making it several times faster and more memory efficient.
+While not a direct replacement for the browser's native DOMParser, its modular architecture makes it versatile for various use cases. The library also includes a powerful DOM creation API that improves upon the native `Document` interface, offering a more intuitive and efficient way to build DOM trees programmatically.
 
-On that note, it doesn't come as a drop-in replacement/shim for the native browser DOMParser, but thanks to its components being packaged in separate bundles it suddenly becomes an extremely useful tool for many more scenarios.
+Unlike alternatives such as [jsdom](https://github.com/jsdom/jsdom) or [cheerio](https://cheerio.js.org) that attempt to replicate the entire DOM specification, this library focuses on essential DOM features, resulting in significantly better performance and memory efficiency. In the [benchmark.ts](https://github.com/thednp/domparser/blob/master/demo/benchmark.ts) file we're comparing **Parser** and **DomParser** against **jsdom**, here are some results:
 
-You also have a powerful tool to create a DOM tree from scratch, but unlike the native `Document` API, this one has been reimagined to improve your workflow and allow you to create a DOM tree faster and much easier.
+### Parsing Benchmarks
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 220">
+  <rect width="600" height="220" fill="#ffffff" x="0" y="0" style="" rx="10"></rect>
+  <text x="20.554" y="30.937" font-family="Arial, sans-serif" font-size="16" font-weight="bold" style="white-space: pre; font-size: 16px;">HTML Parsing Performance (5 runs average)</text>
+  <g transform="matrix(1, 0, 0, 1, 100.557938, 50.937126)">
+    <g transform="translate(0, 0)">
+      <rect x="0" y="0" width="8" height="25" fill="#3fb950"></rect>
+      <text x="-5" y="17" font-family="Arial, sans-serif" font-size="14" text-anchor="end" style="white-space: pre;">Parser</text>
+      <text x="13" y="17" font-family="Arial, sans-serif" font-size="14" style="white-space: pre;">1ms</text>
+    </g>
+    <g transform="translate(0, 40)">
+      <rect x="0" y="0" width="16" height="25" fill="#3178c6"></rect>
+      <text x="-5" y="17" font-family="Arial, sans-serif" font-size="14" text-anchor="end" style="white-space: pre;">DomParser</text>
+      <text x="21" y="17" font-family="Arial, sans-serif" font-size="14" style="white-space: pre;">2ms</text>
+    </g>
+    <g transform="translate(0, 80)">
+      <rect x="0" y="0" width="438" height="25" fill="#f1e05a"></rect>
+      <text x="-5" y="17" font-family="Arial, sans-serif" font-size="14" text-anchor="end" style="white-space: pre;">jsdom</text>
+      <text x="378.001" y="16.694" font-family="Arial, sans-serif" font-size="14" style="white-space: pre; font-size: 14px;">54.75ms</text>
+    </g>
+  </g>
+  <text x="18.198" y="205.098" font-family="Arial, sans-serif" font-size="12" fill="#666" style="white-space: pre; font-size: 12px;">Generated on 2025-02-21 10:08:35 UTC</text>
+  <g transform="matrix(1, 0, 0, 1, 100.557938, 163.937134)">
+    <line x1="0" y1="0" x2="400" y2="0" stroke="#ddd" stroke-width="1"></line>
+    <g>
+      <line x1="0" y1="-5" x2="0" y2="5" stroke="#ddd" stroke-width="1"></line>
+      <text x="0" y="20" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" style="white-space: pre;">0ms</text>
+    </g>
+    <g transform="translate(200, 0)">
+      <line x1="0" y1="-5" x2="0" y2="5" stroke="#ddd" stroke-width="1"></line>
+      <text x="0" y="20" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" style="white-space: pre;">25ms</text>
+    </g>
+    <g transform="translate(400, 0)">
+      <line x1="0" y1="-5" x2="0" y2="5" stroke="#ddd" stroke-width="1"></line>
+      <text x="0" y="20" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" style="white-space: pre;">50ms</text>
+    </g>
+  </g>
+  <text x="449.949" y="30.608" font-family="Arial, sans-serif" font-size="12" fill="#666" style="white-space: pre; font-size: 12px;">(HTML 2551 characters)</text>
+</svg>
+
+### Query Benchmarks
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 200">
+  <rect width="600" height="200" fill="#ffffff" x="0" y="0" rx="10"></rect>
+  <text x="20.892" y="30.276" font-family="Arial, sans-serif" font-size="16" font-weight="bold" style="white-space: pre; font-size: 16px;">Query Performance (5 runs average)</text>
+  <g transform="matrix(1, 0, 0, 1, 150.895203, 50.277)">
+    <g transform="translate(0, 0)">
+      <rect x="0" y="0" width="40" height="25" fill="#3178c6"></rect>
+      <text x="-5" y="17" font-family="Arial, sans-serif" font-size="14" text-anchor="end" style="white-space: pre;">DomParser</text>
+      <text x="45" y="17" font-family="Arial, sans-serif" font-size="14" style="white-space: pre;">1ms</text>
+    </g>
+    <g transform="translate(0, 40)">
+      <rect x="0" y="0" width="240" height="25" fill="#f1e05a"></rect>
+      <text x="-5" y="17" font-family="Arial, sans-serif" font-size="14" text-anchor="end" style="white-space: pre;">jsdom</text>
+      <text x="245" y="17" font-family="Arial, sans-serif" font-size="14" style="white-space: pre;">6ms</text>
+    </g>
+  </g>
+  <g transform="matrix(1, 0, 0, 1, 150.895203, 123.277008)">
+    <line x1="0" y1="0" x2="240" y2="0" stroke="#ddd" stroke-width="1"></line>
+    <g>
+      <line x1="0" y1="-5" x2="0" y2="5" stroke="#ddd" stroke-width="1"></line>
+      <text x="0" y="20" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" style="white-space: pre;">0ms</text>
+    </g>
+    <g transform="translate(120, 0)">
+      <line x1="0" y1="-5" x2="0" y2="5" stroke="#ddd" stroke-width="1"></line>
+      <text x="0" y="20" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" style="white-space: pre;">3ms</text>
+    </g>
+    <g transform="translate(240, 0)">
+      <line x1="0" y1="-5" x2="0" y2="5" stroke="#ddd" stroke-width="1"></line>
+      <text x="0" y="20" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" style="white-space: pre;">6ms</text>
+    </g>
+  </g>
+  <text x="463.53" y="30.952" font-family="Arial, sans-serif" font-size="12" fill="#666" style="white-space: pre; font-size: 12px;">(query 13 paragraphs)</text>
+  <text x="20.892" y="180.276" font-family="Arial, sans-serif" font-size="12" fill="#666" style="white-space: pre; font-size: 12px;">Generated on 2025-02-21 10:43:00 UTC</text>
+</svg>
 
 
 ### Features
@@ -23,6 +96,7 @@ You also have a powerful tool to create a DOM tree from scratch, but unlike the 
 * **Isomorphic by Design** (Works in Node.js, Deno, Bun, browsers; No DOM dependencies)
 * **High Performance** (Sub-millisecond parsing for typical HTML templates; very fast `match` based queries)
 * **Typescript Support** (First-class TypeScript support with full types).
+* **Tested with Vitest** (full 100% code coverage).
 
 
 ### Main Components
@@ -86,8 +160,8 @@ Let's take a sample HTML source for this example. We want to showcase all the ca
 </html>
 ```
 **Notes**:
-* the `<!doctype html>` tag will not be included in the resulted DOM tree, but will be added to the `root.doctype` property;
-* the `charset` value of the `<meta>` tag will be added to the `root.charset` property. 
+* the `<!doctype html>` tag will not be included in the resulted DOM tree, but **DomParser** will add it to the `root.doctype` property;
+* the `charset` value of the `<meta>` tag will also be added to the `root.charset` property. 
 </details>
 
 
@@ -158,7 +232,7 @@ console.log(root);
 
 Below we have a near complete representation of the given HTML markup, keep in mind that the contents of the `children` property is not included to shorten the DOM tree.
 
-**IMPORTANT** - The light **Parser** will not distinguish nodes like `Element`, `SVGElement` from `TextNode` or `CommentNode` nodes.
+**IMPORTANT** - The light **Parser** will not distinguish nodes like `Element`, `SVGElement` from `TextNode` or `CommentNode` nodes, they are all included in the `children` property.
 
 <details>
 <summary>Click to expand</summary>
@@ -455,9 +529,9 @@ DomParser.parserFromString({});
 ### Document API
 When you create a new **DomParser** instance, you immediately get access to a [Document-like API](https://developer.mozilla.org/en-US/docs/Web/API/Document), but only the essentials. On that note, you are provided with methods to create and remove nodes, check if nodes are added to the DOM tree, or apply queries.
 
-#### Document Create Root Node
+#### Document - Create Root Node
 Currently there are 2 methods to create a `Document` like root node:
-* by invoking `DomParser.parseFromString("with starting html markup", options)` or with no arguments at all;
+* by invoking `DomParser(options).parseFromString("with starting html markup")` or with no arguments at all;
 * by invoking `createDocument()`.
 
 Example with first method:
@@ -476,7 +550,7 @@ import { createDocument } from "@thednp/domparser/dom";
 const doc = createDocument();
 ```
 
-#### Document Create Element / Node
+#### Document - Create Element / Node
 
 The root node exposes all known `Document` like methods for creating new nodes, specifically `createElement`, `createElementNS`, `createComment` and `createTextNode` however the `<!doctype html>` node is not supported.
 
@@ -532,7 +606,7 @@ const comment = doc.createComment("This is a comment node");
 
 ---
 
-#### Document Create Text and Comment Nodes
+#### Document - Create Text and Comment Nodes
 
 The API provides methods for creating text nodes and comment nodes, similar to the standard DOM:
 
@@ -640,7 +714,7 @@ doc.createElement("html",            // tagName
 ---
 
 
-#### Document Ancestor Relationship
+#### Document - Ancestor Relationship
 
 The API allows you to `append` nodes to the root node and later you can check if your nodes are present within the DOM tree via the `contains` method.
 
@@ -671,7 +745,7 @@ doc.contains(childNode);
 
 ---
 
-#### Document Children Relationship
+#### Document - Children Relationship
 The API exposes `Node` like `readonly` properties to access child nodes:
 * `children` - all `Element` like nodes;
 * `childNodes` - all nodes including `#text` and `#comment` nodes.
@@ -713,7 +787,7 @@ console.log(doc.documentElement);
 
 ---
 
-#### Document Remove / Replace Child Nodes
+#### Document - Remove / Replace Child Nodes
 The Node like API also allows you to remove or replace one or more child nodes via `removeChild` and `replaceChildren` methods. Check examples below for more details.
 
 <details>
@@ -759,11 +833,11 @@ doc.deregister(html);
 
 ---
 
-#### Document Selector Engine
+#### Document - Selector Engine
 
 The Document API exposes all known methods to query the DOM tree, namely `getElementById`, `querySelector`, `querySelectorAll` ,`getElementsByClassName` and `getElementsByTagName`. Unlike the real DOM, instead of `NodeList` or live collections `HTMLCollection`, the results here are `Array` where applicable.
 
-It should support multiple selectors comma separated and attribute selectors, however direct selectors and pseudo-selectors are not implemented.
+It should support multiple selectors comma separated and attribute selectors, however direct selectors and pseudo-selectors are not implemented. Also it caches up to 100 most used matching functions to prevent over processing of the selectors to push performance further.
 <details>
 <summary>Click to expand</summary>
 
@@ -811,7 +885,7 @@ A partial implementation of the [Element API](https://developer.mozilla.org/en-U
 
 As a rule of thumbs, most properties are `readonly` accessors (getters) for consistency and other reasons some might consider security related.
 
-#### Node Ancestor Relationship
+#### Node - Ancestor Relationship
 
 The `Node` API exposes `parentNode`, `ownerDocument` (getters) and `contains` (method):
 <details>
@@ -858,7 +932,7 @@ console.log(doc.contains(title));
 
 ---
 
-#### Node Children Relationship
+#### Node - Children Relationship
 
 The `Node` prototype will only expose `readonly` properties (getters) to access `children` and `childNodes` for any node instance present in the DOM tree. The rule of thumbs is that if a node isn't appended to a parent, it should _not_ be present in the output of these accessors.
 
@@ -894,7 +968,7 @@ console.log(html.childNodes);
 
 ---
 
-#### Element Remove / Replace Child Nodes
+#### Element - Remove / Replace Child Nodes
 
 For consistency the `Element` prototype doesn't have a way to directly add or remove child nodes into the DOM tree, you need to use the provided API.
 <details>
@@ -936,7 +1010,7 @@ html.remove();
 
 ---
 
-#### Element Attributes
+#### Element - Attributes
 
 Nodes enhanced with DOM methods and properties don't allow direct access to manipulate the attributes of an `Element` like node, you must use the following API:
 
@@ -1000,7 +1074,7 @@ svg.getAttributeNS("http://www.w3.org/2000/svg", "xmlns");
 
 ---
 
-#### Element Selector Engine
+#### Element - Selector Engine
 The Element API exposes all known methods to query the DOM tree except `getElementById` which is exclusive to the root node. Same caveats apply as for the Document API.
 
 <details>
@@ -1060,7 +1134,7 @@ const button = main.children.find(child => child.matches("[data-toggle]"))
 </details>
 
 
-#### Node & Element Content Exports
+#### Node & Element - Content Exports
 
 The API provides properties for accessing the content of elements:
 
@@ -1232,6 +1306,12 @@ const attributes = getBasicAttributes(
 ```
 </details>
 
+**Other tools you might need to use**:
+* `isRoot: (node: unknown) => boolean` - check if an object is a `RootLike` or `RootNode`;
+* `isNode: (node: unknown) => boolean` - check if an object is any kind of node: root, element, text node, etc.
+* `isTag: (node: unknown) => boolean` - check if an object is an `Element` like node;
+* `isPrimitive: (node: unknown) => boolean` - check if value is either `string` or `number`.
+
 
 ## Tree-shaking
 This library exports its components as separate modules so you can save even more space and allow for a more flexible sourcing of the code. This is to make sure that even if your setup isn't perfectly configured to handle tree-shaking, you are still bundling only what's actually used.
@@ -1290,7 +1370,7 @@ DomParser().parseFromString("<html><p><span></p></html>");
 * **DomParser** will throw a specific error when an unmatched open/closing tag is detected;
 * both parser versions should be capable to handle HTML comments `<!-- comment -->` even if they have other valid tags inside, but considering that nested comments aren't supported in the current HTML5 draft; the comment's usual structure is `{ nodeName: "#comment", nodeValue: "<!-- comment -->" }`;
 * also both parser versions will handle self-closing tags and some cases of incorrect markup such as `<path />` versus `<path></path>` (cases where both are valid) and `<meta name=".." />` vs `<meta name="..">` (only the second case is valid);
-* another note is that `<!doctype>` tag is always stripped, but **DomParser** will add it to the root node in the `doctype` property, which is similar to the native browser API;
+* another note is that `<!doctype>` tag is always stripped, but **DomParser** will add it to the root node in its `doctype` property, which is similar to the native browser API;
 * if the current DOM tree contains a `<meta charset="utf-8">` **DomParser** will use the `charset` value for the root property `charset`;
 * similar to the native browser DOMParser, this script returns a document like tree structure where the root element is a "root" property of the output; what's different is that our script will also export a list of tags and a list of components;
 * the script properly handles `CustomElement`s, UI Library components, and even camelCase tags like `clipPath` or attributes like `preserveAspectRatio`;

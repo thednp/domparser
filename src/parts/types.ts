@@ -101,6 +101,7 @@ export type ElementAPI = {
   cleanup: () => void;
   children: DOMNode[];
 };
+
 /**
  * Represents an element node in the DOM
  */
@@ -139,6 +140,9 @@ export type RootNode =
     createTextNode: (value: string) => TextNode;
   };
 
+/**
+ * Represents a lighter root document node
+ */
 export type RootLike = {
   nodeName: "#document";
   children: ChildLike[];
@@ -162,7 +166,6 @@ export type TextToken = {
  * Parser configuration options
  */
 export type DomParserOptions = {
-  sanitizeFn: (name: string, str: string) => string;
   onNodeCallback: (
     node: DOMNode,
     parent: RootNode | DOMNode,
@@ -173,7 +176,8 @@ export type DomParserOptions = {
 };
 
 /**
- * Parser result containing the DOM tree and component/tag information
+ * Parser result containing the simplidied DOM tree
+ * and component/tag information
  */
 export type ParseResult = {
   root: RootLike;
@@ -182,7 +186,8 @@ export type ParseResult = {
 };
 
 /**
- * Parser result containing the DOM tree and component/tag information
+ * Parser result containing the DOM tree
+ * and component/tag information
  */
 export type DomParserResult = {
   root: RootNode;
@@ -213,7 +218,6 @@ export type DOMNodeAttributes = Map<string, string>;
  */
 export type GetAttributesOptions = {
   unsafeAttrs: Set<string>;
-  sanitizeFn: (name: string, str: string) => string;
 };
 
 /**

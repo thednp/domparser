@@ -124,9 +124,9 @@ type NodeLikeAttributes = Record<string, string>;
  */
 declare function createBasicNode<T extends ("#text" | "#comment")>(nodeName: T, text: string): TextNode | CommentNode;
 /**
- * Creates a DOM-like Node (`DOMNode` or `RootNode`) with DOM API extensions and sanitization.
- * This function extends the basic `NodeLike` from **Parser** by adding DOM-specific properties and methods,
- * as well as applying sanitization based on the provided configuration.
+ * Creates a DOM-like Node (`DOMNode` or `RootNode`) with DOM API properties and methods.
+ * This function extends the basic `NodeLike` from **Parser** by adding DOM-specific
+ * properties and methods, as well as applying filters based on the provided configuration.
  *
  * @param this - The `RootNode` when creating a `DOMNode`, or `null` otherwise (in non-strict mode)
  * @param nodeName The tag name of the node to create (or '#document' for the root).

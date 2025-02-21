@@ -16,7 +16,8 @@ import type {
  * **Parser**
  *
  * A tiny yet very fast and powerful parser that takes a string of HTML
- * and returns a DOM tree representation.
+ * and returns a DOM tree representation. In benchmarks it shows up to
+ * 60x faster performance when compared to jsdom.
  *
  * The DOM representation is a plain object with the following structure:
  * ```ts
@@ -37,7 +38,6 @@ import type {
  *  // the root node
  *  type RootLike = {
  *   nodeName: string;
- *   doctype?: string;
  *   children: NodeLike[];
  * };
  * ```
