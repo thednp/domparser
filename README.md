@@ -20,6 +20,7 @@ Unlike alternatives such as [jsdom](https://github.com/jsdom/jsdom) or [cheerio]
 ### Query Benchmarks
 ![Parsing Benchmarks](https://github.com/thednp/domparser/blob/master/demo/query-bench.svg)
 
+**Note** - these results come from a desktop PC with NodeJS v23.5.0, your results may vary.
 
 ### Features
 * **Minimal Size with Maximum Flexibility** (~1.1Kb core parser, ~3.5Kb parser with DOM API, ~2.5Kb DOM API)
@@ -272,7 +273,7 @@ Below we have a near complete representation of the given HTML markup, keep in m
 ## DomParser Usage
 The **DomParser** returns a similar result as the basic **Parser**, however it also allows you to manipulate the DOM tree or create one similar to how `Document` API works, if no starting HTML markup is provided, you only have a basic `Document` like you can manipulate.
 
-**NOTE** - Unlike the light **Parser** this version _will_ distinguish nodes like `Element`, `SVGElement` from `TextNode` or `CommentNode` nodes, which means that the `children` property contains `Element` | `SVGElement` while the `childNodes` property contains all types of nodes.
+**NOTE** - Unlike the lighter **Parser** this version _will_ distinguish nodes like `Element`, `SVGElement` from `TextNode` or `CommentNode` nodes, which means that the `children` property contains `Element` and `SVGElement` nodes while the `childNodes` property contains all types of nodes.
 
 ### Initialize DomParser
 First let's import and initialize **DomParser** and get to build a DOM tree from scratch:
@@ -280,7 +281,7 @@ First let's import and initialize **DomParser** and get to build a DOM tree from
 import { DomParser } from '@thednp/domparser';
 
 // initialize
-const { root: doc } = DomParser(/* options */).parseFromString();
+const doc = DomParser().parseFromString().root;
 ```
 
 Now we can use `Document` like methods to create a DOM tree structure:
@@ -294,51 +295,6 @@ const html = doc.createElement(
 );
 ```
 
-Check the example below for a more detailed example:
-<details>
-<summary>Click to expand</summary>
-
-```ts
-// create a complete DOM tree
-doc.createElement("html",   // tagName
-  { class: "html-class" },  // attributes
-  doc.createElement("head", // childNodes
-    doc.createElement("title", "This is a title"),
-    doc.createElement("meta", {
-      name: "description",
-      content: "Some description",
-    }),
-  ),
-  doc.createElement("body",
-    { id: "my-body", "data-url": "https://nice.com" },
-    doc.createElement("h1", "This is a heading"),
-    doc.createElement("p", "This is a paragraph"),
-    doc.createTextNode("This is a `#text` node via doc.createTextNode"),
-    doc.createComment("This is a `#comment` node created via doc.createComment"),
-    "This is a text",                   // this will be added via doc.createTextNode
-    "<!-- This is a comment again -->", // this will be added via doc.createComment
-    doc.createElementNS("http://www.w3.org/2000/svg", "svg",
-      { xmlns: "http://www.w3.org/2000/svg" },
-      doc.createElementNS("http://www.w3.org/2000/svg", 'path', {
-        d: "M0 0L10 10"
-      })
-    ),
-  ),
-);
-```
-</details>
-
-
-### DomParser - Main Elements
-The `document` like instance provides easy access to main `Element` like nodes: 
-
-```ts
-// work with the main elements
-console.log(doc.documentElement); // <html>
-console.log(doc.head);            // <head>
-console.log(doc.body);            // <body>
-console.log(doc.all);             // An array with all `Element` like nodes in the tree
-```
 
 ### DomParser - Selector Engine
 
@@ -354,9 +310,9 @@ Check below for more examples.
 <summary>Click to expand</summary>
 
 ```ts
-import { createDocument } from "@thednp/domparser/dom";
+import { DomParser } from "@thednp/domparser/dom-parser";
 
-const doc = createDocument();
+const doc = DomParser().parseFromString();
 
 // exclusive to the root node
 console.log(doc.getElementById('my-id'));
@@ -396,7 +352,8 @@ console.log(svg.closest("#my-body"));
 ```ts
 import { DomParser } from "@thednp/domparser/dom-parser";
 
-const doc = DomParser({ filterTags: ["script"] }).parseFromString(`<html><script src="some-url"></script></html>`);
+const doc = DomParser({ filterTags: ["script"] })
+  .parseFromString(`<html><script src="some-url"></script></html>`).root;
 ```
 
 Check below a more detailed example:
@@ -470,7 +427,7 @@ Example with first method:
 import { DomParser } from "@thednp/domparser/dom-parser";
 
 // create a root node
-const { root: doc } = DomParser.parseFromString();
+const doc = DomParser.parseFromString().root;
 ```
 
 Example with second method:
@@ -524,14 +481,6 @@ const svg = doc.createElementNS(
   // define multiple child nodes as additional parameters
 );
 // => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-
-// create a `#text` node
-const textNode = doc.createTextNode("Sample text node");
-// => "Sample text node"
-
-// create a `#comment` node
-const comment = doc.createComment("This is a comment node");
-// => "<!-- This is a comment node -->"
 ```
 </details>
 
