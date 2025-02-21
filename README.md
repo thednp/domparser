@@ -15,10 +15,10 @@ While not a direct replacement for the browser's native DOMParser, its modular a
 Unlike alternatives such as [jsdom](https://github.com/jsdom/jsdom) or [cheerio](https://cheerio.js.org) that attempt to replicate the entire DOM specification, this library focuses on essential DOM features, resulting in significantly better performance and memory efficiency. In the [benchmark.ts](https://github.com/thednp/domparser/blob/master/demo/benchmark.ts) file we're comparing **Parser** and **DomParser** against **jsdom**, here are some results:
 
 ### Parsing Benchmarks
-![Parsing Benchmarks](https://github.com/thednp/domparser/blob/master/demo/parsing-benchmark.svg)
+![Parsing Benchmarks](https://github.com/thednp/domparser/blob/master/demo/parsing-bench.svg)
 
 ### Query Benchmarks
-![Parsing Benchmarks](https://github.com/thednp/domparser/blob/master/demo/query-benchmark.svg)
+![Parsing Benchmarks](https://github.com/thednp/domparser/blob/master/demo/query-bench.svg)
 
 
 ### Features
