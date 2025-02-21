@@ -1,8 +1,13 @@
 // benchmark.ts
 /**
+ * Usage
+ * `libName` is jsdom | Parser | DomParser
+ *
+ * With NodeJS (requires NodeJS v20+ for experimental transformation)
  * ```bash
  * node --experimental-transform-types demo/benchmark.ts libName
  * ```
+ * OR with Deno
  * ```bash
  * deno -A demo/benchmark.ts
  * ```
@@ -26,7 +31,7 @@ const standardGenTime = 2;   // DomParser
 
 if (!libName) {
   console.log("💡 Usage node --experimental-transform-types demo/benchmark.ts libName")
-  console.log("> libName must be jsdom Parser or DomParser");
+  console.log(`> libName must be "jsdom" "Parser" or "DomParser"`);
   process.exit(1);
 }
 
@@ -71,8 +76,6 @@ const html = `
 </body>
 </html>
 `.trim();
-
-// const dp = DomParser().parseFromString(html).root;
 
 console.log(`\nBenchmarking ${libName}...`);
 let startParseTime = 0;
