@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 200">
-  <rect width="600" height="200" fill="#ffffff" x="0" y="0" rx="10"></rect>
+  <rect width="600" height="200" fill="#ffffff" stroke-width="1px" stroke="rgba(125,125,125,0.2)" x="0" y="0" rx="10"></rect>
   <text x="20.892" y="30.276" font-family="Arial, sans-serif" font-size="16" font-weight="bold" style="white-space: pre; font-size: 16px;">Query Performance (5 runs average)</text>
   <g transform="matrix(1, 0, 0, 1, 150.895203, 50.277)">
     <g transform="translate(0, 0)">

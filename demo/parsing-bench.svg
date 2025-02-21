@@ -1,6 +1,5 @@
-
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 220">
-  <rect width="600" height="220" fill="#ffffff" x="0" y="0" style="" rx="10"></rect>
+  <rect width="600" height="220" fill="#ffffff" stroke-width="1px" stroke="rgba(125,125,125,0.2)" x="0" y="0" style="" rx="10"></rect>
   <text x="20.554" y="30.937" font-family="Arial, sans-serif" font-size="16" font-weight="bold" style="white-space: pre; font-size: 16px;">HTML Parsing Performance (5 runs average)</text>
   <g transform="matrix(1, 0, 0, 1, 100.557938, 50.937126)">
     <g transform="translate(0, 0)">
