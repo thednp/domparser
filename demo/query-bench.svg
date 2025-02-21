@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 200">
+  <rect width="600" height="200" fill="#ffffff" x="0" y="0" rx="10"></rect>
+  <text x="20.892" y="30.276" font-family="Arial, sans-serif" font-size="16" font-weight="bold" style="white-space: pre; font-size: 16px;">Query Performance (5 runs average)</text>
+  <g transform="matrix(1, 0, 0, 1, 150.895203, 50.277)">
+    <g transform="translate(0, 0)">
+      <rect x="0" y="0" width="40" height="25" fill="#3178c6"></rect>
+      <text x="-5" y="17" font-family="Arial, sans-serif" font-size="14" text-anchor="end" style="white-space: pre;">DomParser</text>
+      <text x="45" y="17" font-family="Arial, sans-serif" font-size="14" style="white-space: pre;">1ms</text>
+    </g>
+    <g transform="translate(0, 40)">
+      <rect x="0" y="0" width="240" height="25" fill="#f1e05a"></rect>
+      <text x="-5" y="17" font-family="Arial, sans-serif" font-size="14" text-anchor="end" style="white-space: pre;">jsdom</text>
+      <text x="245" y="17" font-family="Arial, sans-serif" font-size="14" style="white-space: pre;">6ms</text>
+    </g>
+  </g>
+  <g transform="matrix(1, 0, 0, 1, 150.895203, 123.277008)">
+    <line x1="0" y1="0" x2="240" y2="0" stroke="#ddd" stroke-width="1"></line>
+    <g>
+      <line x1="0" y1="-5" x2="0" y2="5" stroke="#ddd" stroke-width="1"></line>
+      <text x="0" y="20" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" style="white-space: pre;">0ms</text>
+    </g>
+    <g transform="translate(120, 0)">
+      <line x1="0" y1="-5" x2="0" y2="5" stroke="#ddd" stroke-width="1"></line>
+      <text x="0" y="20" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" style="white-space: pre;">3ms</text>
+    </g>
+    <g transform="translate(240, 0)">
+      <line x1="0" y1="-5" x2="0" y2="5" stroke="#ddd" stroke-width="1"></line>
+      <text x="0" y="20" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" style="white-space: pre;">6ms</text>
+    </g>
+  </g>
+  <text x="463.53" y="30.952" font-family="Arial, sans-serif" font-size="12" fill="#666" style="white-space: pre; font-size: 12px;">(query 13 paragraphs)</text>
+  <text x="20.892" y="180.276" font-family="Arial, sans-serif" font-size="12" fill="#666" style="white-space: pre; font-size: 12px;">Generated on 2025-02-21 10:43:00 UTC</text>
+</svg>

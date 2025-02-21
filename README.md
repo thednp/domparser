@@ -15,79 +15,10 @@ While not a direct replacement for the browser's native DOMParser, its modular a
 Unlike alternatives such as [jsdom](https://github.com/jsdom/jsdom) or [cheerio](https://cheerio.js.org) that attempt to replicate the entire DOM specification, this library focuses on essential DOM features, resulting in significantly better performance and memory efficiency. In the [benchmark.ts](https://github.com/thednp/domparser/blob/master/demo/benchmark.ts) file we're comparing **Parser** and **DomParser** against **jsdom**, here are some results:
 
 ### Parsing Benchmarks
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 220">
-  <rect width="600" height="220" fill="#ffffff" x="0" y="0" style="" rx="10"></rect>
-  <text x="20.554" y="30.937" font-family="Arial, sans-serif" font-size="16" font-weight="bold" style="white-space: pre; font-size: 16px;">HTML Parsing Performance (5 runs average)</text>
-  <g transform="matrix(1, 0, 0, 1, 100.557938, 50.937126)">
-    <g transform="translate(0, 0)">
-      <rect x="0" y="0" width="8" height="25" fill="#3fb950"></rect>
-      <text x="-5" y="17" font-family="Arial, sans-serif" font-size="14" text-anchor="end" style="white-space: pre;">Parser</text>
-      <text x="13" y="17" font-family="Arial, sans-serif" font-size="14" style="white-space: pre;">1ms</text>
-    </g>
-    <g transform="translate(0, 40)">
-      <rect x="0" y="0" width="16" height="25" fill="#3178c6"></rect>
-      <text x="-5" y="17" font-family="Arial, sans-serif" font-size="14" text-anchor="end" style="white-space: pre;">DomParser</text>
-      <text x="21" y="17" font-family="Arial, sans-serif" font-size="14" style="white-space: pre;">2ms</text>
-    </g>
-    <g transform="translate(0, 80)">
-      <rect x="0" y="0" width="438" height="25" fill="#f1e05a"></rect>
-      <text x="-5" y="17" font-family="Arial, sans-serif" font-size="14" text-anchor="end" style="white-space: pre;">jsdom</text>
-      <text x="378.001" y="16.694" font-family="Arial, sans-serif" font-size="14" style="white-space: pre; font-size: 14px;">54.75ms</text>
-    </g>
-  </g>
-  <text x="18.198" y="205.098" font-family="Arial, sans-serif" font-size="12" fill="#666" style="white-space: pre; font-size: 12px;">Generated on 2025-02-21 10:08:35 UTC</text>
-  <g transform="matrix(1, 0, 0, 1, 100.557938, 163.937134)">
-    <line x1="0" y1="0" x2="400" y2="0" stroke="#ddd" stroke-width="1"></line>
-    <g>
-      <line x1="0" y1="-5" x2="0" y2="5" stroke="#ddd" stroke-width="1"></line>
-      <text x="0" y="20" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" style="white-space: pre;">0ms</text>
-    </g>
-    <g transform="translate(200, 0)">
-      <line x1="0" y1="-5" x2="0" y2="5" stroke="#ddd" stroke-width="1"></line>
-      <text x="0" y="20" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" style="white-space: pre;">25ms</text>
-    </g>
-    <g transform="translate(400, 0)">
-      <line x1="0" y1="-5" x2="0" y2="5" stroke="#ddd" stroke-width="1"></line>
-      <text x="0" y="20" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" style="white-space: pre;">50ms</text>
-    </g>
-  </g>
-  <text x="449.949" y="30.608" font-family="Arial, sans-serif" font-size="12" fill="#666" style="white-space: pre; font-size: 12px;">(HTML 2551 characters)</text>
-</svg>
+![Parsing Benchmarks](https://github.com/thednp/domparser/blob/master/demo/parsing-benchmark.svg)
 
 ### Query Benchmarks
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 200">
-  <rect width="600" height="200" fill="#ffffff" x="0" y="0" rx="10"></rect>
-  <text x="20.892" y="30.276" font-family="Arial, sans-serif" font-size="16" font-weight="bold" style="white-space: pre; font-size: 16px;">Query Performance (5 runs average)</text>
-  <g transform="matrix(1, 0, 0, 1, 150.895203, 50.277)">
-    <g transform="translate(0, 0)">
-      <rect x="0" y="0" width="40" height="25" fill="#3178c6"></rect>
-      <text x="-5" y="17" font-family="Arial, sans-serif" font-size="14" text-anchor="end" style="white-space: pre;">DomParser</text>
-      <text x="45" y="17" font-family="Arial, sans-serif" font-size="14" style="white-space: pre;">1ms</text>
-    </g>
-    <g transform="translate(0, 40)">
-      <rect x="0" y="0" width="240" height="25" fill="#f1e05a"></rect>
-      <text x="-5" y="17" font-family="Arial, sans-serif" font-size="14" text-anchor="end" style="white-space: pre;">jsdom</text>
-      <text x="245" y="17" font-family="Arial, sans-serif" font-size="14" style="white-space: pre;">6ms</text>
-    </g>
-  </g>
-  <g transform="matrix(1, 0, 0, 1, 150.895203, 123.277008)">
-    <line x1="0" y1="0" x2="240" y2="0" stroke="#ddd" stroke-width="1"></line>
-    <g>
-      <line x1="0" y1="-5" x2="0" y2="5" stroke="#ddd" stroke-width="1"></line>
-      <text x="0" y="20" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" style="white-space: pre;">0ms</text>
-    </g>
-    <g transform="translate(120, 0)">
-      <line x1="0" y1="-5" x2="0" y2="5" stroke="#ddd" stroke-width="1"></line>
-      <text x="0" y="20" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" style="white-space: pre;">3ms</text>
-    </g>
-    <g transform="translate(240, 0)">
-      <line x1="0" y1="-5" x2="0" y2="5" stroke="#ddd" stroke-width="1"></line>
-      <text x="0" y="20" font-family="Arial, sans-serif" font-size="12" text-anchor="middle" style="white-space: pre;">6ms</text>
-    </g>
-  </g>
-  <text x="463.53" y="30.952" font-family="Arial, sans-serif" font-size="12" fill="#666" style="white-space: pre; font-size: 12px;">(query 13 paragraphs)</text>
-  <text x="20.892" y="180.276" font-family="Arial, sans-serif" font-size="12" fill="#666" style="white-space: pre; font-size: 12px;">Generated on 2025-02-21 10:43:00 UTC</text>
-</svg>
+![Parsing Benchmarks](https://github.com/thednp/domparser/blob/master/demo/query-benchmark.svg)
 
 
 ### Features
