@@ -8,7 +8,7 @@
 
 A TypeScript-based [HTML parser](https://developer.mozilla.org/en-US/docs/Web/API/DOMParser) available in two versions: a lightweight **Parser** focused on speed and memory efficiency, and a feature-rich **DomParser** that provides a DOM-like API with additional capabilities like tag validation.
 
-At just ~1.4Kb gzipped for the core parser, it's perfect for both server and client-side applications where bundle size matters. The more comprehensive version is ideal for development environments where markup validation and DOM manipulation are needed.
+At just ~1.3Kb gzipped for the core parser, it's perfect for both server and client-side applications where bundle size matters. The more comprehensive version is ideal for development environments where markup validation and DOM manipulation are needed.
 
 While not a direct replacement for the browser's native DOMParser, its modular architecture makes it versatile for various use cases. The library also includes a powerful DOM creation API that improves upon the native `Document` interface, offering a more intuitive and efficient way to build DOM trees programmatically.
 
@@ -23,7 +23,7 @@ Unlike alternatives such as [jsdom](https://github.com/jsdom/jsdom) or [cheerio]
 **Note** - these results come from a desktop PC with NodeJS v23.5.0, your results may vary.
 
 ### Features
-* **Minimal Size with Maximum Flexibility** (~1.4Kb core parser, ~3.7Kb parser with DOM API, ~2.5Kb DOM API)
+* **Minimal Size with Maximum Flexibility** (~1.3Kb core parser, ~3.6Kb parser with DOM API, ~2.5Kb DOM API)
 * **Modern Tree-Shaking Friendly Architecture** (both versions packaged in separate bundles)
 * **Isomorphic by Design** (Works in Node.js, Deno, Bun, browsers; No DOM dependencies)
 * **High Performance** (Sub-millisecond parsing for typical HTML templates; very fast `match` based queries)
