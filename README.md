@@ -23,7 +23,7 @@ Unlike alternatives such as [jsdom](https://github.com/jsdom/jsdom) or [cheerio]
 **Note** - these results come from a desktop PC with NodeJS v23.5.0, your results may vary.
 
 ### Features
-* **Minimal Size with Maximum Flexibility** (~1.4Kb core parser, ~3.6Kb parser with DOM API, ~2.5Kb DOM API)
+* **Minimal Size with Maximum Flexibility** (~1.4Kb core parser, ~3.7Kb parser with DOM API, ~2.5Kb DOM API)
 * **Modern Tree-Shaking Friendly Architecture** (both versions packaged in separate bundles)
 * **Isomorphic by Design** (Works in Node.js, Deno, Bun, browsers; No DOM dependencies)
 * **High Performance** (Sub-millisecond parsing for typical HTML templates; very fast `match` based queries)
