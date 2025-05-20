@@ -68,11 +68,28 @@ var DOM = (() => {
     "polygon",
     "polyline"
   ]);
+  var escape = (str) => {
+    if (str === null || str === "") {
+      return false;
+    } else {
+      str = str.toString();
+    }
+    const map = {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#039;"
+    };
+    return str.replace(/[&<>"']/g, (m) => {
+      return map[m];
+    });
+  };
   var tokenize = (html) => {
     const specialTags = ["script", "style"];
     const tokens = [];
     const len = html.length;
-    let token = "", inTag = false, inQuote = false, quote = 0, inTemplate = false, inComment = false, inStyleScript = false;
+    let token = "", inTag = false, inQuote = false, quote = 0, inTemplate = false, inComment = false, inCDATA = false, inStyleScript = false;
     for (let i = 0; i < len; i++) {
       const char = charCodeAt(html, i);
       if (inComment) {
@@ -84,6 +101,20 @@ var DOM = (() => {
             isSC: false
           });
           inComment = false;
+          token = "";
+          i += 1;
+        }
+        continue;
+      }
+      if (inCDATA) {
+        token += fromCharCode(char);
+        if (endsWith(token, "]]") && charCodeAt(html, i + 1) === 62) {
+          tokens.push({
+            nodeType: "text",
+            value: `<${escape(trim(token))}>`,
+            isSC: false
+          });
+          inCDATA = false;
           token = "";
           i += 1;
         }
@@ -124,7 +155,13 @@ var DOM = (() => {
           i += 3;
           continue;
         }
-      } else if (char === 62 && inTag && !inQuote && !inTemplate && !inComment && !inStyleScript) {
+        if (startsWith(html, "![CDATA[", i + 1)) {
+          inCDATA = true;
+          token += "![CDATA[";
+          i += 8;
+          continue;
+        }
+      } else if (char === 62 && inTag && !inQuote && !inTemplate && !inComment && !inStyleScript && !inCDATA) {
         const startSpecialTag = specialTags.find(
           (t) => t === token || startsWith(token, t)
         );

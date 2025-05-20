@@ -6,6 +6,7 @@ import {
   TextNode,
   selectorCache,
   NodeLike,
+  escape,
 } from "../src/index";
 import { describe, expect, test } from "vitest";
 
@@ -25,6 +26,9 @@ describe(`Test DOMParser`, () => {
       this is a comment
       <span>this is a span inside comment</span>
     -->
+    <![CDATA[
+      /* This could contain unescaped chars like < or & */
+    ]]>
     <path d='M0 0L5 5'></path>
     <path d='M0 0L10 5' />
     <icon id="fancy" class="no-display" />
@@ -51,7 +55,7 @@ describe(`Test DOMParser`, () => {
     // return;
     
     expect(doc.parentElement).toBeUndefined();
-    expect(doc.documentElement?.outerHTML.length).toEqual(541);
+    expect(doc.documentElement?.outerHTML.length).toEqual(629);
     expect(doc.all.length).toEqual(15);
     expect(doc.head?.children[2].childNodes[0].ownerDocument).toEqual(doc);
     expect((doc.head?.parentNode as DOMNode).tagName).toEqual("html");
@@ -384,6 +388,8 @@ describe(`Test DOMParser`, () => {
   });
 
   test(`Test edge cases`, () => {
+    // @ts-expect-error - this is normal
+    expect(escape(null)).toEqual(false);
     expect(getAttributes("")).toEqual({});
     expect(Parser().parseFromString(), "parse an empty string").toEqual({
       root: { nodeName: "#document", children: [] },
@@ -479,7 +485,7 @@ describe(`Test DOMParser`, () => {
         '<style> head { display: none } body { margin: 0 } header { content: "</style>" }</style>'
       ).root.all
     ).toHaveLength(1);
-    expect(DomParser({ sanitizeFn: undefined }).parseFromString(`
+    expect(DomParser().parseFromString(`
       <style>
         head { display: none }
         body { margin: 0 }

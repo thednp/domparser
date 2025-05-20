@@ -23,6 +23,17 @@
       <h1><b>DOMParser</b> Demo</h1>
       <div>
         <div>
+          <div style="display: flex; gap: 10px; margin-bottom: 15px">
+            <label for="parser-type-parser">
+              <input type="radio" id="parser-type-parser" name="parser-type" value="Parser" checked>
+              Parser
+            </label>
+            <label for="parser-type-domparser">
+              <input type="radio" id="parser-type-domparser" name="parser-type" value="DomParser">
+              DomParser
+            </label>
+          </div>
+
           <label for="input">Paste HTML in Here</label>
           <textarea name="input" id="input">
 <!doctype html>
@@ -31,6 +42,9 @@
     <meta charset="UTF-8">
     <title>Example</title>
     <style id="my-style">p {margin: 0}</style>
+    <![CDATA[
+    /* This could contain unescaped chars like < or & */
+    ]]>
   </head>
   <body>
     <h1>Sample</h1>
@@ -59,8 +73,12 @@
     </main>
 
     <script type="module">
-      import { Parser, DomParser } from "../src/index.ts";
+      import { Parser, DomParser, escape } from "../src/index.ts";
       // console.log(Parser);
+      const parsers = {
+        Parser,
+        DomParser
+      }
       function debounce(func, delay = 350) {
         let timeoutId; // Variable to store the timeout ID
 
@@ -72,23 +90,31 @@
           }, delay);
         };
       }
+      const radio = Array.from(document.getElementsByTagName("input"));
       const [input] = document.getElementsByTagName("textarea");
       const [output] = document.getElementsByTagName("output");
       const [pre] = document.getElementsByTagName("pre");
       const onChange = debounce(() => {
         console.time("parsing");
-        // const htmlParsed = Parser({ filterTags: ["script", "pre"] }).parseFromString(input.value);
-        const htmlParsed = Parser().parseFromString(input.value);
+        const parserType = radio.find(r => r.checked).value || "Parser";
+        const { root: doc, components, tags } = parsers[parserType]().parseFromString(input.value);
         console.timeEnd("parsing");
         pre.innerText = input.value;
+        console.log(doc)
         output.innerHTML = `
-<p><b>Tags</b>: ${htmlParsed.tags.join(', ')}</p>
-<p><b>Components</b>: ${htmlParsed.components.join(', ')}</p>
+<p><b>Parser</b>: ${parserType}</p>
+<p><b>Tags</b>: ${tags.join(', ')}</p>
+<p><b>Components</b>: ${components.length ? components.join(', ') : "none"}</p>
 <details>
 <summary>DOM Tree (Click to expand)</summary>
 
 <pre>
-${JSON.stringify(htmlParsed.root, null, 2)}
+${JSON.stringify(doc, (key, value) => {
+  if (key === "nodeValue") {
+    return escape(value)
+  }
+  return value;
+}, 2)}
 </pre>
 </details>
 `.trim();
@@ -96,6 +122,7 @@ ${JSON.stringify(htmlParsed.root, null, 2)}
       })
 
       input.addEventListener('input', onChange);
+      radio.forEach(r => r.addEventListener('input', onChange));
       onChange();
     </script>
   </body>

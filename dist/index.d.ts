@@ -299,6 +299,7 @@ declare const trim: (str: string) => string;
  * Set of self-closing HTML tags used by the `Parser`.
  */
 declare const selfClosingTags: Set<string>;
+declare const escape: (str: string) => string | false;
 /**
  * Tokenizes an HTML string into an array of HTML tokens.
  * These tokens represent opening tags, closing tags, text content, and comments.
@@ -533,4 +534,4 @@ declare const DomParser: (config?: Partial<DomParserOptions>) => {
     };
 };
 
-export { ATTR_REGEX, type ChildElementList, type ChildLike, type ChildNode, type ChildNodeList, type CommentLike, type CommentNode, type DOMNode, type DOMNodeAttributes, DOM_ERROR, DomParser, type DomParserOptions, type DomParserResult, type ElementAPI, type GetAttributesOptions, type HTMLToken, type MatchFunction, type MaybeChildNode, type NodeAPI, type NodeLike, type NodeLikeAttributes, type ParseResult, Parser, type RootLike, type RootNode, type SelectorPart, type TagAttr, type TagNames, type TextLike, type TextNode, type TextOrComment, type TextToken, charCodeAt, createBasicNode, createDocument, createElement, createNode, defineProperties, endsWith, fromCharCode, getAttributes, getBaseAttributes, isNode, isObj, isPrimitive, isRoot, isTag, matchesSelector, selectorCache, selfClosingTags, startsWith, toLowerCase, toUpperCase, tokenize, trim };
+export { ATTR_REGEX, type ChildElementList, type ChildLike, type ChildNode, type ChildNodeList, type CommentLike, type CommentNode, type DOMNode, type DOMNodeAttributes, DOM_ERROR, DomParser, type DomParserOptions, type DomParserResult, type ElementAPI, type GetAttributesOptions, type HTMLToken, type MatchFunction, type MaybeChildNode, type NodeAPI, type NodeLike, type NodeLikeAttributes, type ParseResult, Parser, type RootLike, type RootNode, type SelectorPart, type TagAttr, type TagNames, type TextLike, type TextNode, type TextOrComment, type TextToken, charCodeAt, createBasicNode, createDocument, createElement, createNode, defineProperties, endsWith, escape, fromCharCode, getAttributes, getBaseAttributes, isNode, isObj, isPrimitive, isRoot, isTag, matchesSelector, selectorCache, selfClosingTags, startsWith, toLowerCase, toUpperCase, tokenize, trim };

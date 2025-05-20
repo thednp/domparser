@@ -2,13 +2,13 @@
 [![Coverage Status](https://coveralls.io/repos/github/thednp/domparser/badge.svg)](https://coveralls.io/github/thednp/domparser) 
 [![NPM Version](https://img.shields.io/npm/v/@thednp/domparser.svg)](https://www.npmjs.com/package/@thednp/domparser)
 [![ci](https://github.com/thednp/domparser/actions/workflows/ci.yml/badge.svg)](https://github.com/thednp/domparser/actions/workflows/ci.yml)
-[![typescript version](https://img.shields.io/badge/typescript-5.7.3-brightgreen)](https://www.typescriptlang.org/)
-[![vitest version](https://img.shields.io/badge/vitest-3.0.6-brightgreen)](https://vitest.dev/)
-[![vite version](https://img.shields.io/badge/vite-6.1.1-brightgreen)](https://vitejs.dev/)
+[![typescript version](https://img.shields.io/badge/typescript-5.8.3-brightgreen)](https://www.typescriptlang.org/)
+[![vitest version](https://img.shields.io/badge/vitest-3.1.4-brightgreen)](https://vitest.dev/)
+[![vite version](https://img.shields.io/badge/vite-6.3.5-brightgreen)](https://vitejs.dev/)
 
 A TypeScript-based [HTML parser](https://developer.mozilla.org/en-US/docs/Web/API/DOMParser) available in two versions: a lightweight **Parser** focused on speed and memory efficiency, and a feature-rich **DomParser** that provides a DOM-like API with additional capabilities like tag validation.
 
-At just ~1Kb gzipped for the core parser, it's perfect for both server and client-side applications where bundle size matters. The more comprehensive version is ideal for development environments where markup validation and DOM manipulation are needed.
+At just ~1.4Kb gzipped for the core parser, it's perfect for both server and client-side applications where bundle size matters. The more comprehensive version is ideal for development environments where markup validation and DOM manipulation are needed.
 
 While not a direct replacement for the browser's native DOMParser, its modular architecture makes it versatile for various use cases. The library also includes a powerful DOM creation API that improves upon the native `Document` interface, offering a more intuitive and efficient way to build DOM trees programmatically.
 
@@ -23,7 +23,7 @@ Unlike alternatives such as [jsdom](https://github.com/jsdom/jsdom) or [cheerio]
 **Note** - these results come from a desktop PC with NodeJS v23.5.0, your results may vary.
 
 ### Features
-* **Minimal Size with Maximum Flexibility** (~1.1Kb core parser, ~3.5Kb parser with DOM API, ~2.5Kb DOM API)
+* **Minimal Size with Maximum Flexibility** (~1.4Kb core parser, ~3.6Kb parser with DOM API, ~2.5Kb DOM API)
 * **Modern Tree-Shaking Friendly Architecture** (both versions packaged in separate bundles)
 * **Isomorphic by Design** (Works in Node.js, Deno, Bun, browsers; No DOM dependencies)
 * **High Performance** (Sub-millisecond parsing for typical HTML templates; very fast `match` based queries)
@@ -86,6 +86,12 @@ Let's take a sample HTML source for this example. We want to showcase all the ca
         <p class="example" aria-hidden="true">This is an example.</p>
         <custom-element />
         <!-- some comment -->
+         <![CDATA[
+          /*
+            This content is treated as a #text node and
+            could contain unescaped chars like < or &
+          */
+        ]]>
         Some text node.
         <Counter count="0" />
     </body>

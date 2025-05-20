@@ -227,6 +227,26 @@ export const selfClosingTags = new Set([
   "polyline",
 ]);
 
+export const escape = (str: string) => {
+  if ((str === null) || (str === "")) {
+    return false;
+  } else {
+    str = str.toString();
+  }
+
+  const map: Record<string, string> = {
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;",
+  };
+
+  return str.replace(/[&<>"']/g, (m) => {
+    return map[m];
+  });
+};
+
 /**
  * Tokenizes an HTML string into an array of HTML tokens.
  * These tokens represent opening tags, closing tags, text content, and comments.
@@ -243,6 +263,7 @@ export const tokenize = (html: string): HTMLToken[] => {
     quote = 0,
     inTemplate = false,
     inComment = false,
+    inCDATA = false,
     inStyleScript = false;
 
   for (let i = 0; i < len; i++) {
@@ -258,6 +279,22 @@ export const tokenize = (html: string): HTMLToken[] => {
           isSC: false,
         });
         inComment = false;
+        token = "";
+        i += 1;
+      }
+      continue;
+    }
+
+    if (inCDATA) {
+      token += fromCharCode(char);
+      /* istanbul ignore else @preserve */
+      if (endsWith(token, "]]") && charCodeAt(html, i + 1) === 62 /* > */) {
+        tokens.push({
+          nodeType: "text",
+          value: `<${escape(trim(token))}>`,
+          isSC: false,
+        });
+        inCDATA = false;
         token = "";
         i += 1;
       }
@@ -308,9 +345,15 @@ export const tokenize = (html: string): HTMLToken[] => {
         i += 3;
         continue;
       }
+      if (startsWith(html, "![CDATA[", i + 1)) {
+        inCDATA = true;
+        token += "![CDATA[";
+        i += 8;
+        continue;
+      }
     } else if (
       char === 62 && inTag && !inQuote && !inTemplate && !inComment &&
-      !inStyleScript
+      !inStyleScript && !inCDATA
     ) { // >
       const startSpecialTag = specialTags.find((t) =>
         t === token || startsWith(token, t)
