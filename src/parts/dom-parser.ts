@@ -1,4 +1,4 @@
-// dom.ts
+// dom-parser.ts
 import { createBasicNode, createDocument, createElement } from "./prototype.ts";
 import { DOM_ERROR, isObj } from "./util.ts";
 import type {
@@ -139,6 +139,7 @@ export const DomParser = (
 
   // Common dangerous tags that could lead to XSS
   let unsafeTags = new Set<string>();
+  let unsafeTagDepth = 0;
 
   // Unsafe attributes that could lead to XSS
   let unsafeAttrs = new Set<string>();
@@ -162,7 +163,6 @@ export const DomParser = (
       const tagStack: string[] = [];
       const components = new Set<string>();
       const tags = new Set<string>();
-      let parentIsSafe = true;
       let newNode: ChildNode;
 
       tokenize(htmlString).forEach((token) => {
@@ -174,21 +174,12 @@ export const DomParser = (
         }
         const currentParent = stack[stack.length - 1];
 
-        if (["text", "comment"].includes(nodeType)) {
-          newNode = createBasicNode(
-            `#${nodeType as "text" | "comment"}`,
-            value,
-          ) as ChildNode;
-          currentParent.append(newNode);
-          return;
-        }
-
         const isClosing = startsWith(value, "/");
         const tagName = isClosing ? value.slice(1) : value.split(/[\s/>]/)[0];
         const isSelfClosing = isSC || selfClosingTags.has(tagName);
 
         // Tag Matching Detection Logic
-        if (!isSelfClosing) {
+        if (nodeType === "tag" && !isSelfClosing) {
           // Start Tag (and not self-closing)
           if (!isClosing) {
             // Push tag name onto the tag stack
@@ -211,17 +202,31 @@ export const DomParser = (
           }
         }
 
-        // Skip unsafe tags
+        // Skip unsafe tags AND their children
         if (unsafeTags.has(tagName)) {
-          if (isClosing) {
-            parentIsSafe = true;
+          if (!isClosing) {
+            if (!isSelfClosing) {
+              unsafeTagDepth++;
+            }
           } else {
-            parentIsSafe = false;
+            if (!isSelfClosing) {
+              unsafeTagDepth--;
+            }
           }
           return;
         }
 
-        if (!parentIsSafe) return;
+        // Don't process anything while inside unsafe tags
+        if (unsafeTagDepth > 0) return;
+
+        if (["text", "comment"].includes(nodeType)) {
+          newNode = createBasicNode(
+            `#${nodeType as "text" | "comment"}`,
+            value,
+          ) as ChildNode;
+          currentParent.append(newNode);
+          return;
+        }
 
         // Register tag/component type
         (tagName[0] === toUpperCase(tagName[0]) || tagName.includes("-")

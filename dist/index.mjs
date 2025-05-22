@@ -632,6 +632,7 @@ var DomParser = (config) => {
     throw new Error(`${DOM_ERROR} 1st parameter is not an object.`);
   }
   let unsafeTags = /* @__PURE__ */ new Set();
+  let unsafeTagDepth = 0;
   let unsafeAttrs = /* @__PURE__ */ new Set();
   const { filterTags, filterAttrs, onNodeCallback } = config || {};
   if (filterTags?.length) unsafeTags = new Set(filterTags);
@@ -648,7 +649,6 @@ var DomParser = (config) => {
       const tagStack = [];
       const components = /* @__PURE__ */ new Set();
       const tags = /* @__PURE__ */ new Set();
-      let parentIsSafe = true;
       let newNode;
       tokenize(htmlString).forEach((token) => {
         const { nodeType, value, isSC } = token;
@@ -657,18 +657,10 @@ var DomParser = (config) => {
           return;
         }
         const currentParent = stack[stack.length - 1];
-        if (["text", "comment"].includes(nodeType)) {
-          newNode = createBasicNode(
-            `#${nodeType}`,
-            value
-          );
-          currentParent.append(newNode);
-          return;
-        }
         const isClosing = startsWith(value, "/");
         const tagName = isClosing ? value.slice(1) : value.split(/[\s/>]/)[0];
         const isSelfClosing = isSC || selfClosingTags.has(tagName);
-        if (!isSelfClosing) {
+        if (nodeType === "tag" && !isSelfClosing) {
           if (!isClosing) {
             tagStack.push(tagName);
           } else {
@@ -687,14 +679,26 @@ var DomParser = (config) => {
           }
         }
         if (unsafeTags.has(tagName)) {
-          if (isClosing) {
-            parentIsSafe = true;
+          if (!isClosing) {
+            if (!isSelfClosing) {
+              unsafeTagDepth++;
+            }
           } else {
-            parentIsSafe = false;
+            if (!isSelfClosing) {
+              unsafeTagDepth--;
+            }
           }
           return;
         }
-        if (!parentIsSafe) return;
+        if (unsafeTagDepth > 0) return;
+        if (["text", "comment"].includes(nodeType)) {
+          newNode = createBasicNode(
+            `#${nodeType}`,
+            value
+          );
+          currentParent.append(newNode);
+          return;
+        }
         (tagName[0] === toUpperCase(tagName[0]) || tagName.includes("-") ? components : tags).add(tagName);
         if (!isClosing) {
           const attributes = getAttributes(value, getAttrOptions);

@@ -16,6 +16,7 @@
       }
       div { display: flex; gap: 3rem; div, label {display: block} }
     </style>
+    
   </head>
 
   <body>
@@ -25,11 +26,11 @@
         <div>
           <div style="display: flex; gap: 10px; margin-bottom: 15px">
             <label for="parser-type-parser">
-              <input type="radio" id="parser-type-parser" name="parser-type" value="Parser" checked>
+              <input type="radio" id="parser-type-parser" name="parser-type" value="Parser">
               Parser
             </label>
             <label for="parser-type-domparser">
-              <input type="radio" id="parser-type-domparser" name="parser-type" value="DomParser">
+              <input type="radio" id="parser-type-domparser" name="parser-type" value="DomParser" checked>
               DomParser
             </label>
           </div>
@@ -42,6 +43,7 @@
     <meta charset="UTF-8">
     <title>Example</title>
     <style id="my-style">p {margin: 0}</style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
     <![CDATA[
     /* This could contain unescaped chars like < or & */
     ]]>
@@ -78,6 +80,7 @@
     </main>
 
     <script type="module">
+      // import { Parser, DomParser, escape } from "../dist/index.mjs";
       import { Parser, DomParser, escape } from "../src/index.ts";
       // console.log(Parser);
       const parsers = {
@@ -101,10 +104,10 @@
       const [pre] = document.getElementsByTagName("pre");
       const onChange = debounce(() => {
         console.time("parsing");
-        const parserType = radio.find(r => r.checked).value || "Parser";
+        const parserType = radio.find(r => r.checked).value || "DomParser";
         const { root: doc, components, tags } = parsers[parserType]().parseFromString(input.value);
         console.timeEnd("parsing");
-        pre.innerText = input.value;
+        pre.innerText = doc?.documentElement?.outerHTML || input.value;
         console.log(doc)
         output.innerHTML = `
 <p><b>Parser</b>: ${parserType}</p>
