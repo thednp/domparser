@@ -15,15 +15,35 @@ While not a direct replacement for the browser's native DOMParser, its modular a
 Unlike alternatives such as [jsdom](https://github.com/jsdom/jsdom) or [cheerio](https://cheerio.js.org) that attempt to replicate the entire DOM specification, this library focuses on essential DOM features, resulting in significantly better performance and memory efficiency. In the [benchmark.ts](https://github.com/thednp/domparser/blob/master/demo/benchmark.ts) file we're comparing **Parser** and **DomParser** against **jsdom**, here are some results:
 
 ### Parsing Benchmarks
-![Parsing Benchmarks](https://github.com/thednp/domparser/blob/master/demo/parsing-bench.svg)
+```
+HTML Parsing Performance (5 runs average) (HTML 2551 characters)
+
+Parser     █ 1ms
+DomParser  ██ 2ms
+jsdom      █████████████████████████████████████████████ 54.75ms
+
+0ms                    25ms                    50ms
+
+Generated on 2025-02-21 10:08:35 UTC
+```
 
 ### Query Benchmarks
-![Parsing Benchmarks](https://github.com/thednp/domparser/blob/master/demo/query-bench.svg)
+```
+Query Performance (5 runs average) (query 13 paragraphs)
+
+DomParser  ████ 1ms
+jsdom      ████████████████████████ 6ms
+
+0ms                3ms                6ms
+
+Generated on 2025-02-21 10:43:00 UTC
+```
+
 
 **Note** - these results come from a desktop PC with NodeJS v23.5.0, your results may vary.
 
 ### Features
-* **Minimal Size with Maximum Flexibility** (~1.3Kb core parser, ~3.6Kb parser with DOM API, ~2.5Kb DOM API)
+* **Minimal Size with Maximum Flexibility** (~1.3Kb core parser, ~3.8Kb parser with DOM API, ~2.5Kb DOM API)
 * **Modern Tree-Shaking Friendly Architecture** (both versions packaged in separate bundles)
 * **Isomorphic by Design** (Works in Node.js, Deno, Bun, browsers; No DOM dependencies)
 * **High Performance** (Sub-millisecond parsing for typical HTML templates; very fast `match` based queries)
