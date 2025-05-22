@@ -2,6 +2,7 @@ import {
   getBaseAttributes,
   selfClosingTags,
   tokenize,
+  toLowerCase,
   toUpperCase,
 } from "./util.ts";
 import type {
@@ -78,12 +79,10 @@ export function Parser() {
         }
 
         const isClosing = value.startsWith("/");
-        const tagName =
-          (isClosing ? value.slice(1) : value.split(/[\s/>]/)[0]) as NodeLike[
-            "tagName"
-          ];
+        const tagName = isClosing ? value.slice(1) : value.split(/[\s/>]/)[0];
+        const tagNameLower = toLowerCase(tagName);
         const isSelfClosing = isSC ||
-          selfClosingTags.has(tagName);
+          selfClosingTags.has(tagNameLower);
 
         // Register tag type
         (tagName[0] === toUpperCase(tagName[0]) ||

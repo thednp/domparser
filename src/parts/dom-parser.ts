@@ -187,19 +187,19 @@ export const DomParser = (
         const isClosing = startsWith(value, "/");
         const tagName = isClosing ? value.slice(1) : value.split(/[\s/>]/)[0];
         const tagNameLower = toLowerCase(tagName);
-        const isSelfClosing = isSC || selfClosingTags.has(tagNameLower);
+        const isSelfClosing = isSC || selfClosingTags.has(tagName);
 
         // Tag Matching Detection Logic
         if (!isSelfClosing) {
           // Start Tag (and not self-closing)
           if (!isClosing) {
             // Push tag name onto the tag stack
-            tagStack.push(tagName);
+            tagStack.push(tagNameLower);
             // Closing Tag
           } else {
             // Pop the last opened tag
             const expectedTag = tagStack.pop();
-            if (expectedTag !== tagName) {
+            if (expectedTag !== tagNameLower) {
               if (expectedTag === undefined) {
                 throw new Error(
                   `${DOM_ERROR} Mismatched closing tag: </${tagName}>. No open tag found.`,

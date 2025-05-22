@@ -131,7 +131,7 @@ var DOM = (() => {
           inTemplate = !inTemplate;
         }
       }
-      if ((inTag || inStyleScript) && (char === 34 || char === 39)) {
+      if ((inTag || inStyleScript) && (char === 34 || char === 39) && token.includes("=")) {
         if (!inQuote) {
           quote = char;
           inQuote = true;
