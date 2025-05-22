@@ -14,7 +14,6 @@ import {
   getAttributes,
   selfClosingTags,
   startsWith,
-  toLowerCase,
   toUpperCase,
 } from "./util.ts";
 
@@ -186,7 +185,6 @@ export const DomParser = (
 
         const isClosing = startsWith(value, "/");
         const tagName = isClosing ? value.slice(1) : value.split(/[\s/>]/)[0];
-        const tagNameLower = toLowerCase(tagName);
         const isSelfClosing = isSC || selfClosingTags.has(tagName);
 
         // Tag Matching Detection Logic
@@ -194,12 +192,12 @@ export const DomParser = (
           // Start Tag (and not self-closing)
           if (!isClosing) {
             // Push tag name onto the tag stack
-            tagStack.push(tagNameLower);
+            tagStack.push(tagName);
             // Closing Tag
           } else {
             // Pop the last opened tag
             const expectedTag = tagStack.pop();
-            if (expectedTag !== tagNameLower) {
+            if (expectedTag !== tagName) {
               if (expectedTag === undefined) {
                 throw new Error(
                   `${DOM_ERROR} Mismatched closing tag: </${tagName}>. No open tag found.`,
@@ -214,7 +212,7 @@ export const DomParser = (
         }
 
         // Skip unsafe tags
-        if (unsafeTags.has(tagNameLower)) {
+        if (unsafeTags.has(tagName)) {
           if (isClosing) {
             parentIsSafe = true;
           } else {

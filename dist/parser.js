@@ -133,7 +133,7 @@ var Parser = (() => {
           inTemplate = !inTemplate;
         }
       }
-      if ((inTag || inStyleScript) && (char === 34 || char === 39) && token.includes("=")) {
+      if ((inTag && token.includes("=") || inStyleScript) && (char === 34 || char === 39)) {
         if (!inQuote) {
           quote = char;
           inQuote = true;

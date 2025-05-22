@@ -315,8 +315,8 @@ export const tokenize = (html: string): HTMLToken[] => {
 
     // " or ' | 0x22 or 0x27
     if (
-      (inTag || inStyleScript) && (char === 34 || char === 39) &&
-      token.includes("=")
+      (inTag && token.includes("=") || inStyleScript) &&
+      (char === 34 || char === 39)
     ) {
       if (!inQuote) {
         quote = char;

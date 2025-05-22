@@ -128,7 +128,7 @@ var tokenize = (html) => {
         inTemplate = !inTemplate;
       }
     }
-    if ((inTag || inStyleScript) && (char === 34 || char === 39) && token.includes("=")) {
+    if ((inTag && token.includes("=") || inStyleScript) && (char === 34 || char === 39)) {
       if (!inQuote) {
         quote = char;
         inQuote = true;
@@ -618,14 +618,13 @@ var DomParser = (config) => {
         }
         const isClosing = startsWith(value, "/");
         const tagName = isClosing ? value.slice(1) : value.split(/[\s/>]/)[0];
-        const tagNameLower = toLowerCase(tagName);
         const isSelfClosing = isSC || selfClosingTags.has(tagName);
         if (!isSelfClosing) {
           if (!isClosing) {
-            tagStack.push(tagNameLower);
+            tagStack.push(tagName);
           } else {
             const expectedTag = tagStack.pop();
-            if (expectedTag !== tagNameLower) {
+            if (expectedTag !== tagName) {
               if (expectedTag === void 0) {
                 throw new Error(
                   `${DOM_ERROR} Mismatched closing tag: </${tagName}>. No open tag found.`
@@ -638,7 +637,7 @@ var DomParser = (config) => {
             }
           }
         }
-        if (unsafeTags.has(tagNameLower)) {
+        if (unsafeTags.has(tagName)) {
           if (isClosing) {
             parentIsSafe = true;
           } else {
