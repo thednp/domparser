@@ -204,12 +204,10 @@ export const DomParser = (
 
         // Skip unsafe tags AND their children
         if (unsafeTags.has(tagName)) {
-          if (!isClosing) {
-            if (!isSelfClosing) {
+          if (!isSelfClosing) {
+            if (!isClosing) {
               unsafeTagDepth++;
-            }
-          } else {
-            if (!isSelfClosing) {
+            } else {
               unsafeTagDepth--;
             }
           }

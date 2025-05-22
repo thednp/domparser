@@ -630,12 +630,10 @@ var DomParser = (config) => {
           }
         }
         if (unsafeTags.has(tagName)) {
-          if (!isClosing) {
-            if (!isSelfClosing) {
+          if (!isSelfClosing) {
+            if (!isClosing) {
               unsafeTagDepth++;
-            }
-          } else {
-            if (!isSelfClosing) {
+            } else {
               unsafeTagDepth--;
             }
           }

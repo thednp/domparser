@@ -327,7 +327,7 @@ describe(`Test DOMParser`, () => {
     );
   });
 
-  test(`Test Sanitization`, () => {
+  test(`Test Filtering`, () => {
     const svgMarkup = `
 <svg xmlns="http://www.w3.org/2000/svg"
   xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -341,12 +341,14 @@ describe(`Test DOMParser`, () => {
   action="https://a.com/some-url"
   formaction="https://a.com/some-url"
 >
-  <defs><clipPath></clipPath></defs>
+  <title>Svg Title</title>
+  <link href="https://sample.link">
+  <defs><clipPath>Something to delete</clipPath></defs>
   <path d="M 215.664062 352.992188 L 398 352.992188 L 398 586 L 215.664062 586 Z M 215.664062 352.992188" clip-rule="nonzero"></path>
 </svg>`.trim();
 
     const parser = DomParser({
-      filterTags: ["defs"],
+      filterTags: ["defs", "title", "link"],
       filterAttrs: ["clip-rule", "formaction"],
     });
 
