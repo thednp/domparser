@@ -80,6 +80,8 @@ export type ElementAPI = {
   readonly attributes: Map<string, string>;
   readonly textContent: string;
   readonly innerHTML: string;
+  readonly id: string;
+  readonly className: string;
   readonly outerHTML: string;
   append: (...nodes: ChildNodeList) => void;
   querySelector: (selector: string) => DOMNode | null;
@@ -97,6 +99,7 @@ export type ElementAPI = {
   setAttributeNS: (ns: string, attrName: string, attrValue: string) => void;
   replaceChildren: (...children: DOMNode[]) => void;
   removeChild: (child: ChildNode) => void;
+  registerChild: (child: DOMNode) => void;
   remove: () => void;
   cleanup: () => void;
   children: DOMNode[];
@@ -113,7 +116,7 @@ export type MaybeChildNode = ChildNode | string | number;
  */
 export type RootNode =
   & Omit<NodeAPI, "nodeName" | "ownerDocument">
-  & Omit<ElementAPI, "attributes" | "tagName">
+  & Omit<ElementAPI, "attributes" | "tagName" | "registerChild">
   & {
     nodeName: "#document";
     charset?: string;
@@ -152,13 +155,21 @@ export type RootLike = {
  * HTML parsing token
  */
 export type HTMLToken = {
-  nodeType: string;
+  // tokenType: string;
+  tokenType: "tag" | "text" | "comment" | "doctype";
   value: string;
   isSC?: boolean;
 };
 
+export interface TokenizerOptions {
+  /** Maximum size in bytes for script content. Default 102400 (100KB) */
+  maxScriptSize?: number;
+  /** Chunk size in bytes. Default 65536 (64KB) */
+  chunkSize?: number;
+}
+
 export type TextToken = {
-  nodeType: "text" | "comment";
+  tokenType: "text" | "comment";
   value: string;
 };
 

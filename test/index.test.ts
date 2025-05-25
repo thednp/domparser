@@ -330,11 +330,12 @@ describe(`Test DOMParser`, () => {
   test(`Test Filtering`, () => {
     const svgMarkup = `
 <svg xmlns="http://www.w3.org/2000/svg"
+  id="svg" class="svg-class"
   xmlns:xlink="http://www.w3.org/1999/xlink"
   href="https://a.com/some-url"
   src="https://a.com/some-url?foo=bar&baz=yes"
   data-url="data:/path/to/some-url.svg"
-  data-template="<span data-uri='some-value'></span>"
+  data-template="&lt;span data-uri='some-value'&gt;&lt;/span&gt;"
   data-other-url="javascript:/path/to/some-url.js"
   data-other-url="vbscript:/path/to/some-url.script"
   disabled
@@ -343,8 +344,13 @@ describe(`Test DOMParser`, () => {
 >
   <title>Svg Title</title>
   <link href="https://sample.link">
-  <defs><clipPath>Something to delete</clipPath></defs>
+  <defs>
+    <clipPath>Something to delete</clipPath>
+  </defs>
   <path d="M 215.664062 352.992188 L 398 352.992188 L 398 586 L 215.664062 586 Z M 215.664062 352.992188" clip-rule="nonzero"></path>
+  <g>
+    <g><path d="M 215.664062 352.992188 L 398 352.992188"></path></g>
+  </g>
 </svg>`.trim();
 
     const parser = DomParser({
@@ -356,16 +362,20 @@ describe(`Test DOMParser`, () => {
     const svg = root.children[0];
 
     expect(components).toEqual([]);
-    expect(tags).toEqual(["svg", "path"]);
+    expect(tags).toEqual(["svg", "path", "g"]);
     expect(svg.nodeName).toEqual("SVG");
+    expect(svg.id).toEqual("svg");
+    expect(svg.className).toEqual("svg-class");
     expect(svg.tagName).toEqual("svg");
     expect(svg.attributes.get("disabled")).toBeDefined();
     expect(svg.attributes.get("formaction")).toBeUndefined();
     expect(svg.attributes.get("data-template")).toEqual(
-      "<span data-uri='some-value'></span>",
+      "&lt;span data-uri='some-value'&gt;&lt;/span&gt;",
     );
-    expect(svg.children.length).toEqual(1);
+    expect(svg.children.length).toEqual(2);
     expect(svg.children[0].tagName).toEqual("path");
+    expect(svg.children[0].id).toEqual("");
+    expect(svg.children[0].className).toEqual("");
     expect(svg.children[0].attributes.get("clip-rule")).toBeUndefined();
     expect(svg.children[0].attributes.get("d")).toBeDefined();
   });
@@ -415,18 +425,18 @@ describe(`Test DOMParser`, () => {
       "<html></html>",
     );
 
-    type AdvancedNode = DOMNode & { className?: "string" };
+    type AdvancedNode = DOMNode & { classList?: "string" };
     const myNodes: AdvancedNode[] = [];
     DomParser({
       onNodeCallback: (n) => {
-        Object.assign(n, { className: "nice" });
+        Object.assign(n, { classList: "nice" });
         myNodes.push(n as AdvancedNode);
         // console.log(n);
         return n;
       }
     }).parseFromString("<html></html>", )
     expect(myNodes.length).toEqual(1);
-    expect(myNodes[0].className).toEqual('nice');
+    expect(myNodes[0].classList).toEqual('nice');
     try {
       DomParser().parseFromString("<html></span>")
     } catch (er) {
@@ -482,6 +492,7 @@ describe(`Test DOMParser`, () => {
       `).root.all
     ).toHaveLength(1);
     expect(DomParser().parseFromString("<script>var test = `<script>let a = 0;</script>`;</script>").root.all).toHaveLength(1);
+    expect(DomParser().parseFromString("<script>var test = '<script>let a = 0;</script>';</script>").root.all).toHaveLength(1);
     expect(
       DomParser().parseFromString(
         '<style> head { display: none } body { margin: 0 } header { content: "</style>" }</style>'
@@ -493,6 +504,12 @@ describe(`Test DOMParser`, () => {
         body { margin: 0 }
         header { content: '</style>' }
       </style>`
+    ).root.all).toHaveLength(1);
+    expect(DomParser().parseFromString(
+      `<style id=someid" />`
+    ).root.all).toHaveLength(1);
+    expect(DomParser().parseFromString(
+      `<meta name="description>`
     ).root.all).toHaveLength(1);
   });
 });

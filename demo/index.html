@@ -44,11 +44,13 @@
     <title>Example</title>
     <style id="my-style">p {margin: 0}</style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
+    <script>const test = `<script>let a = 0;</script>`;</script>
     <![CDATA[
     /* This could contain unescaped chars like < or & */
     ]]>
   </head>
   <body>
+    <script xmlns=""/>
     <!----><!--[-->
     <h1>Sample<!----></h1>
     <h2>
@@ -106,11 +108,14 @@
         console.time("parsing");
         const parserType = radio.find(r => r.checked).value || "DomParser";
         const { root: doc, components, tags } = parsers[parserType]({
-          filterTags: ["head"]
+          filterTags: [
+            // "script",
+            // "head",
+          ]
         }).parseFromString(input.value);
         console.timeEnd("parsing");
-        pre.innerText = doc?.documentElement?.outerHTML || input.value;
-        console.log(doc)
+        // console.log(doc)
+        pre.innerText = parserType === "DomParser" ? doc?.documentElement?.outerHTML : "Parser doesn't provide DOM API";
         output.innerHTML = `
 <p><b>Parser</b>: ${parserType}</p>
 <p><b>Tags</b>: ${tags.join(', ')}</p>
@@ -119,12 +124,14 @@
 <summary>DOM Tree (Click to expand)</summary>
 
 <pre>
-${JSON.stringify(doc, (key, value) => {
+${
+JSON.stringify(doc, (key, value) => {
   if (key === "nodeValue") {
     return escape(value)
   }
   return value;
-}, 2)}
+}, 2)
+}
 </pre>
 </details>
 `.trim();

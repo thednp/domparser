@@ -1,3 +1,4 @@
+// parser.ts
 import {
   getBaseAttributes,
   selfClosingTags,
@@ -20,29 +21,6 @@ import type {
  * and returns a DOM tree representation. In benchmarks it shows up to
  * 60x faster performance when compared to jsdom.
  *
- * The DOM representation is a plain object with the following structure:
- * ```ts
- *  type CommentLike = {
- *   nodeName: "#comment";
- *   nodeValue: string;
- *  };
- *  type TextLike = {
- *   nodeName: "#text";
- *   nodeValue: string;
- *  };
- *  type NodeLike = {
- *   tagName: string;
- *   nodeName: string;
- *   attributes: Record<string, string>;
- *   children: NodeLike[];
- *  };
- *  // the root node
- *  type RootLike = {
- *   nodeName: string;
- *   children: NodeLike[];
- * };
- * ```
- *
  * @example
  * ```ts
  * const { root, components, tags } = Parser().parseFromString("<h1>Title</h1>");
@@ -62,20 +40,22 @@ export function Parser() {
       const stack: (RootLike | NodeLike)[] = [root];
       const components = new Set<string>();
       const tags = new Set<string>();
+      const tokens = tokenize(htmlString);
+      const tLen = tokens.length;
 
-      tokenize(htmlString).forEach((token) => {
-        const { nodeType, value, isSC } = token;
+      for (let i = 0; i < tLen; i += 1) {
+        const { tokenType, value, isSC } = tokens[i];
         const currentParent = stack[stack.length - 1];
-        if (nodeType === "doctype") return;
+        if (tokenType === "doctype") continue;
 
-        if (["text", "comment"].includes(nodeType)) {
+        if (["text", "comment"].includes(tokenType)) {
           currentParent.children.push(
             {
-              nodeName: `#${nodeType}`,
+              nodeName: `#${tokenType}`,
               nodeValue: value,
             } as CommentLike | TextLike,
           );
-          return;
+          continue;
         }
 
         const isClosing = value.startsWith("/");
@@ -103,7 +83,7 @@ export function Parser() {
         } else if (!isSelfClosing && stack.length > 1) {
           stack.pop();
         }
-      });
+      }
 
       return {
         root,

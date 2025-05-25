@@ -1,23 +1,23 @@
 // dom-parser.ts
 import { createBasicNode, createDocument, createElement } from "./prototype.ts";
-import { DOM_ERROR, isObj } from "./util.ts";
 import type {
   ChildNode,
+  DOMNode,
   DomParserOptions,
   DomParserResult,
+  GetAttributesOptions,
   RootNode,
 } from "./types.ts";
 
-import type { DOMNode, GetAttributesOptions } from "./types.ts";
-
 import {
+  DOM_ERROR,
   getAttributes,
+  isObj,
   selfClosingTags,
   startsWith,
+  tokenize,
   toUpperCase,
 } from "./util.ts";
-
-import { tokenize } from "./util.ts";
 
 /**
  * **DomParser**
@@ -25,83 +25,6 @@ import { tokenize } from "./util.ts";
  * Unlike the basic **Parser**, **DomParser** creates a new `Document` like instance with DOM-like
  * methods and properties and populates it with `Node` like objects resulted from the parsing
  * of a given HTML markup.
- *
- * **Features**
- * * The **DomParser** is ~2Kb gZipped and has additional features compared to the basic **Parser**.
- * * It handles basic HTML elements, custom elements, UI frameworks components,
- * special attributes, and text and comment nodes.
- * * It allows you to filter tags and unsafe attributes; _by default the filters are empty_.
- *
- * The DOM representation is a plain object with the following structure:
- * ```ts
- *  type TextNode = {
- *   nodeName: "#text";
- *   ownerDocument: RootNode;
- *   parentNode: RootNode | DOMNode;
- *   textContent: string;
- *   nodeValue: string;
- *   remove: () => void;
- * };
- *  type DOMNode = {
- *   tagName: string;
- *   nodeName: string;
- *   textContent: string;
- *   innerHTML: string;
- *   outerHTML: string;
- *   attributes: Map<string, string>;
- *   hasAttribute: (attrName: string) => boolean;
- *   getAttribute: (attrName: string) => string;
- *   setAttribute: (attrName: string, attrValue: string) => void;
- *   hasAttributeNS: (ns: string, attrName: string) => boolean;
- *   getAttributeNS: (ns: string, attrName: string) => string;
- *   setAttributeNS: (ns: string, attrName: string, attrValue: string) => void;
- *   remove: () => void;
- *   cleanup: () => void;
- *   removeChild: (childNode: DOMNode | TextNode | CommentNode) => void;
- *   append: (childNode: DOMNode | TextNode | CommentNode) => void;
- *   replaceChildren: (...newChildren: DOMNode[]) => void;
- *   children: DOMNode[];
- *   childNodes: (DOMNode | TextNode | CommentNode)[];
- *   contains: (childNode: DOMNode) => boolean;
- *   matches: (selector: string) => boolean;
- *   closest: (selector: string) => DOMNode | null;
- *   ownerDocument: RootNode;
- *   parentNode: RootNode | DOMNode;
- *   querySelector: (selector: string) => DOMNode | null;
- *   querySelectorAll: (selector: string) => DOMNode[];
- *   getElementsByClassName: (className: string) => DOMNode[];
- *   getElementsByTagName: (tagName: string) => DOMNode[];
- * };
- *
- *  // this is the return of DomParser()
- *  type RootNode = {
- *   nodeName: string;
- *   doctype?: string;
- *   charset?: string;
- *   documentElement: DOMNode | null;
- *   head: DOMNode | null;
- *   body: DOMNode | null;
- *   all: DOMNode[];
- *   children: DOMNode[];
- *   childNodes: (DOMNode | TextNode | CommentNode)[];
- *   createElement: (tagName: string, first: Attributes | DOMNode, ...childNodes: (DOMNode | TextNode)[]);
- *   createElementNS: (ns: string, tagName: string, first: Attributes | DOMNode, ...childNodes: (DOMNode | TextNode)[]);
- *   createTextNode: (content: string) => TextNode;
- *   createComment: (content: string) => CommentNode;
- *   cleanup: () => void;
- *   removeChild: (childNode: DOMNode | TextNode | CommentNode) => void;
- *   replaceChildren: (...newChildren: DOMNode[]) => void;
- *   append: (childNode: DOMNode | TextNode | CommentNode) => void;
- *   contains: (childNode: DOMNode) => boolean;
- *   getElementById: (id: string) => DOMNode | null;
- *   querySelector: (selector: string) => DOMNode | null;
- *   querySelectorAll: (selector: string) => DOMNode[];
- *   getElementsByClassName: (className: string) => DOMNode[];
- *   getElementsByTagName: (tagName: string) => DOMNode[];
- *   register: (node: DOMNode) => void;
- *   deregister: (node: DOMNode) => void;
- * };
- * ```
  *
  * @example
  * ```ts
@@ -163,23 +86,25 @@ export const DomParser = (
       const tagStack: string[] = [];
       const components = new Set<string>();
       const tags = new Set<string>();
+      const tokens = tokenize(htmlString);
+      const tLen = tokens.length;
       let newNode: ChildNode;
 
-      tokenize(htmlString).forEach((token) => {
-        const { nodeType, value, isSC } = token;
+      for (let i = 0; i < tLen; i += 1) {
+        const { tokenType, value, isSC } = tokens[i];
+
         // Skip doctype, but store it as a root property
-        if (nodeType === "doctype") {
+        if (tokenType === "doctype") {
           root.doctype = `<${value}>`;
-          return;
+          continue;
         }
         const currentParent = stack[stack.length - 1];
-
         const isClosing = startsWith(value, "/");
         const tagName = isClosing ? value.slice(1) : value.split(/[\s/>]/)[0];
         const isSelfClosing = isSC || selfClosingTags.has(tagName);
 
         // Tag Matching Detection Logic
-        if (nodeType === "tag" && !isSelfClosing) {
+        if (tokenType === "tag" && !isSelfClosing) {
           // Start Tag (and not self-closing)
           if (!isClosing) {
             // Push tag name onto the tag stack
@@ -211,19 +136,19 @@ export const DomParser = (
               unsafeTagDepth--;
             }
           }
-          return;
+          continue;
         }
 
         // Don't process anything while inside unsafe tags
-        if (unsafeTagDepth > 0) return;
+        if (unsafeTagDepth > 0) continue;
 
-        if (["text", "comment"].includes(nodeType)) {
+        if (["text", "comment"].includes(tokenType)) {
           newNode = createBasicNode(
-            `#${nodeType as "text" | "comment"}`,
+            `#${tokenType as "text" | "comment"}`,
             value,
           ) as ChildNode;
           currentParent.append(newNode);
-          return;
+          continue;
         }
 
         // Register tag/component type
@@ -237,7 +162,12 @@ export const DomParser = (
             root,
             tagName as DOMNode["tagName"],
             attributes,
-          ) as DOMNode;
+          );
+          currentParent.append(newNode);
+          stack.slice(1, -1).map((parent) =>
+            (parent as DOMNode).registerChild(newNode as DOMNode)
+          );
+
           if (onNodeCallback) onNodeCallback(newNode, currentParent, root);
 
           const charset = attributes?.charset;
@@ -245,12 +175,11 @@ export const DomParser = (
             root.charset = toUpperCase(charset);
           }
 
-          currentParent.append(newNode);
           !isSelfClosing && stack.push(newNode);
         } else if (!isSelfClosing && stack.length > 1) {
           stack.pop();
         }
-      });
+      }
 
       // Check for unclosed tags at the end
       // an edge case where end tag is malformed `</incomplete`

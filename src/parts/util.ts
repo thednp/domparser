@@ -9,6 +9,7 @@ import type {
   NodeLikeAttributes,
   RootLike,
   RootNode,
+  TokenizerOptions,
 } from "./types.ts";
 
 // general utils
@@ -202,6 +203,7 @@ export const trim = (str: string) => str.trim();
  * Set of self-closing HTML tags used by the `Parser`.
  */
 export const selfClosingTags = new Set([
+  "?xml",
   "area",
   "base",
   "br",
@@ -247,143 +249,201 @@ export const escape = (str: string) => {
   });
 };
 
+export const DOM_ERROR = "DomParserError:";
+const DEFAULT_CHUNK_SIZE = 64 * 1024; // 65536 = 64KB
+const DEFAULT_MAX_SCRIPT_SIZE = 128 * 1024; // 131072 = 128KB
+
 /**
  * Tokenizes an HTML string into an array of HTML tokens.
  * These tokens represent opening tags, closing tags, text content, and comments.
  * @param html The HTML string to tokenize.
  * @returns An array of `HTMLToken` objects.
  */
-export const tokenize = (html: string): HTMLToken[] => {
-  const specialTags = ["script", "style"];
+
+export const tokenize = (
+  html: string,
+  options: TokenizerOptions = {},
+): HTMLToken[] => {
+  const {
+    maxScriptSize = DEFAULT_MAX_SCRIPT_SIZE,
+    chunkSize = DEFAULT_CHUNK_SIZE,
+  } = options;
+
+  const specialTags = ["script", "style"] as const;
   const tokens: HTMLToken[] = [];
   const len = html.length;
-  let token = "",
-    inTag = false,
-    inQuote = false,
-    quote = 0,
-    inTemplate = false,
-    inComment = false,
-    inCDATA = false,
-    inStyleScript = false;
 
-  for (let i = 0; i < len; i++) {
-    const char = charCodeAt(html, i);
+  let token = "";
+  let scriptContent = "";
+  let inTag = false;
+  let inQuote = false;
+  let quote = 0;
+  let inTemplate = false;
+  let inComment = false;
+  let inCDATA = false;
+  let inStyleScript = false;
+  let currentChunkStart = 0;
 
-    if (inComment) {
-      token += fromCharCode(char);
-      /* istanbul ignore else @preserve */
-      if (endsWith(token, "--") && charCodeAt(html, i + 1) === 62 /* > */) {
-        tokens.push({
-          nodeType: "comment",
-          value: `<${trim(token)}>`,
-          isSC: false,
-        });
-        inComment = false;
+  while (currentChunkStart < len) {
+    const chunkEnd = Math.min(currentChunkStart + chunkSize, len);
+    const chunk = html.slice(currentChunkStart, chunkEnd);
+
+    for (let i = 0; i < chunk.length; i++) {
+      const globalIndex = currentChunkStart + i;
+      const char = charCodeAt(chunk, i);
+
+      if (inStyleScript) {
+        const endSpecialTag = specialTags.find((t) =>
+          startsWith(html, `/${t}`, globalIndex + 1)
+        );
+
+        if (char === 60 && endSpecialTag && !inTemplate && !inQuote) { // <
+          // istanbul ignore else @preserve
+          if (scriptContent.length < maxScriptSize) {
+            tokens.push({
+              tokenType: "text",
+              value: trim(scriptContent),
+              isSC: false,
+            });
+          }
+          tokens.push({
+            tokenType: "tag",
+            value: "/" + endSpecialTag,
+            isSC: false,
+          });
+          scriptContent = "";
+          inStyleScript = false;
+          i += endSpecialTag.length + 2;
+        } else {
+          // istanbul ignore next @preserve - don't crash the test!!
+          if (scriptContent.length >= maxScriptSize) {
+            // Once we hit the limit, just skip content until closing tag
+            continue;
+          }
+          if (char === 96) {
+            inTemplate = !inTemplate;
+          } else if (!inTemplate && (char === 34 || char === 39)) {
+            // istanbul ignore else @preserve
+            if (!inQuote) {
+              quote = char;
+              inQuote = true;
+            } else if (char === quote) {
+              inQuote = false;
+            }
+          }
+          scriptContent += fromCharCode(char);
+        }
+        continue;
+      }
+
+      if (inComment) {
+        token += fromCharCode(char);
+        if (endsWith(token, "--") && charCodeAt(html, globalIndex + 1) === 62) {
+          tokens.push({
+            tokenType: "comment",
+            value: `<${trim(token)}>`,
+            isSC: false,
+          });
+          inComment = false;
+          token = "";
+          i += 1;
+        }
+        continue;
+      }
+
+      if (inCDATA) {
+        token += fromCharCode(char);
+        if (endsWith(token, "]]") && charCodeAt(html, globalIndex + 1) === 62) {
+          tokens.push({
+            tokenType: "text",
+            value: `<${escape(trim(token))}>`,
+            isSC: false,
+          });
+          inCDATA = false;
+          token = "";
+          i += 1;
+        }
+        continue;
+      }
+
+      if (
+        (inTag && token.includes("=") || inStyleScript) &&
+        (char === 34 || char === 39)
+      ) {
+        if (!inQuote) {
+          quote = char;
+          inQuote = true;
+        } else if (char === quote) {
+          inQuote = false;
+        }
+        token += fromCharCode(char);
+        continue;
+      }
+
+      if (char === 60 && !inQuote && !inTemplate && !inStyleScript) {
+        trim(token) &&
+          tokens.push({
+            tokenType: "text",
+            value: trim(token),
+            isSC: false,
+          });
         token = "";
-        i += 1;
-      }
-      continue;
-    }
+        inTag = true;
 
-    if (inCDATA) {
-      token += fromCharCode(char);
-      /* istanbul ignore else @preserve */
-      if (endsWith(token, "]]") && charCodeAt(html, i + 1) === 62 /* > */) {
-        tokens.push({
-          nodeType: "text",
-          value: `<${escape(trim(token))}>`,
-          isSC: false,
-        });
-        inCDATA = false;
+        if (startsWith(chunk, "!--", i + 1)) {
+          inComment = true;
+          token += "!--";
+          i += 3;
+          continue;
+        }
+        if (startsWith(chunk, "![CDATA[", i + 1)) {
+          inCDATA = true;
+          token += "![CDATA[";
+          i += 8;
+          continue;
+        }
+      } else if (
+        char === 62 && inTag && !inTemplate && !inComment &&
+        !inStyleScript && !inCDATA
+      ) {
+        const startSpecialTag = specialTags.find((t) =>
+          t === token || startsWith(token, t)
+        );
+        if (startSpecialTag && !endsWith(token, "/")) {
+          inStyleScript = true;
+        }
+
+        const isDocType = startsWith(toLowerCase(token), "!doctype");
+
+        // istanbul ignore else @preserve
+        if (token) {
+          const isSC = endsWith(token, "/");
+          const [tagName] = token.split(/\s/);
+          const value = inQuote ? tagName + (isSC ? "/" : "") : token;
+          tokens.push({
+            tokenType: isDocType ? "doctype" : "tag",
+            value: isSC ? trim(value.slice(0, -1)) : trim(value),
+            isSC,
+          });
+        }
         token = "";
-        i += 1;
-      }
-      continue;
-    }
-
-    if (inStyleScript) {
-      const endSpecialTag = specialTags.find((t) =>
-        startsWith(html, `/${t}`, i + 1)
-      );
-      if (char === 60 && endSpecialTag && !inTag && !inTemplate && !inQuote) { // <
-        inStyleScript = false;
-      }
-      if (char === 96) { // ` | 0x60
-        inTemplate = !inTemplate;
-      }
-    }
-
-    // " or ' | 0x22 or 0x27
-    if (
-      (inTag && token.includes("=") || inStyleScript) &&
-      (char === 34 || char === 39)
-    ) {
-      if (!inQuote) {
-        quote = char;
-        inQuote = true;
-      } else if (char === quote) {
+        inTag = false;
         inQuote = false;
+      } else {
+        token += fromCharCode(char);
       }
-
-      token += fromCharCode(char);
-      continue;
     }
-
-    // else
-    if (char === 60 && !inQuote && !inTemplate && !inStyleScript) { // <
-      trim(token) &&
-        tokens.push({
-          nodeType: "text",
-          value: trim(token),
-          isSC: false,
-        });
-      token = "";
-      inTag = true;
-
-      if (startsWith(html, "!--", i + 1)) {
-        inComment = true;
-        token += "!--";
-        i += 3;
-        continue;
-      }
-      if (startsWith(html, "![CDATA[", i + 1)) {
-        inCDATA = true;
-        token += "![CDATA[";
-        i += 8;
-        continue;
-      }
-    } else if (
-      char === 62 && inTag && !inQuote && !inTemplate && !inComment &&
-      !inStyleScript && !inCDATA
-    ) { // >
-      const startSpecialTag = specialTags.find((t) =>
-        t === token || startsWith(token, t)
-      );
-      if (startSpecialTag) {
-        inStyleScript = true;
-      }
-      // handle doctype tag
-      const isDocType = startsWith(toLowerCase(token), "!doctype");
-      /* istanbul ignore else @preserve */
-      if (token) {
-        const isSC = endsWith(token, "/");
-        tokens.push({
-          nodeType: isDocType ? "doctype" : "tag",
-          value: isSC ? trim(token.slice(0, -1)) : trim(token),
-          isSC,
-        });
-      }
-      token = "";
-      inTag = false;
-    } else {
-      token += fromCharCode(char);
-    }
+    currentChunkStart = chunkEnd;
   }
 
-  trim(token) &&
-    tokens.push({ nodeType: "text", value: trim(token), isSC: false });
+  const lastToken = trim(token);
+  if (lastToken) {
+    tokens.push({
+      tokenType: "text",
+      value: lastToken,
+      isSC: false,
+    });
+  }
 
   return tokens;
 };
-
-export const DOM_ERROR = "DomParserError:";

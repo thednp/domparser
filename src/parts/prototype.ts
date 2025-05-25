@@ -274,25 +274,23 @@ export function createNode(
     },
     replaceChildren: (...newChildren: DOMNode[]) => {
       // clone this array to work
-      CHILDNODES.slice(0).forEach((childNode) => node.removeChild(childNode));
+      CHILDNODES.slice(0).forEach((child) => node.removeChild(child));
       node.append(...newChildren);
     },
     querySelector(selector: string) {
-      return ALL.find((node) => node.matches(selector)) ?? null;
+      return ALL.find((n) => n.matches(selector)) ?? null;
     },
     querySelectorAll(selector: string) {
-      return ALL.filter((node) => node.matches(selector));
+      return ALL.filter((n) => n.matches(selector));
     },
     getElementsByTagName(tagName: string) {
       return tagName === "*"
         ? ALL
-        : ALL.filter((node) =>
-          node.tagName.toLowerCase() === tagName.toLowerCase()
-        );
+        : ALL.filter((n) => n.tagName.toLowerCase() === tagName.toLowerCase());
     },
     getElementsByClassName(className: string) {
-      return ALL.filter((node) => {
-        const classAttr = node.attributes.get("class");
+      return ALL.filter((n) => {
+        const classAttr = n.attributes.get("class");
         return classAttr?.split(/\s+/).includes(className) ?? false;
       });
     },
@@ -308,6 +306,17 @@ export function createNode(
       enumerable: true,
       get: () => CHILDREN,
     },
+    // Add tag-specific property
+    ...(!nodeIsRoot
+      ? {
+        registerChild: {
+          enumerable: false,
+          value: (child: DOMNode) => {
+            ALL.push(child);
+          },
+        },
+      }
+      : {}),
   });
 
   // Add root-specific properties
@@ -356,8 +365,8 @@ export function createNode(
 
 const convertToNode = (n: string | number | ChildNode) => {
   if (isPrimitive(n)) {
-    const { nodeType, value } = tokenize(String(n))[0] as TextToken;
-    return createBasicNode(`#${nodeType}`, value);
+    const { tokenType, value } = tokenize(String(n))[0] as TextToken;
+    return createBasicNode(`#${tokenType}`, value);
   }
   return n;
 };
@@ -413,6 +422,14 @@ export function createElement(
     attributes: {
       enumerable: true,
       get: () => attributes,
+    },
+    id: {
+      enumerable: true,
+      get: () => attributes.get("id") ?? "",
+    },
+    className: {
+      enumerable: true,
+      get: () => attributes.get("class") ?? "",
     },
   });
   // define Element attributes methods
