@@ -176,7 +176,7 @@ var tokenize = (html, options = {}) => {
         }
         continue;
       }
-      if ((inTag && token.includes("=") || inStyleScript) && (char === 34 || char === 39)) {
+      if (inTag && token.includes("=") && (char === 34 || char === 39)) {
         if (!inQuote) {
           quote = char;
           inQuote = true;
@@ -186,26 +186,26 @@ var tokenize = (html, options = {}) => {
         token += fromCharCode(char);
         continue;
       }
-      if (char === 60 && !inQuote && !inTemplate && !inStyleScript) {
+      if (char === 60 && !inQuote && !inTemplate && !inStyleScript && !inCDATA && !inComment) {
         trim(token) && tokens.push({
           tokenType: "text",
           value: trim(token),
           isSC: false
         });
         token = "";
-        inTag = true;
-        if (startsWith(chunk, "!--", i + 1)) {
+        if (startsWith(html, "!--", globalIndex + 1)) {
           inComment = true;
           token += "!--";
           i += 3;
           continue;
         }
-        if (startsWith(chunk, "![CDATA[", i + 1)) {
+        if (startsWith(html, "![CDATA[", globalIndex + 1)) {
           inCDATA = true;
           token += "![CDATA[";
           i += 8;
           continue;
         }
+        inTag = true;
       } else if (char === 62 && inTag && !inTemplate && !inComment && !inStyleScript && !inCDATA) {
         const startSpecialTag = specialTags.find(
           (t) => t === token || startsWith(token, t)
@@ -267,4 +267,4 @@ var tokenize = (html, options = {}) => {
 
 
 exports.__publicField = __publicField; exports.ATTR_REGEX = ATTR_REGEX; exports.getBaseAttributes = getBaseAttributes; exports.getAttributes = getAttributes; exports.toLowerCase = toLowerCase; exports.toUpperCase = toUpperCase; exports.startsWith = startsWith; exports.endsWith = endsWith; exports.fromCharCode = fromCharCode; exports.charCodeAt = charCodeAt; exports.defineProperties = defineProperties; exports.isObj = isObj; exports.isRoot = isRoot; exports.isTag = isTag; exports.isNode = isNode; exports.isPrimitive = isPrimitive; exports.trim = trim; exports.selfClosingTags = selfClosingTags; exports.escape = escape; exports.DOM_ERROR = DOM_ERROR; exports.tokenize = tokenize;
-//# sourceMappingURL=chunk-IGUMSHTO.cjs.map
+//# sourceMappingURL=chunk-MYYMTVW7.cjs.map

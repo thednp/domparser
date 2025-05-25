@@ -227,7 +227,7 @@ var DOM = (() => {
           }
           continue;
         }
-        if ((inTag && token.includes("=") || inStyleScript) && (char === 34 || char === 39)) {
+        if (inTag && token.includes("=") && (char === 34 || char === 39)) {
           if (!inQuote) {
             quote = char;
             inQuote = true;
@@ -237,26 +237,26 @@ var DOM = (() => {
           token += fromCharCode(char);
           continue;
         }
-        if (char === 60 && !inQuote && !inTemplate && !inStyleScript) {
+        if (char === 60 && !inQuote && !inTemplate && !inStyleScript && !inCDATA && !inComment) {
           trim(token) && tokens.push({
             tokenType: "text",
             value: trim(token),
             isSC: false
           });
           token = "";
-          inTag = true;
-          if (startsWith(chunk, "!--", i + 1)) {
+          if (startsWith(html, "!--", globalIndex + 1)) {
             inComment = true;
             token += "!--";
             i += 3;
             continue;
           }
-          if (startsWith(chunk, "![CDATA[", i + 1)) {
+          if (startsWith(html, "![CDATA[", globalIndex + 1)) {
             inCDATA = true;
             token += "![CDATA[";
             i += 8;
             continue;
           }
+          inTag = true;
         } else if (char === 62 && inTag && !inTemplate && !inComment && !inStyleScript && !inCDATA) {
           const startSpecialTag = specialTags.find(
             (t) => t === token || startsWith(token, t)

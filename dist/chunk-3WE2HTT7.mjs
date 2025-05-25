@@ -1,10 +1,10 @@
-"use strict";Object.defineProperty(exports, "__esModule", {value: true});
-
-
-
-
-
-var _chunkIGUMSHTOcjs = require('./chunk-IGUMSHTO.cjs');
+import {
+  getBaseAttributes,
+  selfClosingTags,
+  toLowerCase,
+  toUpperCase,
+  tokenize
+} from "./chunk-ZHY3EYQX.mjs";
 
 // src/parts/parser.ts
 function Parser() {
@@ -15,7 +15,7 @@ function Parser() {
       const stack = [root];
       const components = /* @__PURE__ */ new Set();
       const tags = /* @__PURE__ */ new Set();
-      const tokens = _chunkIGUMSHTOcjs.tokenize.call(void 0, htmlString);
+      const tokens = tokenize(htmlString);
       const tLen = tokens.length;
       for (let i = 0; i < tLen; i += 1) {
         const { tokenType, value, isSC } = tokens[i];
@@ -32,14 +32,14 @@ function Parser() {
         }
         const isClosing = value.startsWith("/");
         const tagName = isClosing ? value.slice(1) : value.split(/[\s/>]/)[0];
-        const tagNameLower = _chunkIGUMSHTOcjs.toLowerCase.call(void 0, tagName);
-        const isSelfClosing = isSC || _chunkIGUMSHTOcjs.selfClosingTags.has(tagNameLower);
-        (tagName[0] === _chunkIGUMSHTOcjs.toUpperCase.call(void 0, tagName[0]) || tagName.includes("-") ? components : tags).add(tagName);
+        const tagNameLower = toLowerCase(tagName);
+        const isSelfClosing = isSC || selfClosingTags.has(tagNameLower);
+        (tagName[0] === toUpperCase(tagName[0]) || tagName.includes("-") ? components : tags).add(tagName);
         if (!isClosing) {
           const node = {
             tagName,
-            nodeName: _chunkIGUMSHTOcjs.toUpperCase.call(void 0, tagName),
-            attributes: _chunkIGUMSHTOcjs.getBaseAttributes.call(void 0, value),
+            nodeName: toUpperCase(tagName),
+            attributes: getBaseAttributes(value),
             children: []
           };
           currentParent.children.push(node);
@@ -57,7 +57,7 @@ function Parser() {
   };
 }
 
-
-
-exports.Parser = Parser;
-//# sourceMappingURL=chunk-2TIN7HFJ.cjs.map
+export {
+  Parser
+};
+//# sourceMappingURL=chunk-3WE2HTT7.mjs.map

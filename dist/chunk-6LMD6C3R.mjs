@@ -1,42 +1,42 @@
-"use strict";Object.defineProperty(exports, "__esModule", {value: true}); function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }
-
-
-
-var _chunkSFU6TF7Lcjs = require('./chunk-SFU6TF7L.cjs');
-
-
-
-
-
-
-
-
-var _chunkIGUMSHTOcjs = require('./chunk-IGUMSHTO.cjs');
+import {
+  createBasicNode,
+  createDocument,
+  createElement
+} from "./chunk-JA6OOB2C.mjs";
+import {
+  DOM_ERROR,
+  getAttributes,
+  isObj,
+  selfClosingTags,
+  startsWith,
+  toUpperCase,
+  tokenize
+} from "./chunk-ZHY3EYQX.mjs";
 
 // src/parts/dom-parser.ts
 var DomParser = (config) => {
-  if (config && !_chunkIGUMSHTOcjs.isObj.call(void 0, config)) {
-    throw new Error(`${_chunkIGUMSHTOcjs.DOM_ERROR} 1st parameter is not an object.`);
+  if (config && !isObj(config)) {
+    throw new Error(`${DOM_ERROR} 1st parameter is not an object.`);
   }
   let unsafeTags = /* @__PURE__ */ new Set();
   let unsafeTagDepth = 0;
   let unsafeAttrs = /* @__PURE__ */ new Set();
   const { filterTags, filterAttrs, onNodeCallback } = config || {};
-  if (_optionalChain([filterTags, 'optionalAccess', _ => _.length])) unsafeTags = new Set(filterTags);
-  if (_optionalChain([filterAttrs, 'optionalAccess', _2 => _2.length])) unsafeAttrs = new Set(filterAttrs);
+  if (filterTags?.length) unsafeTags = new Set(filterTags);
+  if (filterAttrs?.length) unsafeAttrs = new Set(filterAttrs);
   const getAttrOptions = { unsafeAttrs };
   return {
     parseFromString(htmlString) {
       if (htmlString && typeof htmlString !== "string") {
-        throw new Error(`${_chunkIGUMSHTOcjs.DOM_ERROR} 1st parameter is not a string.`);
+        throw new Error(`${DOM_ERROR} 1st parameter is not a string.`);
       }
-      const root = _chunkSFU6TF7Lcjs.createDocument.call(void 0, );
+      const root = createDocument();
       if (!htmlString) return { root, components: [], tags: [] };
       const stack = [root];
       const tagStack = [];
       const components = /* @__PURE__ */ new Set();
       const tags = /* @__PURE__ */ new Set();
-      const tokens = _chunkIGUMSHTOcjs.tokenize.call(void 0, htmlString);
+      const tokens = tokenize(htmlString);
       const tLen = tokens.length;
       let newNode;
       for (let i = 0; i < tLen; i += 1) {
@@ -46,9 +46,9 @@ var DomParser = (config) => {
           continue;
         }
         const currentParent = stack[stack.length - 1];
-        const isClosing = _chunkIGUMSHTOcjs.startsWith.call(void 0, value, "/");
+        const isClosing = startsWith(value, "/");
         const tagName = isClosing ? value.slice(1) : value.split(/[\s/>]/)[0];
-        const isSelfClosing = isSC || _chunkIGUMSHTOcjs.selfClosingTags.has(tagName);
+        const isSelfClosing = isSC || selfClosingTags.has(tagName);
         if (tokenType === "tag" && !isSelfClosing) {
           if (!isClosing) {
             tagStack.push(tagName);
@@ -57,11 +57,11 @@ var DomParser = (config) => {
             if (expectedTag !== tagName) {
               if (expectedTag === void 0) {
                 throw new Error(
-                  `${_chunkIGUMSHTOcjs.DOM_ERROR} Mismatched closing tag: </${tagName}>. No open tag found.`
+                  `${DOM_ERROR} Mismatched closing tag: </${tagName}>. No open tag found.`
                 );
               } else {
                 throw new Error(
-                  `${_chunkIGUMSHTOcjs.DOM_ERROR} Mismatched closing tag: </${tagName}>. Expected closing tag for <${expectedTag}>.`
+                  `${DOM_ERROR} Mismatched closing tag: </${tagName}>. Expected closing tag for <${expectedTag}>.`
                 );
               }
             }
@@ -79,17 +79,17 @@ var DomParser = (config) => {
         }
         if (unsafeTagDepth > 0) continue;
         if (["text", "comment"].includes(tokenType)) {
-          newNode = _chunkSFU6TF7Lcjs.createBasicNode.call(void 0, 
+          newNode = createBasicNode(
             `#${tokenType}`,
             value
           );
           currentParent.append(newNode);
           continue;
         }
-        (tagName[0] === _chunkIGUMSHTOcjs.toUpperCase.call(void 0, tagName[0]) || tagName.includes("-") ? components : tags).add(tagName);
+        (tagName[0] === toUpperCase(tagName[0]) || tagName.includes("-") ? components : tags).add(tagName);
         if (!isClosing) {
-          const attributes = _chunkIGUMSHTOcjs.getAttributes.call(void 0, value, getAttrOptions);
-          newNode = _chunkSFU6TF7Lcjs.createElement.call(
+          const attributes = getAttributes(value, getAttrOptions);
+          newNode = createElement.call(
             root,
             tagName,
             attributes
@@ -99,9 +99,9 @@ var DomParser = (config) => {
             (parent) => parent.registerChild(newNode)
           );
           if (onNodeCallback) onNodeCallback(newNode, currentParent, root);
-          const charset = _optionalChain([attributes, 'optionalAccess', _3 => _3.charset]);
+          const charset = attributes?.charset;
           if (tagName === "meta" && charset) {
-            root.charset = _chunkIGUMSHTOcjs.toUpperCase.call(void 0, charset);
+            root.charset = toUpperCase(charset);
           }
           !isSelfClosing && stack.push(newNode);
         } else if (!isSelfClosing && stack.length > 1) {
@@ -110,7 +110,7 @@ var DomParser = (config) => {
       }
       if (tagStack.length > 0) {
         const unclosedTag = tagStack.pop();
-        throw new Error(`${_chunkIGUMSHTOcjs.DOM_ERROR} Unclosed tag: <${unclosedTag}>.`);
+        throw new Error(`${DOM_ERROR} Unclosed tag: <${unclosedTag}>.`);
       }
       return {
         root,
@@ -121,7 +121,7 @@ var DomParser = (config) => {
   };
 };
 
-
-
-exports.DomParser = DomParser;
-//# sourceMappingURL=chunk-GWIWBDGG.cjs.map
+export {
+  DomParser
+};
+//# sourceMappingURL=chunk-6LMD6C3R.mjs.map
