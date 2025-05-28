@@ -1,18 +1,18 @@
-var __defProp = Object.defineProperty;
+"use strict";Object.defineProperty(exports, "__esModule", {value: true}); function _nullishCoalesce(lhs, rhsFn) { if (lhs != null) { return lhs; } else { return rhsFn(); } } function _optionalChain(ops) { let lastAccessLHS = undefined; let value = ops[0]; let i = 1; while (i < ops.length) { const op = ops[i]; const fn = ops[i + 1]; i += 2; if ((op === 'optionalAccess' || op === 'optionalCall') && value == null) { return undefined; } if (op === 'access' || op === 'optionalAccess') { lastAccessLHS = value; value = fn(value); } else if (op === 'call' || op === 'optionalCall') { value = fn((...args) => value.call(lastAccessLHS, ...args)); lastAccessLHS = undefined; } } return value; }var __defProp = Object.defineProperty;
 var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
 var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
 
 // src/parts/util.ts
 var ATTR_REGEX = /([^\s=]+)(?:=(?:"([^"]*)"|'([^']*)'|([^\s"']+)))?/g;
-var getBaseAttributes = (tagStr) => {
+var getBaseAttributes = (token) => {
   const attrs = {};
-  const parts = tagStr.split(/\s+/);
-  if (parts.length < 2) return attrs;
-  const attrStr = tagStr.slice(parts[0].length);
+  const [tagName, ...parts] = token.split(/\s+/);
+  if (parts.length < 1) return attrs;
+  const attrStr = token.slice(tagName.length);
   let match;
   while (match = ATTR_REGEX.exec(attrStr)) {
     const [, name, d, s, u] = match;
-    name !== "/" && (attrs[name] = d ?? s ?? u ?? "");
+    name !== "/" && (attrs[name] = _nullishCoalesce(_nullishCoalesce(_nullishCoalesce(d, () => ( s)), () => ( u)), () => ( "")));
   }
   return attrs;
 };
@@ -21,7 +21,7 @@ var getAttributes = (tagStr, config) => {
   const baseAttrs = getBaseAttributes(tagStr);
   const attrs = {};
   for (const [key, value] of Object.entries(baseAttrs)) {
-    if (!unsafeAttrs || !unsafeAttrs?.has(toLowerCase(key))) {
+    if (!unsafeAttrs || !_optionalChain([unsafeAttrs, 'optionalAccess', _ => _.has, 'call', _2 => _2(toLowerCase(key))])) {
       attrs[key] = value;
     }
   }
@@ -68,7 +68,7 @@ var selfClosingTags = /* @__PURE__ */ new Set([
 ]);
 var escape = (str) => {
   if (str === null || str === "") {
-    return false;
+    return "";
   } else {
     str = str.toString();
   }
@@ -94,14 +94,17 @@ var tokenize = (html, options = {}) => {
   const specialTags = ["script", "style"];
   const tokens = [];
   const len = html.length;
+  const COM_START = ["!--", "![CDATA["];
+  const COM_END = ["--", "]]"];
+  let COM_TYPE = 0;
   let token = "";
   let scriptContent = "";
   let inTag = false;
   let inQuote = false;
   let quote = 0;
+  let inPre = false;
   let inTemplate = false;
   let inComment = false;
-  let inCDATA = false;
   let inStyleScript = false;
   let currentChunkStart = 0;
   while (currentChunkStart < len) {
@@ -150,27 +153,14 @@ var tokenize = (html, options = {}) => {
       }
       if (inComment) {
         token += fromCharCode(char);
-        if (endsWith(token, "--") && charCodeAt(html, globalIndex + 1) === 62) {
+        if (endsWith(token, COM_END[COM_TYPE]) && charCodeAt(html, globalIndex + 1) === 62) {
+          const tokenValue = COM_TYPE === 1 ? escape(token) : token;
           tokens.push({
             tokenType: "comment",
-            value: `<${trim(token)}>`,
+            value: `<${trim(tokenValue)}>`,
             isSC: false
           });
           inComment = false;
-          token = "";
-          i += 1;
-        }
-        continue;
-      }
-      if (inCDATA) {
-        token += fromCharCode(char);
-        if (endsWith(token, "]]") && charCodeAt(html, globalIndex + 1) === 62) {
-          tokens.push({
-            tokenType: "text",
-            value: `<${escape(trim(token))}>`,
-            isSC: false
-          });
-          inCDATA = false;
           token = "";
           i += 1;
         }
@@ -186,27 +176,31 @@ var tokenize = (html, options = {}) => {
         token += fromCharCode(char);
         continue;
       }
-      if (char === 60 && !inQuote && !inTemplate && !inStyleScript && !inCDATA && !inComment) {
-        trim(token) && tokens.push({
+      if (char === 60 && !inQuote && !inTemplate) {
+        const value = trim(token);
+        value && tokens.push({
           tokenType: "text",
-          value: trim(token),
+          value: inPre ? token : value,
           isSC: false
         });
         token = "";
-        if (startsWith(html, "!--", globalIndex + 1)) {
+        const commentStart = COM_START.find(
+          (cs) => startsWith(html, cs, globalIndex + 1)
+        );
+        if (commentStart) {
+          COM_TYPE = COM_START.indexOf(commentStart);
           inComment = true;
-          token += "!--";
-          i += 3;
-          continue;
-        }
-        if (startsWith(html, "![CDATA[", globalIndex + 1)) {
-          inCDATA = true;
-          token += "![CDATA[";
-          i += 8;
+          token += commentStart;
+          i += commentStart.length;
           continue;
         }
         inTag = true;
-      } else if (char === 62 && inTag && !inTemplate && !inComment && !inStyleScript && !inCDATA) {
+      } else if (char === 62 && inTag && !inTemplate) {
+        if (token === "/pre") {
+          inPre = false;
+        } else if (token === "pre" || startsWith(token, "pre")) {
+          inPre = true;
+        }
         const startSpecialTag = specialTags.find(
           (t) => t === token || startsWith(token, t)
         );
@@ -244,27 +238,27 @@ var tokenize = (html, options = {}) => {
   return tokens;
 };
 
-export {
-  __publicField,
-  ATTR_REGEX,
-  getBaseAttributes,
-  getAttributes,
-  toLowerCase,
-  toUpperCase,
-  startsWith,
-  endsWith,
-  fromCharCode,
-  charCodeAt,
-  defineProperties,
-  isObj,
-  isRoot,
-  isTag,
-  isNode,
-  isPrimitive,
-  trim,
-  selfClosingTags,
-  escape,
-  DOM_ERROR,
-  tokenize
-};
-//# sourceMappingURL=chunk-ZHY3EYQX.mjs.map
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+exports.__publicField = __publicField; exports.ATTR_REGEX = ATTR_REGEX; exports.getBaseAttributes = getBaseAttributes; exports.getAttributes = getAttributes; exports.toLowerCase = toLowerCase; exports.toUpperCase = toUpperCase; exports.startsWith = startsWith; exports.endsWith = endsWith; exports.fromCharCode = fromCharCode; exports.charCodeAt = charCodeAt; exports.defineProperties = defineProperties; exports.isObj = isObj; exports.isRoot = isRoot; exports.isTag = isTag; exports.isNode = isNode; exports.isPrimitive = isPrimitive; exports.trim = trim; exports.selfClosingTags = selfClosingTags; exports.escape = escape; exports.DOM_ERROR = DOM_ERROR; exports.tokenize = tokenize;
+//# sourceMappingURL=chunk-CLVEXPEP.cjs.map

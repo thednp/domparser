@@ -1,65 +1,16 @@
 "use strict";
-var DOM = (() => {
+(() => {
   var __defProp = Object.defineProperty;
-  var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-  var __getOwnPropNames = Object.getOwnPropertyNames;
-  var __hasOwnProp = Object.prototype.hasOwnProperty;
   var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-  var __export = (target, all) => {
-    for (var name in all)
-      __defProp(target, name, { get: all[name], enumerable: true });
-  };
-  var __copyProps = (to, from, except, desc) => {
-    if (from && typeof from === "object" || typeof from === "function") {
-      for (let key of __getOwnPropNames(from))
-        if (!__hasOwnProp.call(to, key) && key !== except)
-          __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
-    }
-    return to;
-  };
-  var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
   var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
-
-  // src/index.ts
-  var src_exports = {};
-  __export(src_exports, {
-    ATTR_REGEX: () => ATTR_REGEX,
-    DOM_ERROR: () => DOM_ERROR,
-    DomParser: () => DomParser,
-    Parser: () => Parser,
-    charCodeAt: () => charCodeAt,
-    createBasicNode: () => createBasicNode,
-    createDocument: () => createDocument,
-    createElement: () => createElement,
-    createNode: () => createNode,
-    defineProperties: () => defineProperties,
-    endsWith: () => endsWith,
-    escape: () => escape,
-    fromCharCode: () => fromCharCode,
-    getAttributes: () => getAttributes,
-    getBaseAttributes: () => getBaseAttributes,
-    isNode: () => isNode,
-    isObj: () => isObj,
-    isPrimitive: () => isPrimitive,
-    isRoot: () => isRoot,
-    isTag: () => isTag,
-    matchesSelector: () => matchesSelector,
-    selectorCache: () => selectorCache,
-    selfClosingTags: () => selfClosingTags,
-    startsWith: () => startsWith,
-    toLowerCase: () => toLowerCase,
-    toUpperCase: () => toUpperCase,
-    tokenize: () => tokenize,
-    trim: () => trim
-  });
 
   // src/parts/util.ts
   var ATTR_REGEX = /([^\s=]+)(?:=(?:"([^"]*)"|'([^']*)'|([^\s"']+)))?/g;
-  var getBaseAttributes = (tagStr) => {
+  var getBaseAttributes = (token) => {
     const attrs = {};
-    const parts = tagStr.split(/\s+/);
-    if (parts.length < 2) return attrs;
-    const attrStr = tagStr.slice(parts[0].length);
+    const [tagName, ...parts] = token.split(/\s+/);
+    if (parts.length < 1) return attrs;
+    const attrStr = token.slice(tagName.length);
     let match;
     while (match = ATTR_REGEX.exec(attrStr)) {
       const [, name, d, s, u] = match;
@@ -119,7 +70,7 @@ var DOM = (() => {
   ]);
   var escape = (str) => {
     if (str === null || str === "") {
-      return false;
+      return "";
     } else {
       str = str.toString();
     }
@@ -145,14 +96,17 @@ var DOM = (() => {
     const specialTags = ["script", "style"];
     const tokens = [];
     const len = html.length;
+    const COM_START = ["!--", "![CDATA["];
+    const COM_END = ["--", "]]"];
+    let COM_TYPE = 0;
     let token = "";
     let scriptContent = "";
     let inTag = false;
     let inQuote = false;
     let quote = 0;
+    let inPre = false;
     let inTemplate = false;
     let inComment = false;
-    let inCDATA = false;
     let inStyleScript = false;
     let currentChunkStart = 0;
     while (currentChunkStart < len) {
@@ -201,27 +155,14 @@ var DOM = (() => {
         }
         if (inComment) {
           token += fromCharCode(char);
-          if (endsWith(token, "--") && charCodeAt(html, globalIndex + 1) === 62) {
+          if (endsWith(token, COM_END[COM_TYPE]) && charCodeAt(html, globalIndex + 1) === 62) {
+            const tokenValue = COM_TYPE === 1 ? escape(token) : token;
             tokens.push({
               tokenType: "comment",
-              value: `<${trim(token)}>`,
+              value: `<${trim(tokenValue)}>`,
               isSC: false
             });
             inComment = false;
-            token = "";
-            i += 1;
-          }
-          continue;
-        }
-        if (inCDATA) {
-          token += fromCharCode(char);
-          if (endsWith(token, "]]") && charCodeAt(html, globalIndex + 1) === 62) {
-            tokens.push({
-              tokenType: "text",
-              value: `<${escape(trim(token))}>`,
-              isSC: false
-            });
-            inCDATA = false;
             token = "";
             i += 1;
           }
@@ -237,27 +178,31 @@ var DOM = (() => {
           token += fromCharCode(char);
           continue;
         }
-        if (char === 60 && !inQuote && !inTemplate && !inStyleScript && !inCDATA && !inComment) {
-          trim(token) && tokens.push({
+        if (char === 60 && !inQuote && !inTemplate) {
+          const value = trim(token);
+          value && tokens.push({
             tokenType: "text",
-            value: trim(token),
+            value: inPre ? token : value,
             isSC: false
           });
           token = "";
-          if (startsWith(html, "!--", globalIndex + 1)) {
+          const commentStart = COM_START.find(
+            (cs) => startsWith(html, cs, globalIndex + 1)
+          );
+          if (commentStart) {
+            COM_TYPE = COM_START.indexOf(commentStart);
             inComment = true;
-            token += "!--";
-            i += 3;
-            continue;
-          }
-          if (startsWith(html, "![CDATA[", globalIndex + 1)) {
-            inCDATA = true;
-            token += "![CDATA[";
-            i += 8;
+            token += commentStart;
+            i += commentStart.length;
             continue;
           }
           inTag = true;
-        } else if (char === 62 && inTag && !inTemplate && !inComment && !inStyleScript && !inCDATA) {
+        } else if (char === 62 && inTag && !inTemplate) {
+          if (token === "/pre") {
+            inPre = false;
+          } else if (token === "pre" || startsWith(token, "pre")) {
+            inPre = true;
+          }
           const startSpecialTag = specialTags.find(
             (t) => t === token || startsWith(token, t)
           );
@@ -394,28 +339,33 @@ var DOM = (() => {
   // src/parts/prototype.ts
   var textContent = (node) => {
     if (!isTag(node)) return node.nodeValue;
-    const { childNodes } = node;
+    const { childNodes, nodeName } = node;
+    if (nodeName === "BR") return "\n";
     if (!childNodes.length) return "";
-    return childNodes.map(
-      (n) => isTag(n) ? textContent(n) : n.nodeValue
-    ).join("\n");
+    const hasTagChild = childNodes.some(isTag);
+    return childNodes.map((n) => isTag(n) ? textContent(n) : n.nodeValue).join(
+      hasTagChild ? "\n" : ""
+    );
   };
-  var innerHTML = ({ childNodes }, depth = 0) => {
+  var innerHTML = (node, depth = 0) => {
+    const { childNodes: childContents } = node;
+    const childNodes = childContents.filter((c) => c.nodeName !== "#comment");
     if (!childNodes.length) return "";
     const childIsText = childNodes.length === 1 && !isTag(childNodes[0]);
     const space = depth && !childIsText ? "  ".repeat(depth) : "";
-    return childNodes.filter((n) => n.nodeName !== "#comment").map((n) => isTag(n) ? outerHTML(n, depth) : space + n.nodeValue).join("\n");
+    return childNodes.map((n) => isTag(n) ? outerHTML(n, depth) : space + n.nodeValue).join("\n");
   };
   var outerHTML = (node, depth = 0) => {
+    const { attributes, tagName, childNodes: childContents } = node;
+    const childNodes = childContents.filter((c) => c.nodeName !== "#comment");
     const space = depth ? "  ".repeat(depth) : "";
-    const { attributes, tagName, childNodes } = node;
     const hasChildren = childNodes.length > 0;
     const childIsText = childNodes.length === 1 && !isTag(childNodes[0]);
     const hasAttributes = attributes.size > 0;
     const isSelfClosing = selfClosingTags.has(tagName);
-    const attrStr = hasAttributes ? " " + Array.from(attributes).map(([key, val]) => `${key}="${val}"`).join(" ") : "";
+    const attrStr = hasAttributes ? " " + Array.from(attributes).map(([key, val]) => `${key}="${trim(val)}"`).join(" ") : "";
     let output = `${space}<${tagName}${attrStr}${isSelfClosing ? " /" : ""}>`;
-    output += hasChildren && !childIsText ? "\n" : "";
+    output += !childIsText && hasChildren ? "\n" : "";
     output += hasChildren ? innerHTML(node, depth + 1) : "";
     output += !childIsText && hasChildren ? `
 ${space}` : "";
@@ -425,7 +375,8 @@ ${space}` : "";
   function createBasicNode(nodeName, text) {
     return {
       nodeName,
-      nodeValue: nodeName !== "#text" ? `<${text}>` : text
+      // nodeValue: nodeName !== "#text" ? `<${text}>` : text,
+      nodeValue: text
     };
   }
   function createNode(nodeName, ...childNodes) {
@@ -860,6 +811,5 @@ ${space}` : "";
       }
     };
   };
-  return __toCommonJS(src_exports);
 })();
 //# sourceMappingURL=index.js.map

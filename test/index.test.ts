@@ -55,7 +55,8 @@ describe(`Test DOMParser`, () => {
     // return;
     
     expect(doc.parentElement).toBeUndefined();
-    expect(doc.documentElement?.outerHTML.length).toEqual(629);
+    // expect(doc.documentElement?.outerHTML.length).toEqual(629);
+    expect(doc.documentElement?.outerHTML.length).toEqual(541);
     expect(doc.all.length).toEqual(15);
     expect(doc.head?.children[2].childNodes[0].ownerDocument).toEqual(doc);
     expect((doc.head?.parentNode as DOMNode).tagName).toEqual("html");
@@ -235,6 +236,7 @@ describe(`Test DOMParser`, () => {
     expect(selectors.size, 'exceed cache limit of 100').toEqual(100);
     expect(selectorCache.getStats()).toEqual({
       hitRate: 1,
+      // hits: 1267,
       hits: 1353,
       misses: 0,
       size: 100,
@@ -401,7 +403,7 @@ describe(`Test DOMParser`, () => {
 
   test(`Test edge cases`, () => {
     // @ts-expect-error - this is normal
-    expect(escape(null)).toEqual(false);
+    expect(escape(null)).toEqual("");
     expect(getAttributes("")).toEqual({});
     expect(Parser().parseFromString(), "parse an empty string").toEqual({
       root: { nodeName: "#document", children: [] },
@@ -423,6 +425,9 @@ describe(`Test DOMParser`, () => {
     );
     expect(DomParser().parseFromString("<html></html>").root.documentElement?.outerHTML).toContain(
       "<html></html>",
+    );
+    expect(DomParser().parseFromString("<html><h1>This is<br>title</h1></html>").root.documentElement?.textContent).toContain(
+      "\n",
     );
 
     type AdvancedNode = DOMNode & { classList?: "string" };

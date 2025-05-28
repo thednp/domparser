@@ -4,7 +4,7 @@
 
 
 
-var _chunkMYYMTVW7cjs = require('./chunk-MYYMTVW7.cjs');
+var _chunkCLVEXPEPcjs = require('./chunk-CLVEXPEP.cjs');
 
 // src/parts/parser.ts
 function Parser() {
@@ -15,7 +15,7 @@ function Parser() {
       const stack = [root];
       const components = /* @__PURE__ */ new Set();
       const tags = /* @__PURE__ */ new Set();
-      const tokens = _chunkMYYMTVW7cjs.tokenize.call(void 0, htmlString);
+      const tokens = _chunkCLVEXPEPcjs.tokenize.call(void 0, htmlString);
       const tLen = tokens.length;
       for (let i = 0; i < tLen; i += 1) {
         const { tokenType, value, isSC } = tokens[i];
@@ -32,14 +32,14 @@ function Parser() {
         }
         const isClosing = value.startsWith("/");
         const tagName = isClosing ? value.slice(1) : value.split(/[\s/>]/)[0];
-        const tagNameLower = _chunkMYYMTVW7cjs.toLowerCase.call(void 0, tagName);
-        const isSelfClosing = isSC || _chunkMYYMTVW7cjs.selfClosingTags.has(tagNameLower);
-        (tagName[0] === _chunkMYYMTVW7cjs.toUpperCase.call(void 0, tagName[0]) || tagName.includes("-") ? components : tags).add(tagName);
+        const tagNameLower = _chunkCLVEXPEPcjs.toLowerCase.call(void 0, tagName);
+        const isSelfClosing = isSC || _chunkCLVEXPEPcjs.selfClosingTags.has(tagNameLower);
+        (tagName[0] === _chunkCLVEXPEPcjs.toUpperCase.call(void 0, tagName[0]) || tagName.includes("-") ? components : tags).add(tagName);
         if (!isClosing) {
           const node = {
             tagName,
-            nodeName: _chunkMYYMTVW7cjs.toUpperCase.call(void 0, tagName),
-            attributes: _chunkMYYMTVW7cjs.getBaseAttributes.call(void 0, value),
+            nodeName: _chunkCLVEXPEPcjs.toUpperCase.call(void 0, tagName),
+            attributes: _chunkCLVEXPEPcjs.getBaseAttributes.call(void 0, value),
             children: []
           };
           currentParent.children.push(node);
@@ -60,4 +60,4 @@ function Parser() {
 
 
 exports.Parser = Parser;
-//# sourceMappingURL=chunk-A7JL42YR.cjs.map
+//# sourceMappingURL=chunk-4ECQF5AB.cjs.map

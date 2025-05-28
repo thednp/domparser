@@ -12,8 +12,9 @@ export default defineConfig(
     dts: true,
     clean: true,
     sourcemap: true,
-    splitting: true,
-    // bundle: true,
+    splitting: true, // no-bundle
+    // splitting: false, // bundle 
+    // bundle: true, // bundle
     outExtension: ({ format }) => ({
       js: {
         esm: '.mjs',
@@ -23,7 +24,7 @@ export default defineConfig(
     }),
     esbuildOptions(options) {
       options.legalComments = 'none';
-      options.globalName = "DOM"
+      // options.globalName = "DOM"
       options.target = "es2020"
     }
   },

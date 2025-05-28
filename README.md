@@ -8,7 +8,7 @@
 
 A TypeScript-based [HTML parser](https://developer.mozilla.org/en-US/docs/Web/API/DOMParser) available in two versions: a lightweight **Parser** focused on speed and memory efficiency (using 64KB chunks), and a feature-rich **DomParser** that provides a DOM-like API with additional capabilities like tag validation.
 
-At just ~1.5Kb gzipped for the core parser, it's perfect for both server and client-side applications where bundle size matters. The more comprehensive version is ideal for development environments where markup validation and DOM manipulation are needed. Both parsers rely on a versatile tokenizer which implements a chunking strategy to avoid memory overload and prevent a wide range of issues.
+At just ~1.5Kb gzipped, the core parser is perfect for both server and client-side applications especially where bundle size matters. The more comprehensive version is ideal for development environments where markup validation and DOM manipulation are needed. Both parsers rely on a versatile tokenizer which implements a chunking strategy to avoid memory overload and prevent a wide range of issues.
 
 While not a direct replacement for the browser's native DOMParser, its modular architecture makes it versatile for various use cases. The library also includes a powerful DOM creation API that improves upon the native `Document` interface, offering a more intuitive and efficient way to build DOM trees programmatically.
 
@@ -76,11 +76,11 @@ pnpm add @thednp/domparser
 ```
 
 ```bash
-deno install npm:@thednp/domparser
+deno add npm:@thednp/domparser
 ```
 
 ```bash
-bun install @thednp/domparser
+bun add @thednp/domparser
 ```
 
 
@@ -119,7 +119,9 @@ Let's take a sample HTML source for this example. We want to showcase all the ca
 
 > ℹ️ **Notes**
 > * the `<!doctype html>` tag will not be included in the resulted DOM tree, but **DomParser** will add it to the `root.doctype` property;
-> * the `charset` value of the `<meta>` tag will also be added to the `root.charset` property. 
+> * the `charset` value of the `<meta>` tag will also be added to the `root.charset` property;
+> * if attributes of a node aren't valid (missing opening or closing quotes), they are completely removed, this is to prevent crashes or invalid tree structure;
+> * both comment and CDATA nodes are registered as `#comment` nodes. 
 </details>
 
 

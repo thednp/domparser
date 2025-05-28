@@ -7,10 +7,10 @@ export { DomParser } from './dom-parser.js';
 declare const ATTR_REGEX: RegExp;
 /**
  * Get attributes from a string token and return an object
- * @param tagStr the string token
+ * @param token the string token
  * @returns the attributes object
  */
-declare const getBaseAttributes: (tagStr: string) => NodeLikeAttributes;
+declare const getBaseAttributes: (token: string) => NodeLikeAttributes;
 /**
  * Get attributes from a string token and return an object.
  * In addition to the base tool, this also filters configured
@@ -117,7 +117,7 @@ declare const trim: (str: string) => string;
  * Set of self-closing HTML tags used by the `Parser`.
  */
 declare const selfClosingTags: Set<string>;
-declare const escape: (str: string) => string | false;
+declare const escape: (str: string) => string;
 declare const DOM_ERROR = "DomParserError:";
 /**
  * Tokenizes an HTML string into an array of HTML tokens.

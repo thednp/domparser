@@ -1,9 +1,9 @@
 "use strict";Object.defineProperty(exports, "__esModule", {value: true});
 
-var _chunkYV3WSZTXcjs = require('./chunk-YV3WSZTX.cjs');
-require('./chunk-R4DWLBYH.cjs');
-require('./chunk-MYYMTVW7.cjs');
+var _chunkXSD55CNQcjs = require('./chunk-XSD55CNQ.cjs');
+require('./chunk-RMHPSCGU.cjs');
+require('./chunk-CLVEXPEP.cjs');
 
 
-exports.DomParser = _chunkYV3WSZTXcjs.DomParser;
+exports.DomParser = _chunkXSD55CNQcjs.DomParser;
 //# sourceMappingURL=dom-parser.cjs.map

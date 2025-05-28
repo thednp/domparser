@@ -3,12 +3,12 @@
 
 
 
-var _chunkR4DWLBYHcjs = require('./chunk-R4DWLBYH.cjs');
-require('./chunk-MYYMTVW7.cjs');
+var _chunkRMHPSCGUcjs = require('./chunk-RMHPSCGU.cjs');
+require('./chunk-CLVEXPEP.cjs');
 
 
 
 
 
-exports.createBasicNode = _chunkR4DWLBYHcjs.createBasicNode; exports.createDocument = _chunkR4DWLBYHcjs.createDocument; exports.createElement = _chunkR4DWLBYHcjs.createElement; exports.createNode = _chunkR4DWLBYHcjs.createNode;
+exports.createBasicNode = _chunkRMHPSCGUcjs.createBasicNode; exports.createDocument = _chunkRMHPSCGUcjs.createDocument; exports.createElement = _chunkRMHPSCGUcjs.createElement; exports.createNode = _chunkRMHPSCGUcjs.createNode;
 //# sourceMappingURL=dom.cjs.map

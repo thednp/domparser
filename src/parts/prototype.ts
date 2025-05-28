@@ -1,5 +1,5 @@
 // prototype.ts
-import { tokenize } from "./util.ts";
+import { tokenize, trim } from "./util.ts";
 import { matchesSelector } from "./selectors.ts";
 import {
   defineProperties,
@@ -34,12 +34,14 @@ import type {
  */
 const textContent = (node: ChildNode): string => {
   if (!isTag(node)) return node.nodeValue;
-  const { childNodes } = node;
+  const { childNodes, nodeName } = node;
+  if (nodeName === "BR") return "\n";
   if (!childNodes.length) return "";
+  const hasTagChild = childNodes.some(isTag);
 
-  return childNodes.map((n) =>
-    isTag(n) ? textContent(n as unknown as DOMNode) : n.nodeValue
-  ).join("\n");
+  return childNodes.map((n) => isTag(n) ? textContent(n) : n.nodeValue).join(
+    hasTagChild ? "\n" : "",
+  );
 };
 
 /**
@@ -48,14 +50,18 @@ const textContent = (node: ChildNode): string => {
  * @param depth Current indentation depth
  * @returns innerHTML string
  */
-const innerHTML = ({ childNodes }: DOMNode, depth = 0): string => {
+const innerHTML = (
+  node: DOMNode,
+  depth = 0,
+): string => {
+  const { childNodes: childContents } = node;
+  // Remove comments
+  const childNodes = childContents.filter((c) => c.nodeName !== "#comment");
   if (!childNodes.length) return "";
-
-  const childIsText = childNodes.length === 1 && !isTag(childNodes[0]);
+  const childIsText = childNodes.length === 1 &&
+    !isTag(childNodes[0]);
   const space = depth && !childIsText ? "  ".repeat(depth) : "";
-
   return childNodes
-    .filter((n) => n.nodeName !== "#comment")
     .map((n) => isTag(n) ? outerHTML(n, depth) : space + n.nodeValue)
     .join("\n");
 };
@@ -67,8 +73,9 @@ const innerHTML = ({ childNodes }: DOMNode, depth = 0): string => {
  * @returns outerHTML string
  */
 const outerHTML = (node: DOMNode, depth = 0): string => {
+  const { attributes, tagName, childNodes: childContents } = node;
+  const childNodes = childContents.filter((c) => c.nodeName !== "#comment");
   const space = depth ? "  ".repeat(depth) : "";
-  const { attributes, tagName, childNodes } = node;
   const hasChildren = childNodes.length > 0;
   const childIsText = childNodes.length === 1 && !isTag(childNodes[0]);
   const hasAttributes = attributes.size > 0;
@@ -76,12 +83,12 @@ const outerHTML = (node: DOMNode, depth = 0): string => {
 
   const attrStr = hasAttributes
     ? " " + Array.from(attributes)
-      .map(([key, val]) => `${key}="${val}"`)
+      .map(([key, val]) => `${key}="${trim(val)}"`)
       .join(" ")
     : "";
 
   let output = `${space}<${tagName}${attrStr}${isSelfClosing ? " /" : ""}>`;
-  output += hasChildren && !childIsText ? "\n" : "";
+  output += !childIsText && hasChildren ? "\n" : "";
   output += hasChildren ? innerHTML(node, depth + 1) : "";
   output += !childIsText && hasChildren ? `\n${space}` : "";
   output += !isSelfClosing ? `</${tagName}>` : "";
@@ -101,7 +108,8 @@ export function createBasicNode<T extends ("#text" | "#comment")>(
 ): TextNode | CommentNode {
   return {
     nodeName,
-    nodeValue: nodeName !== "#text" ? `<${text}>` : text,
+    // nodeValue: nodeName !== "#text" ? `<${text}>` : text,
+    nodeValue: text,
   } as (TextNode | CommentNode);
 }
 

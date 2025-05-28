@@ -12,14 +12,15 @@
 
 
 
-var _chunkMYYMTVW7cjs = require('./chunk-MYYMTVW7.cjs');
+
+var _chunkCLVEXPEPcjs = require('./chunk-CLVEXPEP.cjs');
 
 // src/parts/selectors.ts
 var SelectorCacheMap = class extends Map {
   constructor() {
     super();
-    _chunkMYYMTVW7cjs.__publicField.call(void 0, this, "hits", 0);
-    _chunkMYYMTVW7cjs.__publicField.call(void 0, this, "misses", 0);
+    _chunkCLVEXPEPcjs.__publicField.call(void 0, this, "hits", 0);
+    _chunkCLVEXPEPcjs.__publicField.call(void 0, this, "misses", 0);
     this.misses = 0;
     this.hits = 0;
   }
@@ -67,11 +68,11 @@ var parseSelector = (selector) => {
   const matches = selector.match(SELECTOR_REGEX) || /* istanbul ignore next @preserve */
   [];
   for (const match of matches) {
-    if (_chunkMYYMTVW7cjs.startsWith.call(void 0, match, "#")) {
+    if (_chunkCLVEXPEPcjs.startsWith.call(void 0, match, "#")) {
       parts.push({ type: "#", name: "id", value: match.slice(1) });
-    } else if (_chunkMYYMTVW7cjs.startsWith.call(void 0, match, ".")) {
+    } else if (_chunkCLVEXPEPcjs.startsWith.call(void 0, match, ".")) {
       parts.push({ type: ".", name: "class", value: match.slice(1) });
-    } else if (_chunkMYYMTVW7cjs.startsWith.call(void 0, match, "[")) {
+    } else if (_chunkCLVEXPEPcjs.startsWith.call(void 0, match, "[")) {
       const [name, value] = match.slice(1, -1).split("=");
       parts.push({
         type: "[",
@@ -100,7 +101,7 @@ var matchesSingleSelector = (node, selector) => {
         return part.value ? attrValue === part.value : attrValue !== void 0;
       }
       default: {
-        return _chunkMYYMTVW7cjs.toLowerCase.call(void 0, node.tagName) === _chunkMYYMTVW7cjs.toLowerCase.call(void 0, part.name);
+        return _chunkCLVEXPEPcjs.toLowerCase.call(void 0, node.tagName) === _chunkCLVEXPEPcjs.toLowerCase.call(void 0, part.name);
       }
     }
   });
@@ -112,29 +113,34 @@ var matchesSelector = (node, selector) => {
 
 // src/parts/prototype.ts
 var textContent = (node) => {
-  if (!_chunkMYYMTVW7cjs.isTag.call(void 0, node)) return node.nodeValue;
-  const { childNodes } = node;
+  if (!_chunkCLVEXPEPcjs.isTag.call(void 0, node)) return node.nodeValue;
+  const { childNodes, nodeName } = node;
+  if (nodeName === "BR") return "\n";
   if (!childNodes.length) return "";
-  return childNodes.map(
-    (n) => _chunkMYYMTVW7cjs.isTag.call(void 0, n) ? textContent(n) : n.nodeValue
-  ).join("\n");
+  const hasTagChild = childNodes.some(_chunkCLVEXPEPcjs.isTag);
+  return childNodes.map((n) => _chunkCLVEXPEPcjs.isTag.call(void 0, n) ? textContent(n) : n.nodeValue).join(
+    hasTagChild ? "\n" : ""
+  );
 };
-var innerHTML = ({ childNodes }, depth = 0) => {
+var innerHTML = (node, depth = 0) => {
+  const { childNodes: childContents } = node;
+  const childNodes = childContents.filter((c) => c.nodeName !== "#comment");
   if (!childNodes.length) return "";
-  const childIsText = childNodes.length === 1 && !_chunkMYYMTVW7cjs.isTag.call(void 0, childNodes[0]);
+  const childIsText = childNodes.length === 1 && !_chunkCLVEXPEPcjs.isTag.call(void 0, childNodes[0]);
   const space = depth && !childIsText ? "  ".repeat(depth) : "";
-  return childNodes.filter((n) => n.nodeName !== "#comment").map((n) => _chunkMYYMTVW7cjs.isTag.call(void 0, n) ? outerHTML(n, depth) : space + n.nodeValue).join("\n");
+  return childNodes.map((n) => _chunkCLVEXPEPcjs.isTag.call(void 0, n) ? outerHTML(n, depth) : space + n.nodeValue).join("\n");
 };
 var outerHTML = (node, depth = 0) => {
+  const { attributes, tagName, childNodes: childContents } = node;
+  const childNodes = childContents.filter((c) => c.nodeName !== "#comment");
   const space = depth ? "  ".repeat(depth) : "";
-  const { attributes, tagName, childNodes } = node;
   const hasChildren = childNodes.length > 0;
-  const childIsText = childNodes.length === 1 && !_chunkMYYMTVW7cjs.isTag.call(void 0, childNodes[0]);
+  const childIsText = childNodes.length === 1 && !_chunkCLVEXPEPcjs.isTag.call(void 0, childNodes[0]);
   const hasAttributes = attributes.size > 0;
-  const isSelfClosing = _chunkMYYMTVW7cjs.selfClosingTags.has(tagName);
-  const attrStr = hasAttributes ? " " + Array.from(attributes).map(([key, val]) => `${key}="${val}"`).join(" ") : "";
+  const isSelfClosing = _chunkCLVEXPEPcjs.selfClosingTags.has(tagName);
+  const attrStr = hasAttributes ? " " + Array.from(attributes).map(([key, val]) => `${key}="${_chunkCLVEXPEPcjs.trim.call(void 0, val)}"`).join(" ") : "";
   let output = `${space}<${tagName}${attrStr}${isSelfClosing ? " /" : ""}>`;
-  output += hasChildren && !childIsText ? "\n" : "";
+  output += !childIsText && hasChildren ? "\n" : "";
   output += hasChildren ? innerHTML(node, depth + 1) : "";
   output += !childIsText && hasChildren ? `
 ${space}` : "";
@@ -144,7 +150,8 @@ ${space}` : "";
 function createBasicNode(nodeName, text) {
   return {
     nodeName,
-    nodeValue: nodeName !== "#text" ? `<${text}>` : text
+    // nodeValue: nodeName !== "#text" ? `<${text}>` : text,
+    nodeValue: text
   };
 }
 function createNode(nodeName, ...childNodes) {
@@ -157,15 +164,15 @@ function createNode(nodeName, ...childNodes) {
     nodeName,
     append(...nodes) {
       for (const child of nodes) {
-        if (!_chunkMYYMTVW7cjs.isNode.call(void 0, child)) {
-          throw new Error(`${_chunkMYYMTVW7cjs.DOM_ERROR} Invalid node.`);
+        if (!_chunkCLVEXPEPcjs.isNode.call(void 0, child)) {
+          throw new Error(`${_chunkCLVEXPEPcjs.DOM_ERROR} Invalid node.`);
         }
         CHILDNODES.push(child);
-        if (_chunkMYYMTVW7cjs.isTag.call(void 0, child)) {
+        if (_chunkCLVEXPEPcjs.isTag.call(void 0, child)) {
           ALL.push(child);
           CHILDREN.push(child);
           _optionalChain([ownerDocument, 'optionalAccess', _6 => _6.register, 'call', _7 => _7(child)]);
-          _chunkMYYMTVW7cjs.defineProperties.call(void 0, child, {
+          _chunkCLVEXPEPcjs.defineProperties.call(void 0, child, {
             innerHTML: {
               enumerable: false,
               get: () => innerHTML(child)
@@ -176,7 +183,7 @@ function createNode(nodeName, ...childNodes) {
             }
           });
         }
-        _chunkMYYMTVW7cjs.defineProperties.call(void 0, child, {
+        _chunkCLVEXPEPcjs.defineProperties.call(void 0, child, {
           // Add text generation methods
           textContent: {
             enumerable: false,
@@ -207,7 +214,7 @@ function createNode(nodeName, ...childNodes) {
       CHILDNODES.length = 0;
     },
     // Root document methods
-    ..._chunkMYYMTVW7cjs.isRoot.call(void 0, { nodeName }) && {
+    ..._chunkCLVEXPEPcjs.isRoot.call(void 0, { nodeName }) && {
       createElement(tagName, first, ...rest) {
         return createElement.call(
           node,
@@ -237,7 +244,7 @@ function createNode(nodeName, ...childNodes) {
     },
     // Shared methods
     contains: (childNode) => {
-      if (!childNode || !_chunkMYYMTVW7cjs.isTag.call(void 0, childNode)) {
+      if (!childNode || !_chunkCLVEXPEPcjs.isTag.call(void 0, childNode)) {
         throw new Error(
           "DomError: the childNode parameter must be a valid DOMNode"
         );
@@ -255,13 +262,13 @@ function createNode(nodeName, ...childNodes) {
       return false;
     },
     removeChild(childNode) {
-      if (!childNode || !_chunkMYYMTVW7cjs.isNode.call(void 0, childNode)) {
+      if (!childNode || !_chunkCLVEXPEPcjs.isNode.call(void 0, childNode)) {
         throw new Error(
           "DomError: the childNode parameter must be a valid ChildNode"
         );
       }
       const indexOf = (arr) => arr.indexOf(childNode);
-      if (_chunkMYYMTVW7cjs.isTag.call(void 0, childNode)) {
+      if (_chunkCLVEXPEPcjs.isTag.call(void 0, childNode)) {
         const idx1 = indexOf(ALL);
         const idx2 = indexOf(CHILDREN);
         if (idx1 > -1) ALL.splice(idx1, 1);
@@ -292,7 +299,7 @@ function createNode(nodeName, ...childNodes) {
       });
     }
   };
-  _chunkMYYMTVW7cjs.defineProperties.call(void 0, node, {
+  _chunkCLVEXPEPcjs.defineProperties.call(void 0, node, {
     childNodes: {
       enumerable: true,
       get: () => CHILDNODES
@@ -312,22 +319,22 @@ function createNode(nodeName, ...childNodes) {
     } : {}
   });
   if (nodeIsRoot) {
-    _chunkMYYMTVW7cjs.defineProperties.call(void 0, node, {
+    _chunkCLVEXPEPcjs.defineProperties.call(void 0, node, {
       all: {
         enumerable: true,
         get: () => ALL
       },
       documentElement: {
         enumerable: true,
-        get: () => ALL.find((node2) => _chunkMYYMTVW7cjs.toUpperCase.call(void 0, node2.tagName) === "HTML")
+        get: () => ALL.find((node2) => _chunkCLVEXPEPcjs.toUpperCase.call(void 0, node2.tagName) === "HTML")
       },
       head: {
         enumerable: true,
-        get: () => ALL.find((node2) => _chunkMYYMTVW7cjs.toUpperCase.call(void 0, node2.tagName) === "HEAD")
+        get: () => ALL.find((node2) => _chunkCLVEXPEPcjs.toUpperCase.call(void 0, node2.tagName) === "HEAD")
       },
       body: {
         enumerable: true,
-        get: () => ALL.find((node2) => _chunkMYYMTVW7cjs.toUpperCase.call(void 0, node2.tagName) === "BODY")
+        get: () => ALL.find((node2) => _chunkCLVEXPEPcjs.toUpperCase.call(void 0, node2.tagName) === "BODY")
       },
       register: {
         enumerable: false,
@@ -350,8 +357,8 @@ function createNode(nodeName, ...childNodes) {
   return node;
 }
 var convertToNode = (n) => {
-  if (_chunkMYYMTVW7cjs.isPrimitive.call(void 0, n)) {
-    const { tokenType, value } = _chunkMYYMTVW7cjs.tokenize.call(void 0, String(n))[0];
+  if (_chunkCLVEXPEPcjs.isPrimitive.call(void 0, n)) {
+    const { tokenType, value } = _chunkCLVEXPEPcjs.tokenize.call(void 0, String(n))[0];
     return createBasicNode(`#${tokenType}`, value);
   }
   return n;
@@ -360,24 +367,24 @@ function createElement(tagName, first, ...args) {
   const childNodes = [];
   let attributes = /* @__PURE__ */ new Map();
   if (first) {
-    if (_chunkMYYMTVW7cjs.isObj.call(void 0, first) && !_chunkMYYMTVW7cjs.isNode.call(void 0, first)) {
+    if (_chunkCLVEXPEPcjs.isObj.call(void 0, first) && !_chunkCLVEXPEPcjs.isNode.call(void 0, first)) {
       attributes = new Map(Object.entries(first));
     } else {
       childNodes.push(convertToNode(first));
     }
   }
-  const nodes = args.map(convertToNode).filter(_chunkMYYMTVW7cjs.isNode);
+  const nodes = args.map(convertToNode).filter(_chunkCLVEXPEPcjs.isNode);
   childNodes.push(...nodes);
   const node = createNode.call(
     this,
-    _chunkMYYMTVW7cjs.toUpperCase.call(void 0, tagName),
+    _chunkCLVEXPEPcjs.toUpperCase.call(void 0, tagName),
     ...childNodes
   );
   const charset = attributes.get("charset");
   if (tagName === "meta" && charset) {
-    this.charset = _chunkMYYMTVW7cjs.toUpperCase.call(void 0, charset);
+    this.charset = _chunkCLVEXPEPcjs.toUpperCase.call(void 0, charset);
   }
-  _chunkMYYMTVW7cjs.defineProperties.call(void 0, node, {
+  _chunkCLVEXPEPcjs.defineProperties.call(void 0, node, {
     tagName: {
       enumerable: true,
       get: () => tagName
@@ -409,7 +416,7 @@ function createElement(tagName, first, ...args) {
     if (!selector) throw new Error("DomError: selector must be a string");
     if (node.matches(selector)) return node;
     let currentParent = node.parentNode;
-    while (!_chunkMYYMTVW7cjs.isRoot.call(void 0, currentParent)) {
+    while (!_chunkCLVEXPEPcjs.isRoot.call(void 0, currentParent)) {
       if (currentParent.matches(selector)) {
         return currentParent;
       }
@@ -429,4 +436,4 @@ var createDocument = () => createNode.call(null, "#document");
 
 
 exports.selectorCache = selectorCache; exports.matchesSelector = matchesSelector; exports.createBasicNode = createBasicNode; exports.createNode = createNode; exports.createElement = createElement; exports.createDocument = createDocument;
-//# sourceMappingURL=chunk-R4DWLBYH.cjs.map
+//# sourceMappingURL=chunk-RMHPSCGU.cjs.map

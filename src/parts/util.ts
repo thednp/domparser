@@ -18,15 +18,15 @@ export const ATTR_REGEX = /([^\s=]+)(?:=(?:"([^"]*)"|'([^']*)'|([^\s"']+)))?/g;
 
 /**
  * Get attributes from a string token and return an object
- * @param tagStr the string token
+ * @param token the string token
  * @returns the attributes object
  */
-export const getBaseAttributes = (tagStr: string) => {
+export const getBaseAttributes = (token: string) => {
   const attrs: NodeLikeAttributes = {};
-  const parts = tagStr.split(/\s+/);
-  if (parts.length < 2) return attrs;
+  const [tagName, ...parts] = token.split(/\s+/);
+  if (parts.length < 1) return attrs;
 
-  const attrStr = tagStr.slice(parts[0].length);
+  const attrStr = token.slice(tagName.length);
   let match: RegExpExecArray | null;
 
   while ((match = ATTR_REGEX.exec(attrStr))) {
@@ -231,7 +231,7 @@ export const selfClosingTags = new Set([
 
 export const escape = (str: string) => {
   if ((str === null) || (str === "")) {
-    return false;
+    return "";
   } else {
     str = str.toString();
   }
@@ -259,7 +259,6 @@ const DEFAULT_MAX_SCRIPT_SIZE = 128 * 1024; // 131072 = 128KB
  * @param html The HTML string to tokenize.
  * @returns An array of `HTMLToken` objects.
  */
-
 export const tokenize = (
   html: string,
   options: TokenizerOptions = {},
@@ -272,15 +271,18 @@ export const tokenize = (
   const specialTags = ["script", "style"] as const;
   const tokens: HTMLToken[] = [];
   const len = html.length;
+  const COM_START = ["!--", "![CDATA["];
+  const COM_END = ["--", "]]"];
+  let COM_TYPE = 0; // [0 = #comment, 1 = CDATA]
 
   let token = "";
   let scriptContent = "";
   let inTag = false;
   let inQuote = false;
   let quote = 0;
+  let inPre = false;
   let inTemplate = false;
   let inComment = false;
-  let inCDATA = false;
   let inStyleScript = false;
   let currentChunkStart = 0;
 
@@ -320,8 +322,9 @@ export const tokenize = (
             // Once we hit the limit, just skip content until closing tag
             continue;
           }
-          if (char === 96) {
+          if (char === 96) { // ` | 0x60
             inTemplate = !inTemplate;
+            // " or ' | 0x22 or 0x27
           } else if (!inTemplate && (char === 34 || char === 39)) {
             // istanbul ignore else @preserve
             if (!inQuote) {
@@ -338,28 +341,17 @@ export const tokenize = (
 
       if (inComment) {
         token += fromCharCode(char);
-        if (endsWith(token, "--") && charCodeAt(html, globalIndex + 1) === 62) {
+        if (
+          endsWith(token, COM_END[COM_TYPE]) &&
+          charCodeAt(html, globalIndex + 1) === 62
+        ) { // >
+          const tokenValue = COM_TYPE === 1 ? escape(token) : token;
           tokens.push({
             tokenType: "comment",
-            value: `<${trim(token)}>`,
+            value: `<${trim(tokenValue)}>`,
             isSC: false,
           });
           inComment = false;
-          token = "";
-          i += 1;
-        }
-        continue;
-      }
-
-      if (inCDATA) {
-        token += fromCharCode(char);
-        if (endsWith(token, "]]") && charCodeAt(html, globalIndex + 1) === 62) {
-          tokens.push({
-            tokenType: "text",
-            value: `<${escape(trim(token))}>`,
-            isSC: false,
-          });
-          inCDATA = false;
           token = "";
           i += 1;
         }
@@ -381,34 +373,37 @@ export const tokenize = (
       }
 
       if (
-        char === 60 && !inQuote && !inTemplate && !inStyleScript && !inCDATA &&
-        !inComment
-      ) {
-        trim(token) &&
+        char === 60 && !inQuote && !inTemplate
+      ) { // 0x3c | "<"
+        const value = trim(token);
+        value &&
           tokens.push({
             tokenType: "text",
-            value: trim(token),
+            value: inPre ? token : value,
             isSC: false,
           });
         token = "";
 
-        if (startsWith(html, "!--", globalIndex + 1)) {
+        const commentStart = COM_START.find((cs) =>
+          startsWith(html, cs, globalIndex + 1)
+        );
+        if (commentStart) {
+          COM_TYPE = COM_START.indexOf(commentStart);
           inComment = true;
-          token += "!--";
-          i += 3;
+          token += commentStart;
+          i += commentStart.length;
           continue;
         }
-        if (startsWith(html, "![CDATA[", globalIndex + 1)) {
-          inCDATA = true;
-          token += "![CDATA[";
-          i += 8;
-          continue;
-        }
+
         inTag = true;
       } else if (
-        char === 62 && inTag && !inTemplate && !inComment &&
-        !inStyleScript && !inCDATA
-      ) {
+        char === 62 && inTag && !inTemplate
+      ) { // 0x3e | ">"
+        if (token === "/pre") {
+          inPre = false;
+        } else if (token === "pre" || startsWith(token, "pre")) {
+          inPre = true;
+        }
         const startSpecialTag = specialTags.find((t) =>
           t === token || startsWith(token, t)
         );

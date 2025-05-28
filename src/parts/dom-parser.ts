@@ -98,6 +98,7 @@ export const DomParser = (
           root.doctype = `<${value}>`;
           continue;
         }
+
         const currentParent = stack[stack.length - 1];
         const isClosing = startsWith(value, "/");
         const tagName = isClosing ? value.slice(1) : value.split(/[\s/>]/)[0];

@@ -11,8 +11,9 @@ import {
   startsWith,
   toLowerCase,
   toUpperCase,
-  tokenize
-} from "./chunk-ZHY3EYQX.mjs";
+  tokenize,
+  trim
+} from "./chunk-GAXPFK3M.mjs";
 
 // src/parts/selectors.ts
 var SelectorCacheMap = class extends Map {
@@ -113,28 +114,33 @@ var matchesSelector = (node, selector) => {
 // src/parts/prototype.ts
 var textContent = (node) => {
   if (!isTag(node)) return node.nodeValue;
-  const { childNodes } = node;
+  const { childNodes, nodeName } = node;
+  if (nodeName === "BR") return "\n";
   if (!childNodes.length) return "";
-  return childNodes.map(
-    (n) => isTag(n) ? textContent(n) : n.nodeValue
-  ).join("\n");
+  const hasTagChild = childNodes.some(isTag);
+  return childNodes.map((n) => isTag(n) ? textContent(n) : n.nodeValue).join(
+    hasTagChild ? "\n" : ""
+  );
 };
-var innerHTML = ({ childNodes }, depth = 0) => {
+var innerHTML = (node, depth = 0) => {
+  const { childNodes: childContents } = node;
+  const childNodes = childContents.filter((c) => c.nodeName !== "#comment");
   if (!childNodes.length) return "";
   const childIsText = childNodes.length === 1 && !isTag(childNodes[0]);
   const space = depth && !childIsText ? "  ".repeat(depth) : "";
-  return childNodes.filter((n) => n.nodeName !== "#comment").map((n) => isTag(n) ? outerHTML(n, depth) : space + n.nodeValue).join("\n");
+  return childNodes.map((n) => isTag(n) ? outerHTML(n, depth) : space + n.nodeValue).join("\n");
 };
 var outerHTML = (node, depth = 0) => {
+  const { attributes, tagName, childNodes: childContents } = node;
+  const childNodes = childContents.filter((c) => c.nodeName !== "#comment");
   const space = depth ? "  ".repeat(depth) : "";
-  const { attributes, tagName, childNodes } = node;
   const hasChildren = childNodes.length > 0;
   const childIsText = childNodes.length === 1 && !isTag(childNodes[0]);
   const hasAttributes = attributes.size > 0;
   const isSelfClosing = selfClosingTags.has(tagName);
-  const attrStr = hasAttributes ? " " + Array.from(attributes).map(([key, val]) => `${key}="${val}"`).join(" ") : "";
+  const attrStr = hasAttributes ? " " + Array.from(attributes).map(([key, val]) => `${key}="${trim(val)}"`).join(" ") : "";
   let output = `${space}<${tagName}${attrStr}${isSelfClosing ? " /" : ""}>`;
-  output += hasChildren && !childIsText ? "\n" : "";
+  output += !childIsText && hasChildren ? "\n" : "";
   output += hasChildren ? innerHTML(node, depth + 1) : "";
   output += !childIsText && hasChildren ? `
 ${space}` : "";
@@ -144,7 +150,8 @@ ${space}` : "";
 function createBasicNode(nodeName, text) {
   return {
     nodeName,
-    nodeValue: nodeName !== "#text" ? `<${text}>` : text
+    // nodeValue: nodeName !== "#text" ? `<${text}>` : text,
+    nodeValue: text
   };
 }
 function createNode(nodeName, ...childNodes) {
@@ -429,4 +436,4 @@ export {
   createElement,
   createDocument
 };
-//# sourceMappingURL=chunk-JA6OOB2C.mjs.map
+//# sourceMappingURL=chunk-5A2I33ZJ.mjs.map

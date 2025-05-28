@@ -57,6 +57,19 @@
       <!---->
       don't re-invent <br/>the wheel <br/>every time<!---->
     </h2>
+    <pre>
+      <code>
+        don't re-invent&lt;br/&gt;the wheel &lt;br&gt;every time
+        &lt;!----&gt;
+      </code>
+    </pre>
+    <pre>
+      .my-class { margin: 0 }
+    </pre>
+    <pre>
+      const a = "val";
+      console.log(a);
+    </pre>
     <!--
       this is a comment
       <span>this is a span inside comment</span>
@@ -66,7 +79,7 @@
     <icon id="fancy" class="no-display" />
     <button class="button" data-url="https://test.com">
       <icon id="icon" />
-      <!--]-->Click me<!----><!--]-->
+      <!--]-->Click me<!----><!-- ![ -->
     </button>
     <Command id="comment">
       <some-element>Text</some-element>
@@ -114,7 +127,7 @@
           ]
         }).parseFromString(input.value);
         console.timeEnd("parsing");
-        // console.log(doc)
+        console.log(doc)
         pre.innerText = parserType === "DomParser" ? doc?.documentElement?.outerHTML : "Parser doesn't provide DOM API";
         output.innerHTML = `
 <p><b>Parser</b>: ${parserType}</p>
@@ -125,13 +138,13 @@
 
 <pre>
 ${
-JSON.stringify(doc, (key, value) => {
-  if (key === "nodeValue") {
-    return escape(value)
-  }
-  return value;
-}, 2)
-// ""
+// JSON.stringify(doc, (key, value) => {
+//   if (key === "nodeValue") {
+//     return escape(value)
+//   }
+//   return value;
+// }, 2)
+""
 }
 </pre>
 </details>
