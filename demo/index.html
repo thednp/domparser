@@ -138,13 +138,13 @@
 
 <pre>
 ${
-// JSON.stringify(doc, (key, value) => {
-//   if (key === "nodeValue") {
-//     return escape(value)
-//   }
-//   return value;
-// }, 2)
-""
+JSON.stringify(doc, (key, value) => {
+  if (key === "nodeValue") {
+    return escape(value)
+  }
+  return value;
+}, 2)
+// ""
 }
 </pre>
 </details>
