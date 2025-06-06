@@ -1,9 +1,9 @@
-import { N as NodeLikeAttributes, G as GetAttributesOptions, R as RootLike, a as RootNode, C as ChildLike, b as ChildNode, c as NodeLike, D as DOMNode, T as TokenizerOptions, H as HTMLToken, M as MatchFunction } from './types-DQLviOPt.js';
-export { l as ChildElementList, k as ChildNodeList, i as CommentLike, h as CommentNode, r as DOMNodeAttributes, p as DomParserOptions, q as DomParserResult, E as ElementAPI, n as MaybeChildNode, m as NodeAPI, P as ParseResult, S as SelectorPart, e as TagAttr, d as TagNames, g as TextLike, f as TextNode, j as TextOrComment, o as TextToken } from './types-DQLviOPt.js';
-export { createBasicNode, createDocument, createElement, createNode } from './dom.js';
-export { Parser } from './parser.js';
-export { DomParser } from './dom-parser.js';
+import { ChildElementList, ChildLike, ChildNode, ChildNodeList, CommentLike, CommentNode, DOMNode, DOMNodeAttributes, DomParserOptions, DomParserResult, ElementAPI, GetAttributesOptions, HTMLToken, MatchFunction, MaybeChildNode, NodeAPI, NodeLike, NodeLikeAttributes, ParseResult, RootLike, RootNode, SelectorPart, TagAttr, TagNames, TextLike, TextNode, TextOrComment, TextToken, TokenizerOptions } from "./types-Frek2kiU.js";
+import { createBasicNode, createDocument, createElement, createNode } from "./prototype-IOHsVbPt.js";
+import { Parser } from "./parser-B8kMMvno.js";
+import { DomParser } from "./dom-parser-D9aZbxiV.js";
 
+//#region src/parts/util.d.ts
 declare const ATTR_REGEX: RegExp;
 /**
  * Get attributes from a string token and return an object
@@ -126,25 +126,26 @@ declare const DOM_ERROR = "DomParserError:";
  * @returns An array of `HTMLToken` objects.
  */
 declare const tokenize: (html: string, options?: TokenizerOptions) => HTMLToken[];
-
+//#endregion
+//#region src/parts/selectors.d.ts
 /**
  * Create a selector cache to help improve `match` based queries
  * (matches, querySelector, querySelectorAll).
  */
 declare class SelectorCacheMap extends Map<string, MatchFunction> {
-    private hits;
-    private misses;
-    constructor();
-    hit(): void;
-    miss(): void;
-    getMatchFunction(selector: string, maxSize?: number): MatchFunction;
-    clear(): void;
-    getStats(): {
-        size: number;
-        hits: number;
-        misses: number;
-        hitRate: number;
-    };
+  private hits;
+  private misses;
+  constructor();
+  hit(): void;
+  miss(): void;
+  getMatchFunction(selector: string, maxSize?: number): MatchFunction;
+  clear(): void;
+  getStats(): {
+    size: number;
+    hits: number;
+    misses: number;
+    hitRate: number;
+  };
 }
 declare const selectorCache: SelectorCacheMap;
 /**
@@ -154,5 +155,6 @@ declare const selectorCache: SelectorCacheMap;
  * @returns `true` if the node matches the selector, `false` otherwise.
  */
 declare const matchesSelector: (node: DOMNode, selector: string) => boolean;
-
-export { ATTR_REGEX, ChildLike, ChildNode, DOMNode, DOM_ERROR, GetAttributesOptions, HTMLToken, MatchFunction, NodeLike, NodeLikeAttributes, RootLike, RootNode, TokenizerOptions, charCodeAt, defineProperties, endsWith, escape, fromCharCode, getAttributes, getBaseAttributes, isNode, isObj, isPrimitive, isRoot, isTag, matchesSelector, selectorCache, selfClosingTags, startsWith, toLowerCase, toUpperCase, tokenize, trim };
+//#endregion
+export { ATTR_REGEX, ChildElementList, ChildLike, ChildNode, ChildNodeList, CommentLike, CommentNode, DOMNode, DOMNodeAttributes, DOM_ERROR, DomParser, DomParserOptions, DomParserResult, ElementAPI, GetAttributesOptions, HTMLToken, MatchFunction, MaybeChildNode, NodeAPI, NodeLike, NodeLikeAttributes, ParseResult, Parser, RootLike, RootNode, SelectorPart, TagAttr, TagNames, TextLike, TextNode, TextOrComment, TextToken, TokenizerOptions, charCodeAt, createBasicNode, createDocument, createElement, createNode, defineProperties, endsWith, escape, fromCharCode, getAttributes, getBaseAttributes, isNode, isObj, isPrimitive, isRoot, isTag, matchesSelector, selectorCache, selfClosingTags, startsWith, toLowerCase, toUpperCase, tokenize, trim };
+//# sourceMappingURL=index.d.ts.map

@@ -1,8 +1,4 @@
-"use strict";Object.defineProperty(exports, "__esModule", {value: true});
+require('./util-C4sKiPPI.cjs');
+const require_parser = require('./parser-BeIn7YoZ.cjs');
 
-var _chunk4ECQF5ABcjs = require('./chunk-4ECQF5AB.cjs');
-require('./chunk-CLVEXPEP.cjs');
-
-
-exports.Parser = _chunk4ECQF5ABcjs.Parser;
-//# sourceMappingURL=parser.cjs.map
+exports.Parser = require_parser.Parser;

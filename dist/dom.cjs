@@ -1,14 +1,7 @@
-"use strict";Object.defineProperty(exports, "__esModule", {value: true});
+const require_prototype = require('./prototype-BA018RcD.cjs');
+require('./util-C4sKiPPI.cjs');
 
-
-
-
-var _chunkRMHPSCGUcjs = require('./chunk-RMHPSCGU.cjs');
-require('./chunk-CLVEXPEP.cjs');
-
-
-
-
-
-exports.createBasicNode = _chunkRMHPSCGUcjs.createBasicNode; exports.createDocument = _chunkRMHPSCGUcjs.createDocument; exports.createElement = _chunkRMHPSCGUcjs.createElement; exports.createNode = _chunkRMHPSCGUcjs.createNode;
-//# sourceMappingURL=dom.cjs.map
+exports.createBasicNode = require_prototype.createBasicNode;
+exports.createDocument = require_prototype.createDocument;
+exports.createElement = require_prototype.createElement;
+exports.createNode = require_prototype.createNode;
