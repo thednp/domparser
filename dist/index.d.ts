@@ -2,7 +2,7 @@ import { ChildElementList, ChildLike, ChildNode, ChildNodeList, CommentLike, Com
 import { createBasicNode, createDocument, createElement, createNode } from "./prototype-IOHsVbPt.js";
 import { Parser } from "./parser-B8kMMvno.js";
 import { DomParser } from "./dom-parser-D9aZbxiV.js";
-import { version } from "package.json";
+import { version } from "../package.json";
 
 //#region src/parts/util.d.ts
 declare const ATTR_REGEX: RegExp;
