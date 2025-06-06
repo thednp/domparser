@@ -1,4 +1,4 @@
-## DOMParser
+## DomParser
 [![Coverage Status](https://coveralls.io/repos/github/thednp/domparser/badge.svg)](https://coveralls.io/github/thednp/domparser) 
 [![NPM Version](https://img.shields.io/npm/v/@thednp/domparser.svg)](https://www.npmjs.com/package/@thednp/domparser)
 [![ci](https://github.com/thednp/domparser/actions/workflows/ci.yml/badge.svg)](https://github.com/thednp/domparser/actions/workflows/ci.yml)
@@ -6,9 +6,9 @@
 [![vitest version](https://img.shields.io/badge/vitest-3.2.2-brightgreen)](https://vitest.dev/)
 [![vite version](https://img.shields.io/badge/vite-6.3.5-brightgreen)](https://vitejs.dev/)
 
-A TypeScript-based [HTML parser](https://developer.mozilla.org/en-US/docs/Web/API/DOMParser) available in two versions: a lightweight **Parser** focused on speed and memory efficiency (using 64KB chunks), and a feature-rich **DomParser** that provides a DOM-like API with additional capabilities like tag validation.
+A TypeScript-based [HTML parser](https://developer.mozilla.org/en-US/docs/Web/API/DOMParser) available in two versions: a lightweight **Parser** focused on speed and memory efficiency (using 64kB chunks), and a feature-rich **DomParser** that provides a DOM-like API with additional capabilities like tag validation.
 
-At just ~1.5Kb gzipped, the core parser is perfect for both server and client-side applications especially where bundle size matters. The more comprehensive version is ideal for development environments where markup validation and DOM manipulation are needed. Both parsers rely on a versatile tokenizer which implements a chunking strategy to avoid memory overload and prevent a wide range of issues.
+At just ~1.5kB gzipped, the core parser is perfect for both server and client-side applications especially where bundle size matters. The more comprehensive version is ideal for development environments where markup validation and DOM manipulation are needed. Both parsers rely on a versatile tokenizer which implements a chunking strategy to avoid memory overload and prevent a wide range of issues.
 
 While not a direct replacement for the browser's native DOMParser, its modular architecture makes it versatile for various use cases. The library also includes a powerful DOM creation API that improves upon the native `Document` interface, offering a more intuitive and efficient way to build DOM trees programmatically.
 
@@ -42,11 +42,11 @@ Generated on 2025-02-21 10:43:00 UTC
 
 
 ### Features
-* **Minimal Size with Maximum Flexibility** (~1.5Kb core parser, ~4.1Kb parser with DOM API, ~2.6Kb DOM API)
+* **Minimal Size with Maximum Flexibility** (~1.5kB core parser, ~4.1kB parser with DOM API, ~2.6kB DOM API)
 * **Modern Tree-Shaking Friendly Architecture** (both versions packaged in separate bundles)
 * **Isomorphic by Design** (Works in Node.js, Deno, Bun, browsers; No DOM dependencies)
 * **High Performance** (Sub-millisecond parsing for typical HTML templates; very fast `match` based queries)
-* **Typescript Support** (First-class TypeScript support with full types).
+* **TypeScript Support** (First-class TypeScript support with full types).
 * **Tested with Vitest** (full 100% code coverage).
 
 
@@ -118,7 +118,7 @@ Let's take a sample HTML source for this example. We want to showcase all the ca
 ```
 
 > ℹ️ **Notes**
-> * the `<!doctype html>` tag will not be included in the resulted DOM tree, but **DomParser** will add it to the `root.doctype` property;
+> * the `<!doctype html>` tag will not be included in the resulting DOM tree, but **DomParser** will add it to the `root.doctype` property;
 > * the `charset` value of the `<meta>` tag will also be added to the `root.charset` property;
 > * if attributes of a node aren't valid (missing opening or closing quotes), they are completely removed, this is to prevent crashes or invalid tree structure;
 > * both comment and CDATA nodes are registered as `#comment` nodes. 
@@ -168,7 +168,7 @@ console.log(components);
 */
 ```
 
-Next talk about the `tags`. Basically all valid elements found in the given HTML markup, in order of appearence:
+Next let's talk about the `tags`. Basically all valid elements found in the given HTML markup, in order of appearence:
 ```ts
 // list all tags
 console.log(tags);
@@ -177,7 +177,7 @@ console.log(tags);
 
 
 ### Parse Results - DOM tree
-Lastly and most importantly, we can finally about the real result of the parser, the DOM tree:
+Lastly and most importantly, we can finally talk about the real result of the parser, the DOM tree:
 ```ts
 // work with the root
 console.log(root);
@@ -274,6 +274,10 @@ Below we have a near complete representation of the given HTML markup, keep in m
             {
               "nodeName": "#comment",
               "nodeValue": "<!-- some comment -->"
+            },
+            {
+              "nodeName": "#comment",
+              "nodeValue": "<![CDATA[...]]>"
             },
             {
               "nodeName": "#text",
@@ -375,7 +379,7 @@ console.log(svg.closest("#my-body"));
 
 ### DomParser - Create DOM from HTML
 
-**DomParser** has its own logic for parsing can be configured to remove potentially harmful tags and/or attributes. Here's a quick example:
+**DomParser** has its own logic for handling the parsed tokens, a logic that can be configured to remove potentially harmful tags and/or attributes. Here's a quick example:
 
 ```ts
 import { DomParser } from "@thednp/domparser/dom-parser";
@@ -427,7 +431,7 @@ const { root: doc } = DomParser(parserOptions).parseFromString(
 
 
 ### Some caveats
-* methods like `createElement`, `querySelector`, etc., are designed to be called on the root node instance (`doc.createElement(...)`) and rely on `this` being bound to the root node object. Destructuring (EG, `const { createElement } = DomParser.parseFromString()`) will detach these methods from their intended `this` context and cause errors; a workaround would be `createElement.call(yourRootNode, ...arguments)` but that would be detrimental to the readability of the code.
+* methods like `createElement`, `querySelector`, etc., are designed to be called on the root node instance (`doc.createElement(...)`) and rely on `this` being bound to the root node object. Destructuring (e.g., `const { createElement } = DomParser.parseFromString()`) will detach these methods from their intended `this` context and cause errors; a workaround would be `createElement.call(yourRootNode, ...arguments)` but that would be detrimental to the readability of the code.
 * if you call `DomParser` with an invalid HTML parameter or invalid parser options, it will throw a specific error.
 
 Examples:
@@ -575,7 +579,8 @@ const paragraph = doc.createElement("p",
 );
 
 console.log(paragraph.childNodes);
-// Output: [
+// Output:
+// [
 //   { nodeName: '#text', nodeValue: 'This is text content.' },
 //   { nodeName: '#comment', nodeValue: '<!-- This is a comment. -->' }
 // ]
@@ -783,9 +788,9 @@ doc.getElementsByTagName("*");
 
 ### Node & Element API
 
-A partial implementation of the [Element API](https://developer.mozilla.org/en-US/docs/Web/API/Element) and [Node API](https://developer.mozilla.org/en-US/docs/Web/API/Node) but only with the essentials. On that note events, animations, box model properties and other `Window` related API (EG: `getComputedStyle`, `customElements`, etc) are not available.
+A partial implementation of the [Element API](https://developer.mozilla.org/en-US/docs/Web/API/Element) and [Node API](https://developer.mozilla.org/en-US/docs/Web/API/Node) but only with the essentials. On that note events, animations, box model properties and other `Window` related API (e.g.: `getComputedStyle`, `customElements`, etc) are not available.
 
-As a rule of thumbs, most properties are `readonly` accessors (getters) for consistency and other reasons some might consider security related.
+As a rule of thumb, most properties are `readonly` accessors (getters) for consistency and other reasons some might consider security related.
 
 #### Node - Ancestor Relationship
 
@@ -836,7 +841,7 @@ console.log(doc.contains(title));
 
 #### Node - Children Relationship
 
-The `Node` prototype will only expose `readonly` properties (getters) to access `children` and `childNodes` for any node instance present in the DOM tree. The rule of thumbs is that if a node isn't appended to a parent, it should _not_ be present in the output of these accessors.
+The `Node` prototype will only expose `readonly` properties (getters) to access `children` and `childNodes` for any node instance present in the DOM tree. The rule of thumb is that if a node isn't appended to a parent, it should _not_ be present in the output of these accessors.
 
 <details>
 <summary>Click to expand</summary>
@@ -1082,7 +1087,7 @@ console.log(div.outerHTML);
 // => 
 `
 <div id="myDiv">
-  <<p>Paragraph 1</p>
+  <p>Paragraph 1</p>
   <p>Paragraph 2</p>
 </div>
 `
@@ -1162,7 +1167,7 @@ const html = tokenize("<html></html>");
   { type: "tag", isSC: false, value: "/html"}
 ]
 */
-// isSC is short for isSelfClosing, EG: <path />
+// isSC is short for isSelfClosing, e.g.: <path />
 ```
 </details>
 
@@ -1272,12 +1277,12 @@ DomParser().parseFromString("<html><p><span></p></html>");
 
 
 ## Technical Notes
-* an audit of the parser reveals a number of _very strong advantages_: usage of character codes, minimal string operations, no nested loops or lookbacks and single pass processing;
+* an audit of the parser reveals a number of _very strong advantages_: usage of character codes, minimal string operations, no nested loops or lookBacks and single pass processing;
 * **DomParser** will throw a specific error when an unmatched open/closing tag is detected;
 * both parser versions will handle self-closing tags and some cases of invalid markup such as `<path />` versus `<path></path>` (cases where both are valid) and `<meta name=".." />` vs `<meta name="..">` (only the second case is valid);
-* parsing HTML markup can lead to heavy memory usage so the tokenizer used by both parsers implements a chunking strategy to avoid memory overload, a default chunk size of 64Kb and 128Kb maximum token size which, when exceeded, the entire token will be skipped, check the next secion for details;
-* the tokenizer will handle other cases of invalid markup like missing single/double quote which will result in stripping **all** attributes, while this sounds harsh, it's actually important to prevent breaking the tree structure; (EG: `<html lang="en>` becomes `<html>`);
-* both parser versions should be capable to handle HTML comments `<!-- comment -->` and `<!CDATA>` even if they have other valid tags inside, but considering that nested comments aren't supported in the current HTML5 draft; the comment's usual structure is `{ nodeName: "#comment", nodeValue: "<!-- comment -->" }`; the tokenizer can also handle framework specific hydration comments (EG: `<!--[!-->`);
+* parsing HTML markup can lead to heavy memory usage so the tokenizer used by both parsers implements a chunking strategy to avoid memory overload, a default chunk size of 64kB and 128kB maximum token size which, when exceeded, the entire token will be skipped, check the next section for details;
+* the tokenizer will handle other cases of invalid markup like missing single/double quote which will result in stripping **all** attributes, while this sounds harsh, it's actually important to prevent breaking the tree structure; (e.g.: `<html lang="en>` becomes `<html>`);
+* both parser versions should be capable to handle HTML comments `<!-- comment -->` and `<!CDATA>` even if they have other valid tags inside, but considering that nested comments aren't supported in the current HTML5 draft; the comment's usual structure is `{ nodeName: "#comment", nodeValue: "<!-- comment -->" }`; the tokenizer can also handle framework specific hydration comments (e.g.: `<!--[!-->`);
 * another note is that `<!doctype>` tag is always stripped, but **DomParser** will add it to the root node in its `doctype` property, which is similar to the native browser API;
 * if the current DOM tree contains a `<meta charset="utf-8">` **DomParser** will use the `charset` value for the root property `charset`;
 * similar to the native browser DOMParser, this script returns a document like tree structure where the root element is a "root" property of the output; what's different is that our script will also export a list of tags and a list of components;
@@ -1288,8 +1293,8 @@ DomParser().parseFromString("<html><p><span></p></html>");
 ### Script and Style Content Handling
 
 This parser uses an efficient chunking strategy to handle large HTML documents:
-- Processes HTML in 64KB chunks to optimize memory usage
-- Limits inline `<script>` and `<style>` content to 128KB
+- Processes HTML in 64kB chunks to optimize memory usage
+- Limits inline `<script>` and `<style>` content to 128kB
 - Skips content beyond the limit while maintaining valid HTML structure
 - Perfect for most web documents while preventing memory issues
 
@@ -1297,10 +1302,10 @@ For larger scripts and styles, consider using external files with `src` or `href
 
 
 ## Backstory
-I've created some tools to generate SVG components for [VanJS](https://github.com/thednp/vite-plugin-vanjs-svg) and other tools, and I noticed my "hello world" app bundle was 102Kb and looking into the dependencies, I found that an entire parser and tooling was all bundled in my app client side code and I thought: that's not good. Then I immediately started to work on this thing.
+I've created some tools to generate SVG components for [VanJS](https://github.com/thednp/vite-plugin-vanjs-svg) and other tools, and I noticed my "hello world" app bundle was 102kB and looking into the dependencies, I found that an entire parser and tooling was all bundled in my app client side code and I thought: that's not good. Then I immediately started to work on this thing.
 
-The result: bundle size 10Kb, render time significantly faster, basically microseconds.
+The result: bundle size 10kB, render time significantly faster, basically microseconds.
 
 
 ## License
-**DOMParser** is [MIT Licensed](https://github.com/thednp/domparser/blob/master/LICENSE).
+**DomParser** is [MIT Licensed](https://github.com/thednp/domparser/blob/master/LICENSE).

@@ -3,4 +3,9 @@ import { createBasicNode, createDocument, createElement, createNode, matchesSele
 import { Parser } from "./parser-DdV0vCEo.js";
 import { DomParser } from "./dom-parser-BfmcJAVD.js";
 
-export { ATTR_REGEX, DOM_ERROR, DomParser, Parser, charCodeAt, createBasicNode, createDocument, createElement, createNode, defineProperties, endsWith, escape, fromCharCode, getAttributes, getBaseAttributes, isNode, isObj, isPrimitive, isRoot, isTag, matchesSelector, selectorCache, selfClosingTags, startsWith, toLowerCase, toUpperCase, tokenize, trim };
+//#region package.json
+var version = "0.1.4";
+
+//#endregion
+export { ATTR_REGEX, DOM_ERROR, DomParser, Parser, charCodeAt, createBasicNode, createDocument, createElement, createNode, defineProperties, endsWith, escape, fromCharCode, getAttributes, getBaseAttributes, isNode, isObj, isPrimitive, isRoot, isTag, matchesSelector, selectorCache, selfClosingTags, startsWith, toLowerCase, toUpperCase, tokenize, trim, version };
+//# sourceMappingURL=index.js.map

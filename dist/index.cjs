@@ -3,6 +3,10 @@ const require_util = require('./util-C4sKiPPI.cjs');
 const require_parser = require('./parser-BeIn7YoZ.cjs');
 const require_dom_parser = require('./dom-parser-BLDuHJfp.cjs');
 
+//#region package.json
+var version = "0.1.4";
+
+//#endregion
 exports.ATTR_REGEX = require_util.ATTR_REGEX;
 exports.DOM_ERROR = require_util.DOM_ERROR;
 exports.DomParser = require_dom_parser.DomParser;
@@ -31,3 +35,10 @@ exports.toLowerCase = require_util.toLowerCase;
 exports.toUpperCase = require_util.toUpperCase;
 exports.tokenize = require_util.tokenize;
 exports.trim = require_util.trim;
+Object.defineProperty(exports, 'version', {
+  enumerable: true,
+  get: function () {
+    return version;
+  }
+});
+//# sourceMappingURL=index.cjs.map

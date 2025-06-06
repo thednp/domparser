@@ -11,5 +11,6 @@ demo
 tsconfig.json
 vite.config.*
 tsup.config.*
+tsdown.config.*
 vitest.config.*
 vitest.config-ui.*

@@ -1,6 +1,6 @@
 {
   "name": "@thednp/domparser",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "🍝 Super light HTML parser for isomorphic applications.",
   "keywords": [
     "domparser",
@@ -48,7 +48,6 @@
     "check:ts": "tsc --noEmit",
     "fix:ts": "deno lint src --fix",
     "build": "tsdown",
-    "build_": "vite build",
     "prepublishOnly": "pnpm up && pnpm format && pnpm lint && pnpm build && pnpm badges"
   },
   "repository": {

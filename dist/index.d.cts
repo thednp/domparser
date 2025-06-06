@@ -2,6 +2,7 @@ import { ChildElementList, ChildLike, ChildNode, ChildNodeList, CommentLike, Com
 import { createBasicNode, createDocument, createElement, createNode } from "./prototype-DP4hqHgs.cjs";
 import { Parser } from "./parser-BEXURpNu.cjs";
 import { DomParser } from "./dom-parser-SjNNiQE9.cjs";
+import { version } from "package.json";
 
 //#region src/parts/util.d.ts
 declare const ATTR_REGEX: RegExp;
@@ -156,5 +157,5 @@ declare const selectorCache: SelectorCacheMap;
  */
 declare const matchesSelector: (node: DOMNode, selector: string) => boolean;
 //#endregion
-export { ATTR_REGEX, ChildElementList, ChildLike, ChildNode, ChildNodeList, CommentLike, CommentNode, DOMNode, DOMNodeAttributes, DOM_ERROR, DomParser, DomParserOptions, DomParserResult, ElementAPI, GetAttributesOptions, HTMLToken, MatchFunction, MaybeChildNode, NodeAPI, NodeLike, NodeLikeAttributes, ParseResult, Parser, RootLike, RootNode, SelectorPart, TagAttr, TagNames, TextLike, TextNode, TextOrComment, TextToken, TokenizerOptions, charCodeAt, createBasicNode, createDocument, createElement, createNode, defineProperties, endsWith, escape, fromCharCode, getAttributes, getBaseAttributes, isNode, isObj, isPrimitive, isRoot, isTag, matchesSelector, selectorCache, selfClosingTags, startsWith, toLowerCase, toUpperCase, tokenize, trim };
+export { ATTR_REGEX, ChildElementList, ChildLike, ChildNode, ChildNodeList, CommentLike, CommentNode, DOMNode, DOMNodeAttributes, DOM_ERROR, DomParser, DomParserOptions, DomParserResult, ElementAPI, GetAttributesOptions, HTMLToken, MatchFunction, MaybeChildNode, NodeAPI, NodeLike, NodeLikeAttributes, ParseResult, Parser, RootLike, RootNode, SelectorPart, TagAttr, TagNames, TextLike, TextNode, TextOrComment, TextToken, TokenizerOptions, charCodeAt, createBasicNode, createDocument, createElement, createNode, defineProperties, endsWith, escape, fromCharCode, getAttributes, getBaseAttributes, isNode, isObj, isPrimitive, isRoot, isTag, matchesSelector, selectorCache, selfClosingTags, startsWith, toLowerCase, toUpperCase, tokenize, trim, version };
 //# sourceMappingURL=index.d.cts.map
