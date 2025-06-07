@@ -57,7 +57,7 @@ Generated on 2025-02-21 10:43:00 UTC
 
 
 ## Which apps can use it
-* plugins that transform SVG files/markup to components for UI frameworks like React/Solid, [a basic example](https://github.com/thednp/vite-plugin-vanjs-svg);
+* plugins that transform SVG files/markup to components for UI frameworks like [React](https://github.com/thednp/vite-react-svg), [Solid](https://github.com/thednp/vite-solid-svg), [VanJS](https://github.com/thednp/vite-vanjs-svg);
 * plugins that manage a website's metadata;
 * plugins that implement unit testing in a virtual/isolated environment;
 * apps that perform web research and/or web-scrapping;
@@ -125,7 +125,7 @@ Let's take a sample HTML source for this example. We want to showcase all the ca
 </details>
 
 
-### Parser Initialize
+### Initialize Parser
 
 First let's import and initialize the **Parser** and designate the source to be parsed:
 ```ts
@@ -344,7 +344,7 @@ Check below for more examples.
 ```ts
 import { DomParser } from "@thednp/domparser/dom-parser";
 
-const doc = DomParser().parseFromString();
+const { root: doc } = DomParser().parseFromString();
 
 // exclusive to the root node
 console.log(doc.getElementById('my-id'));
@@ -425,14 +425,14 @@ const { root: doc } = DomParser(parserOptions).parseFromString(
 );
 // > the doctype will be added to `doc` as a property;
 // > all configured tags and attributes will be removed
-// from the resulted parsedHTML.root object tree.
+// from the resulted parseResult.root object tree.
 ```
 </details>
 
 
 ### Some caveats
-* methods like `createElement`, `querySelector`, etc., are designed to be called on the root node instance (`doc.createElement(...)`) and rely on `this` being bound to the root node object. Destructuring (e.g., `const { createElement } = DomParser.parseFromString()`) will detach these methods from their intended `this` context and cause errors; a workaround would be `createElement.call(yourRootNode, ...arguments)` but that would be detrimental to the readability of the code.
-* if you call `DomParser` with an invalid HTML parameter or invalid parser options, it will throw a specific error.
+* Methods like `createElement`, `getElementById`, etc., are designed to be called on the root node instance (`doc.createElement(...)`) and rely on `this` being bound to the root node object. Destructuring (e.g., `const { createElement } = DomParser.parseFromString()`) will detach these methods from their intended `this` context and cause errors; a workaround would be `createElement.call(yourRootNode, ...arguments)` but that would be detrimental to the readability of the code.
+* If you call `DomParser` with an invalid HTML parameter or invalid parser options, it will throw a specific error.
 
 Examples:
 ```ts
@@ -553,10 +553,13 @@ doc.body.append(paragraph);
 
 // Access the child nodes, including the text and comment
 console.log(paragraph.childNodes);
-// Output: [
-//   { nodeName: '#text', nodeValue: 'This is some text.' },
-//   { nodeName: '#comment', nodeValue: '<!-- This is a comment. -->' }
-// 
+// Output:
+/*
+[
+  { nodeName: '#text', nodeValue: 'This is some text.' },
+  { nodeName: '#comment', nodeValue: '<!-- This is a comment. -->' }
+]
+*/
 ```
 
 </details>
@@ -580,10 +583,12 @@ const paragraph = doc.createElement("p",
 
 console.log(paragraph.childNodes);
 // Output:
-// [
-//   { nodeName: '#text', nodeValue: 'This is text content.' },
-//   { nodeName: '#comment', nodeValue: '<!-- This is a comment. -->' }
-// ]
+/*
+[
+  { nodeName: '#text', nodeValue: 'This is text content.' },
+  { nodeName: '#comment', nodeValue: '<!-- This is a comment. -->' }
+]
+*/
 ```
 </details>
 
@@ -1050,11 +1055,11 @@ const button = main.children.find(child => child.matches("[data-toggle]"))
 The API provides properties for accessing the content of elements:
 
 * **`innerHTML`**
-  * **Getter:** - returns the HTML markup contained *within* the element. This includes all child nodes (`Element` like nodes and text nodes), serialized to a formatted HTML string.
+  **Getter:** - returns the HTML markup contained *within* the element. This includes all child nodes (`Element` like nodes and text nodes), serialized to a formatted HTML string.
 * **`outerHTML`**
-  * **Getter:** returns the complete HTML markup of the element, including the element itself and its contents.
+  **Getter:** returns the complete HTML markup of the element, including the element itself and its contents.
 * **`textContent`**
-  * **Getter:** returns the concatenated text content of the element and all its descendants. This is the text that would be visible if the HTML were rendered, with all tags stripped out.
+  **Getter:** returns the concatenated text content of the element and all its descendants. This is the text that would be visible if the HTML were rendered, with all tags stripped out.
 
 
 Examples:
@@ -1207,8 +1212,8 @@ const attributes = getBasicAttributes(
   // the options
   options,
 );
-/*
 // the results
+/*
 {
   id: "html",
   class: "html",
