@@ -180,6 +180,71 @@ function createBasicNode(nodeName, text) {
 		nodeValue: text
 	};
 }
+function setupChildNode(child, parent, ownerDocument) {
+	defineProperties(child, {
+		textContent: {
+			enumerable: false,
+			get: () => textContent(child),
+			set: (newContent) => {
+				if (isTag(child)) {
+					child.replaceChildren();
+					child.appendChild(createBasicNode("#text", newContent));
+				} else child.nodeValue = newContent;
+			}
+		},
+		parentNode: {
+			enumerable: false,
+			get: () => parent
+		},
+		parentElement: {
+			enumerable: false,
+			get: () => parent
+		},
+		ownerDocument: {
+			enumerable: false,
+			get: () => ownerDocument
+		}
+	});
+	child.remove = () => parent.removeChild(child);
+	child.before = (...nodes) => {
+		const validNodes = nodes.map(convertToNode).filter(isNode);
+		const index = parent.childNodes.indexOf(child);
+		// istanbul ignore else @preserve
+		if (index > -1) {
+			parent.childNodes.splice(index, 0, ...validNodes);
+			validNodes.forEach((n, i) => {
+				// istanbul ignore else @preserve
+				if (isTag(n)) {
+					const childIndex = parent.children.indexOf(child);
+					parent.children.splice(childIndex + i, 0, n);
+					ownerDocument?.register(n);
+					// istanbul ignore else @preserve
+					if (isTag(parent)) parent.registerChild(n);
+				}
+				setupChildNode(n, parent, ownerDocument);
+			});
+		}
+	};
+	child.after = (...nodes) => {
+		const validNodes = nodes.map(convertToNode).filter(isNode);
+		const index = parent.childNodes.indexOf(child);
+		// istanbul ignore else @preserve
+		if (index > -1) {
+			parent.childNodes.splice(index + 1, 0, ...validNodes);
+			validNodes.forEach((n, i) => {
+				// istanbul ignore else @preserve
+				if (isTag(n)) {
+					const childIndex = parent.children.indexOf(child);
+					parent.children.splice(childIndex + 1 + i, 0, n);
+					ownerDocument?.register(n);
+					// istanbul ignore else @preserve
+					if (isTag(parent)) parent.registerChild(n);
+				}
+				setupChildNode(n, parent, ownerDocument);
+			});
+		}
+	};
+}
 /**
 * Creates a DOM-like Node (`DOMNode` or `RootNode`) with DOM API properties and methods.
 * This function extends the basic `NodeLike` from **Parser** by adding DOM-specific
@@ -198,47 +263,18 @@ function createNode(nodeName, ...childNodes) {
 	const ownerDocument = this ?? void 0;
 	const node = {
 		nodeName,
-		append(...nodes) {
-			for (const child of nodes) {
-				if (!isNode(child)) throw new Error(`${DOM_ERROR} Invalid node.`);
-				CHILDNODES.push(child);
-				if (isTag(child)) {
-					ALL.push(child);
-					CHILDREN.push(child);
-					ownerDocument?.register(child);
-					defineProperties(child, {
-						innerHTML: {
-							enumerable: false,
-							get: () => innerHTML(child)
-						},
-						outerHTML: {
-							enumerable: false,
-							get: () => outerHTML(child)
-						}
-					});
-				}
-				defineProperties(child, {
-					textContent: {
-						enumerable: false,
-						get: () => textContent(child)
-					},
-					parentNode: {
-						enumerable: false,
-						get: () => node
-					},
-					parentElement: {
-						enumerable: false,
-						get: () => node
-					},
-					ownerDocument: {
-						enumerable: false,
-						get: () => ownerDocument
-					}
-				});
-				child.remove = () => {
-					node.removeChild(child);
-				};
+		appendChild(child) {
+			if (!isNode(child)) throw new Error(`${DOM_ERROR} Invalid node.`);
+			CHILDNODES.push(child);
+			if (isTag(child)) {
+				ALL.push(child);
+				CHILDREN.push(child);
+				ownerDocument?.register(child);
 			}
+			setupChildNode(child, node, ownerDocument);
+		},
+		append(...nodes) {
+			for (const child of nodes) node.appendChild(child);
 		},
 		cleanup: () => {
 			ALL.length = 0;
@@ -361,6 +397,16 @@ function createNode(nodeName, ...childNodes) {
 			}
 		}
 	});
+	else defineProperties(node, {
+		innerHTML: {
+			enumerable: false,
+			get: () => innerHTML(node)
+		},
+		outerHTML: {
+			enumerable: false,
+			get: () => outerHTML(node)
+		}
+	});
 	if (childNodes?.length) node.append(...childNodes);
 	return node;
 }
@@ -413,10 +459,16 @@ function createElement(tagName, first, ...args) {
 	node.setAttribute = (attrName, attrValue) => {
 		attributes.set(attrName, attrValue);
 	};
+	node.removeAttribute = (attrName) => {
+		attributes.delete(attrName);
+	};
 	node.hasAttributeNS = (_namespace, attrName) => attributes.has(attrName);
 	node.getAttributeNS = (_namespace, attrName) => attributes.get(attrName) ?? null;
 	node.setAttributeNS = (_namespace, attrName, attrValue) => {
 		attributes.set(attrName, attrValue);
+	};
+	node.removeAttributeNS = (_namespace, attrName) => {
+		attributes.delete(attrName);
 	};
 	node.closest = (selector) => {
 		if (!selector) throw new Error("DomError: selector must be a string");
@@ -439,4 +491,4 @@ const createDocument = () => createNode.call(null, "#document");
 
 //#endregion
 export { createBasicNode, createDocument, createElement, createNode, matchesSelector, selectorCache };
-//# sourceMappingURL=prototype-SeRMLifH.js.map
+//# sourceMappingURL=prototype-kxNb3mfd.js.map

@@ -1,7 +1,7 @@
-import { ChildElementList, ChildLike, ChildNode, ChildNodeList, CommentLike, CommentNode, DOMNode, DOMNodeAttributes, DomParserOptions, DomParserResult, ElementAPI, GetAttributesOptions, HTMLToken, MatchFunction, MaybeChildNode, NodeAPI, NodeLike, NodeLikeAttributes, ParseResult, RootLike, RootNode, SelectorPart, TagAttr, TagNames, TextLike, TextNode, TextOrComment, TextToken, TokenizerOptions } from "./types-BcwObMY2.cjs";
-import { createBasicNode, createDocument, createElement, createNode } from "./prototype-DP4hqHgs.cjs";
-import { Parser } from "./parser-BEXURpNu.cjs";
-import { DomParser } from "./dom-parser-SjNNiQE9.cjs";
+import { ChildElementList, ChildLike, ChildNode, ChildNodeList, CommentLike, CommentNode, DOMNode, DOMNodeAttributes, DomParserOptions, DomParserResult, ElementAPI, GetAttributesOptions, HTMLToken, MatchFunction, MaybeChildNode, NodeAPI, NodeLike, NodeLikeAttributes, ParseResult, RootLike, RootNode, SelectorPart, TagAttr, TagNames, TextLike, TextNode, TextOrComment, TextToken, TokenizerOptions } from "./types-CQGajz-V.cjs";
+import { createBasicNode, createDocument, createElement, createNode } from "./prototype-BpI_WO4R.cjs";
+import { Parser } from "./parser-BBxaAUtM.cjs";
+import { DomParser } from "./dom-parser-BMRDfAh1.cjs";
 import { version } from "../package.json";
 
 //#region src/parts/util.d.ts

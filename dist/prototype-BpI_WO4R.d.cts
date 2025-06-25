@@ -1,4 +1,4 @@
-import { ChildNodeList, CommentNode, DOMNode, MaybeChildNode, NodeLikeAttributes, RootNode, TagNames, TextNode } from "./types-Frek2kiU.js";
+import { ChildNodeList, CommentNode, DOMNode, MaybeChildNode, NodeLikeAttributes, RootNode, TagNames, TextNode } from "./types-CQGajz-V.cjs";
 
 //#region src/parts/prototype.d.ts
 
@@ -37,4 +37,4 @@ declare function createElement(this: RootNode, tagName: string & TagNames, first
 declare const createDocument: () => RootNode;
 //#endregion
 export { createBasicNode, createDocument, createElement, createNode };
-//# sourceMappingURL=prototype-IOHsVbPt.d.ts.map
+//# sourceMappingURL=prototype-BpI_WO4R.d.cts.map

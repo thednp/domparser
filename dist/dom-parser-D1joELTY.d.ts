@@ -1,4 +1,4 @@
-import { DomParserOptions, RootNode } from "./types-BcwObMY2.cjs";
+import { DomParserOptions, RootNode } from "./types-o6CCsSVu.js";
 
 //#region src/parts/dom-parser.d.ts
 
@@ -45,4 +45,4 @@ declare const DomParser: (config?: Partial<DomParserOptions>) => {
 };
 //#endregion
 export { DomParser };
-//# sourceMappingURL=dom-parser-SjNNiQE9.d.cts.map
+//# sourceMappingURL=dom-parser-D1joELTY.d.ts.map

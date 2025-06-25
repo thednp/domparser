@@ -17,9 +17,12 @@ type NodeLike = {
 type TextNode = TextLike & {
   remove: () => void;
   nodeName: "#text";
-  readonly textContent: string;
+  get textContent(): string;
+  set textContent(newValue: string);
   readonly ownerDocument: RootNode;
   readonly parentNode: RootNode | DOMNode;
+  before: (...nodes: ChildNodeList) => void;
+  after: (...nodes: ChildNodeList) => void;
 };
 type TextLike = {
   nodeName: string;
@@ -37,6 +40,8 @@ type CommentNode = CommentLike & {
   readonly textContent: string;
   readonly ownerDocument: RootNode;
   readonly parentNode: RootNode | DOMNode;
+  before: (...nodes: ChildNodeList) => void;
+  after: (...nodes: ChildNodeList) => void;
 };
 type CommentLike = {
   nodeName: string;
@@ -58,9 +63,12 @@ type NodeAPI = {
   readonly ownerDocument: RootNode;
   readonly parentElement: DOMNode | null;
   readonly parentNode: RootNode | DOMNode;
-  readonly textContent: string;
+  get textContent(): string;
+  set textContent(newValue: string);
   childNodes: ChildNode[];
   nodeValue?: string;
+  before: (...nodes: ChildNodeList) => void;
+  after: (...nodes: ChildNodeList) => void;
 };
 /**
  * Node API
@@ -74,6 +82,7 @@ type ElementAPI = {
   readonly className: string;
   readonly outerHTML: string;
   append: (...nodes: ChildNodeList) => void;
+  appendChild: (node: ChildNode) => void;
   querySelector: (selector: string) => DOMNode | null;
   querySelectorAll: (selector: string) => DOMNode[];
   getElementsByTagName: (tagName: string) => DOMNode[];
@@ -84,9 +93,11 @@ type ElementAPI = {
   hasAttribute: (attrName: string) => boolean;
   getAttribute: (attrName: string) => string | null;
   setAttribute: (attrName: string, attrValue: string) => void;
+  removeAttribute: (attrName: string) => void;
   hasAttributeNS: (ns: string, attrName: string) => boolean;
   getAttributeNS: (ns: string, attrName: string) => string | null;
   setAttributeNS: (ns: string, attrName: string, attrValue: string) => void;
+  removeAttributeNS: (ns: string, attrName: string) => void;
   replaceChildren: (...children: DOMNode[]) => void;
   removeChild: (child: ChildNode) => void;
   registerChild: (child: DOMNode) => void;
@@ -197,4 +208,4 @@ type GetAttributesOptions = {
 type MatchFunction = (node: DOMNode) => boolean;
 //#endregion
 export { ChildElementList, ChildLike, ChildNode, ChildNodeList, CommentLike, CommentNode, DOMNode, DOMNodeAttributes, DomParserOptions, DomParserResult, ElementAPI, GetAttributesOptions, HTMLToken, MatchFunction, MaybeChildNode, NodeAPI, NodeLike, NodeLikeAttributes, ParseResult, RootLike, RootNode, SelectorPart, TagAttr, TagNames, TextLike, TextNode, TextOrComment, TextToken, TokenizerOptions };
-//# sourceMappingURL=types-Frek2kiU.d.ts.map
+//# sourceMappingURL=types-CQGajz-V.d.cts.map
