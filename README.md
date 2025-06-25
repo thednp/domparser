@@ -3,7 +3,7 @@
 [![NPM Version](https://img.shields.io/npm/v/@thednp/domparser.svg)](https://www.npmjs.com/package/@thednp/domparser)
 [![ci](https://github.com/thednp/domparser/actions/workflows/ci.yml/badge.svg)](https://github.com/thednp/domparser/actions/workflows/ci.yml)
 [![typescript version](https://img.shields.io/badge/typescript-5.8.3-brightgreen)](https://www.typescriptlang.org/)
-[![vitest version](https://img.shields.io/badge/vitest-3.2.2-brightgreen)](https://vitest.dev/)
+[![vitest version](https://img.shields.io/badge/vitest-3.2.4-brightgreen)](https://vitest.dev/)
 [![vite version](https://img.shields.io/badge/vite-6.3.5-brightgreen)](https://vitejs.dev/)
 
 A TypeScript-based [HTML parser](https://developer.mozilla.org/en-US/docs/Web/API/DOMParser) available in two versions: a lightweight **Parser** focused on speed and memory efficiency (using 64kB chunks), and a feature-rich **DomParser** that provides a DOM-like API with additional capabilities like tag validation.
@@ -594,6 +594,32 @@ console.log(paragraph.childNodes);
 
 ---
 
+#### Document - Append Child Nodes
+The Document API provides 2 methods to append nodes to the root node: `append`, which allows adding multiple nodes and `appendChild` which only adds a single node.
+
+<details>
+<summary>Click to expand</summary>
+
+```ts
+import { createDocument } from "@thednp/domparser/dom";
+
+// Create a root document.
+const doc = createDocument();
+
+// Create a element and append new nodes to it
+const html = doc.createElement("html");
+html.append(
+  doc.createElement("head"),
+  doc.createElement("body")
+);
+
+// Append the new element to the root node
+doc.appendChild(html);
+```
+</details>
+
+---
+
 #### One syntax DOM tree
 
 As showcased in the above example, this API is a different from the native API to greatly improve your workflow. In that sense that you can create an entire DOM tree with a single call, with node attributes and children relationships, without having to define a variable for each node, append each node to another.
@@ -797,6 +823,39 @@ A partial implementation of the [Element API](https://developer.mozilla.org/en-U
 
 As a rule of thumb, most properties are `readonly` accessors (getters) for consistency and other reasons some might consider security related.
 
+#### Node - Append Child Nodes
+The Node API provides 4 methods to append nodes to other nodes:
+* `append`, which allows adding multiple nodes;
+* `appendChild` which only adds a single node;
+* `before` which allows adding multiple nodes **before** the target node;
+* `after` which allows adding multiple nodes **after** the target node;
+
+<details>
+<summary>Click to expand</summary>
+
+```ts
+import { createDocument } from "@thednp/domparser/dom";
+
+// Create a root document.
+const doc = createDocument();
+
+// Create elements and append new nodes
+const html = doc.createElement("html");
+const body =  doc.createElement("body");
+const head =  doc.createElement("head");
+
+// Append a single node
+html.append(head);
+// Append one or more nodes after the target node
+head.after(body);
+
+// Append the new element to the root node
+doc.appendChild(html);
+```
+</details>
+
+---
+
 #### Node - Ancestor Relationship
 
 The `Node` API exposes `parentNode`, `ownerDocument` (getters) and `contains` (method):
@@ -821,8 +880,10 @@ html.append(head);
 // append the title node to the head node
 head.append(title);
 
-// check parentNode
+// check parentNode / parentElement
 console.log(title.parentNode);
+// OR
+console.log(title.parentElement);
 // => head
 
 // check ownerDocument
@@ -1060,6 +1121,7 @@ The API provides properties for accessing the content of elements:
   **Getter:** returns the complete HTML markup of the element, including the element itself and its contents.
 * **`textContent`**
   **Getter:** returns the concatenated text content of the element and all its descendants. This is the text that would be visible if the HTML were rendered, with all tags stripped out.
+  **Setter:** replaces the `nodeValue` of a `TextNode` and for a `DOMNode` it will remove all its childnodes and replaced them with a `TextNode` having the specified `string` value.
 
 
 Examples:
@@ -1097,12 +1159,22 @@ console.log(div.outerHTML);
 </div>
 `
 
-// textContent
+// get() textContent
 console.log(div.textContent);
 // => 
 `
 Paragraph 1
 Paragraph 2
+`
+
+// set() textContent
+div.textContent = "A new Node";
+
+console.log(div.textContent);
+
+// => 
+`
+A new Node
 `
 ```
 </details>

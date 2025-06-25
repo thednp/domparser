@@ -113,6 +113,86 @@ export function createBasicNode<T extends ("#text" | "#comment")>(
   } as (TextNode | CommentNode);
 }
 
+function setupChildNode(
+  child: ChildNode,
+  parent: DOMNode | RootNode,
+  ownerDocument?: RootNode,
+) {
+  defineProperties(child, {
+    textContent: {
+      enumerable: false,
+      get: () => textContent(child),
+      set: (newContent: string) => {
+        if (isTag(child)) {
+          child.replaceChildren();
+          child.appendChild(createBasicNode("#text", newContent));
+        } else {
+          child.nodeValue = newContent;
+        }
+      },
+    },
+    parentNode: {
+      enumerable: false,
+      get: () => parent,
+    },
+    parentElement: {
+      enumerable: false,
+      get: () => parent,
+    },
+    ownerDocument: {
+      enumerable: false,
+      get: () => ownerDocument,
+    },
+  });
+
+  child.remove = () => parent.removeChild(child);
+
+  // Define recursive before and after methods
+  child.before = (...nodes: ChildNodeList) => {
+    const validNodes = nodes.map(convertToNode).filter(isNode);
+    const index = parent.childNodes.indexOf(child);
+    // istanbul ignore else @preserve
+    if (index > -1) {
+      parent.childNodes.splice(index, 0, ...validNodes);
+      validNodes.forEach((n, i) => {
+        // istanbul ignore else @preserve
+        if (isTag(n)) {
+          const childIndex = (parent as DOMNode).children.indexOf(
+            child as DOMNode,
+          );
+          (parent as DOMNode).children.splice(childIndex + i, 0, n);
+          ownerDocument?.register(n);
+          // istanbul ignore else @preserve
+          if (isTag(parent as DOMNode)) (parent as DOMNode).registerChild(n);
+        }
+        setupChildNode(n, parent, ownerDocument); // Setup new nodes
+      });
+    }
+  };
+
+  child.after = (...nodes: ChildNodeList) => {
+    const validNodes = nodes.map(convertToNode).filter(isNode);
+    const index = parent.childNodes.indexOf(child);
+    // istanbul ignore else @preserve
+    if (index > -1) {
+      parent.childNodes.splice(index + 1, 0, ...validNodes);
+      validNodes.forEach((n, i) => {
+        // istanbul ignore else @preserve
+        if (isTag(n)) {
+          const childIndex = (parent as DOMNode).children.indexOf(
+            child as DOMNode,
+          );
+          (parent as DOMNode).children.splice(childIndex + 1 + i, 0, n);
+          ownerDocument?.register(n);
+          // istanbul ignore else @preserve
+          if (isTag(parent as DOMNode)) (parent as DOMNode).registerChild(n);
+        }
+        setupChildNode(n, parent, ownerDocument); // Setup new nodes
+      });
+    }
+  };
+}
+
 /**
  * Creates a DOM-like Node (`DOMNode` or `RootNode`) with DOM API properties and methods.
  * This function extends the basic `NodeLike` from **Parser** by adding DOM-specific
@@ -136,54 +216,22 @@ export function createNode(
 
   const node = {
     nodeName,
+    appendChild(child: ChildNode) {
+      if (!isNode(child)) {
+        throw new Error(`${DOM_ERROR} Invalid node.`);
+      }
+      CHILDNODES.push(child);
+      if (isTag(child)) {
+        ALL.push(child);
+        CHILDREN.push(child);
+        ownerDocument?.register(child);
+      }
+
+      setupChildNode(child, node as unknown as DOMNode, ownerDocument);
+    },
     append(...nodes: ChildNodeList) {
       for (const child of nodes) {
-        if (!isNode(child)) {
-          throw new Error(`${DOM_ERROR} Invalid node.`);
-        }
-        CHILDNODES.push(child);
-        if (isTag(child)) {
-          ALL.push(child);
-          CHILDREN.push(child);
-          ownerDocument?.register(child);
-
-          // Add HTML generation methods
-          defineProperties(child, {
-            innerHTML: {
-              enumerable: false,
-              get: () => innerHTML(child),
-            },
-            outerHTML: {
-              enumerable: false,
-              get: () => outerHTML(child),
-            },
-          });
-        }
-
-        defineProperties(child, {
-          // Add text generation methods
-          textContent: {
-            enumerable: false,
-            get: () => textContent(child),
-          },
-          // Add node relationship properties
-          parentNode: {
-            enumerable: false,
-            get: () => node,
-          },
-          parentElement: {
-            enumerable: false,
-            get: () => node,
-          },
-          ownerDocument: {
-            enumerable: false,
-            get: () => ownerDocument,
-          },
-        });
-
-        child.remove = () => {
-          node.removeChild(child);
-        };
+        node.appendChild(child);
       }
     },
     cleanup: () => {
@@ -361,6 +409,18 @@ export function createNode(
         },
       },
     });
+  } else {
+    // Add HTML generation methods
+    defineProperties(node, {
+      innerHTML: {
+        enumerable: false,
+        get: () => innerHTML(node as unknown as DOMNode),
+      },
+      outerHTML: {
+        enumerable: false,
+        get: () => outerHTML(node as unknown as DOMNode),
+      },
+    });
   }
 
   // Add any initial children
@@ -446,11 +506,17 @@ export function createElement(
   node.setAttribute = (attrName, attrValue) => {
     attributes.set(attrName, attrValue);
   };
+  node.removeAttribute = (attrName) => {
+    attributes.delete(attrName);
+  };
   node.hasAttributeNS = (_namespace, attrName) => attributes.has(attrName);
   node.getAttributeNS = (_namespace, attrName) =>
     attributes.get(attrName) ?? null;
   node.setAttributeNS = (_namespace, attrName, attrValue) => {
     attributes.set(attrName, attrValue);
+  };
+  node.removeAttributeNS = (_namespace, attrName) => {
+    attributes.delete(attrName);
   };
   // define Element parent selector
   node.closest = (selector: string) => {

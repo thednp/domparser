@@ -45,15 +45,7 @@ describe(`Test DOMParser`, () => {
 `.trim();
 
     const { root: doc } = DomParser().parseFromString(testSample);
-    // console.log(JSON.stringify(doc, null, 2));
-    // return;
-    // console.log(doc.parentNode);
-    // console.log(doc.head?.ownerDocument?.nodeName);
-    // console.log(doc.all.length);
-    // console.log(doc.head?.ownerDocument === doc);
-    // console.log(doc.documentElement?.outerHTML);
-    // return;
-    
+
     expect(doc.parentElement).toBeUndefined();
     // expect(doc.documentElement?.outerHTML.length).toEqual(629);
     expect(doc.documentElement?.outerHTML.length).toEqual(541);
@@ -71,6 +63,9 @@ describe(`Test DOMParser`, () => {
     expect(doc.getElementById("my-style")?.attributes.get("id")).toEqual(
       "my-style",
     );
+    (doc.head?.children[2].childNodes[0] as TextNode).textContent = "p{margin:0}";
+    expect((doc.head?.children[2].childNodes[0] as TextNode).textContent).toEqual("p{margin:0}");
+
     expect(doc.getElementById("does-not-exist")).toEqual(null);
     expect(doc.querySelector("#does-not-exist")).toEqual(null);
     expect(doc.querySelector(".does-not-exist")).toEqual(null);
@@ -81,6 +76,15 @@ describe(`Test DOMParser`, () => {
     );
     expect(doc.querySelector("[disabled]")?.tagName).toEqual("button");
     expect(doc.getElementsByTagName("*").length).toEqual(15);
+
+    const button = doc.querySelector("button") as DOMNode;
+    button.textContent = "Click ME";
+    expect(button.childNodes[0].textContent).toEqual("Click ME");
+
+    button.before(doc.createElement("span", "This is a span"))
+    expect(button.parentElement?.children.length).toEqual(8)
+    button.after(doc.createElement("span", "This is a second span"))
+    expect(button.parentElement?.children.length).toEqual(9)
   });
 
   test(`Test DOM methods`, () => {
@@ -169,7 +173,12 @@ describe(`Test DOMParser`, () => {
     expect(doc.querySelector("svg")?.getAttributeNS("http://www.w3.org/2000/svg", "viewBox")).toEqual("0 0 25 25");
     expect(doc.querySelector("svg")?.getAttributeNS("http://www.w3.org/2000/svg", "preserveAspectRatio")).toBeNull();
     expect(doc.querySelector("svg")?.hasAttributeNS("http://www.w3.org/2000/svg", "xmlns")).toBeTruthy();
-
+    
+    doc.querySelector("svg")?.removeAttribute("class")
+    expect(doc.querySelector("svg")?.hasAttribute("class")).toBeFalsy();
+    
+    doc.querySelector("svg")?.removeAttributeNS("http://www.w3.org/2000/svg", "viewBox")
+    expect(doc.querySelector("svg")?.hasAttributeNS("http://www.w3.org/2000/svg", "viewBox")).toBeFalsy();
     // console.log('before delete \n', doc.documentElement?.outerHTML);
     doc.querySelector("svg")?.remove();
     // console.log('after delete \n', doc.documentElement?.outerHTML);
@@ -236,8 +245,7 @@ describe(`Test DOMParser`, () => {
     expect(selectors.size, 'exceed cache limit of 100').toEqual(100);
     expect(selectorCache.getStats()).toEqual({
       hitRate: 1,
-      // hits: 1267,
-      hits: 1353,
+      hits: 1400,
       misses: 0,
       size: 100,
     })
