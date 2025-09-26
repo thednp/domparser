@@ -1,4 +1,4 @@
-import { getBaseAttributes, selfClosingTags, toLowerCase, toUpperCase, tokenize } from "./util-9cK5wJoo.js";
+const require_util = require('./util-DVTj_GWo.cjs');
 
 //#region src/parts/parser.ts
 /**
@@ -32,7 +32,7 @@ function Parser() {
 		const stack = [root];
 		const components = /* @__PURE__ */ new Set();
 		const tags = /* @__PURE__ */ new Set();
-		const tokens = tokenize(htmlString);
+		const tokens = require_util.tokenize(htmlString);
 		const tLen = tokens.length;
 		for (let i = 0; i < tLen; i += 1) {
 			const { tokenType, value, isSC } = tokens[i];
@@ -47,14 +47,14 @@ function Parser() {
 			}
 			const isClosing = value.startsWith("/");
 			const tagName = isClosing ? value.slice(1) : value.split(/[\s/>]/)[0];
-			const tagNameLower = toLowerCase(tagName);
-			const isSelfClosing = isSC || selfClosingTags.has(tagNameLower);
-			(tagName[0] === toUpperCase(tagName[0]) || tagName.includes("-") ? components : tags).add(tagName);
+			const tagNameLower = require_util.toLowerCase(tagName);
+			const isSelfClosing = isSC || require_util.selfClosingTags.has(tagNameLower);
+			(tagName[0] === require_util.toUpperCase(tagName[0]) || tagName.includes("-") ? components : tags).add(tagName);
 			if (!isClosing) {
 				const node = {
 					tagName,
-					nodeName: toUpperCase(tagName),
-					attributes: getBaseAttributes(value),
+					nodeName: require_util.toUpperCase(tagName),
+					attributes: require_util.getBaseAttributes(value),
 					children: []
 				};
 				currentParent.children.push(node);
@@ -70,5 +70,10 @@ function Parser() {
 }
 
 //#endregion
-export { Parser };
-//# sourceMappingURL=parser-DdV0vCEo.js.map
+Object.defineProperty(exports, 'Parser', {
+  enumerable: true,
+  get: function () {
+    return Parser;
+  }
+});
+//# sourceMappingURL=parser-BzQuJgBc.cjs.map

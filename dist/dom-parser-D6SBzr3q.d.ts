@@ -1,4 +1,4 @@
-import { DomParserOptions, RootNode } from "./types-o6CCsSVu.js";
+import { DomParserOptions, RootNode } from "./types-C-roliuf.js";
 
 //#region src/parts/dom-parser.d.ts
 
@@ -45,4 +45,4 @@ declare const DomParser: (config?: Partial<DomParserOptions>) => {
 };
 //#endregion
 export { DomParser };
-//# sourceMappingURL=dom-parser-D1joELTY.d.ts.map
+//# sourceMappingURL=dom-parser-D6SBzr3q.d.ts.map

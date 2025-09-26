@@ -208,4 +208,4 @@ type GetAttributesOptions = {
 type MatchFunction = (node: DOMNode) => boolean;
 //#endregion
 export { ChildElementList, ChildLike, ChildNode, ChildNodeList, CommentLike, CommentNode, DOMNode, DOMNodeAttributes, DomParserOptions, DomParserResult, ElementAPI, GetAttributesOptions, HTMLToken, MatchFunction, MaybeChildNode, NodeAPI, NodeLike, NodeLikeAttributes, ParseResult, RootLike, RootNode, SelectorPart, TagAttr, TagNames, TextLike, TextNode, TextOrComment, TextToken, TokenizerOptions };
-//# sourceMappingURL=types-o6CCsSVu.d.ts.map
+//# sourceMappingURL=types-C-roliuf.d.ts.map

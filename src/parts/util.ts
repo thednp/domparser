@@ -10,7 +10,7 @@ import type {
   RootLike,
   RootNode,
   TokenizerOptions,
-} from "./types.ts";
+} from "./types";
 
 // general utils
 

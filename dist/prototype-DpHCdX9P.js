@@ -1,5 +1,4 @@
-import { DOM_ERROR, defineProperties, isNode, isObj, isPrimitive, isRoot, isTag, selfClosingTags, startsWith, toLowerCase, toUpperCase, tokenize, trim } from "./util-9cK5wJoo.js";
-import _defineProperty from "@oxc-project/runtime/helpers/defineProperty";
+import { DOM_ERROR, defineProperties, isNode, isObj, isPrimitive, isRoot, isTag, selfClosingTags, startsWith, toLowerCase, toUpperCase, tokenize, trim } from "./util-zZmYc56u.js";
 
 //#region src/parts/selectors.ts
 /**
@@ -9,8 +8,8 @@ import _defineProperty from "@oxc-project/runtime/helpers/defineProperty";
 var SelectorCacheMap = class extends Map {
 	constructor() {
 		super();
-		_defineProperty(this, "hits", 0);
-		_defineProperty(this, "misses", 0);
+		this.hits = 0;
+		this.misses = 0;
 		this.misses = 0;
 		this.hits = 0;
 	}
@@ -90,14 +89,10 @@ const parseSelector = (selector) => {
 * @returns `true` if the node matches the selector, `false` otherwise.
 */
 const matchesSingleSelector = (node, selector) => {
-	const parts = parseSelector(selector);
-	return parts.every((part) => {
+	return parseSelector(selector).every((part) => {
 		switch (part.type) {
 			case "#": return node.attributes.get("id") === part.value;
-			case ".": {
-				const classes = node.attributes.get("class")?.split(/\s+/) || [];
-				return classes.includes(part.value);
-			}
+			case ".": return (node.attributes.get("class")?.split(/\s+/) || []).includes(part.value);
 			case "[": {
 				const attrValue = node.attributes.get(part.name);
 				return part.value ? attrValue === part.value : attrValue !== void 0;
@@ -113,8 +108,7 @@ const matchesSingleSelector = (node, selector) => {
 * @returns `true` if the node matches the selector, `false` otherwise.
 */
 const matchesSelector = (node, selector) => {
-	const matcher = selectorCache.getMatchFunction(selector);
-	return matcher(node);
+	return selectorCache.getMatchFunction(selector)(node);
 };
 
 //#endregion
@@ -344,8 +338,7 @@ function createNode(nodeName, ...childNodes) {
 		},
 		getElementsByClassName(className) {
 			return ALL.filter((n) => {
-				const classAttr = n.attributes.get("class");
-				return classAttr?.split(/\s+/).includes(className) ?? false;
+				return n.attributes.get("class")?.split(/\s+/).includes(className) ?? false;
 			});
 		}
 	};
@@ -491,4 +484,4 @@ const createDocument = () => createNode.call(null, "#document");
 
 //#endregion
 export { createBasicNode, createDocument, createElement, createNode, matchesSelector, selectorCache };
-//# sourceMappingURL=prototype-kxNb3mfd.js.map
+//# sourceMappingURL=prototype-DpHCdX9P.js.map

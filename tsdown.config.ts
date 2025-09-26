@@ -8,7 +8,7 @@ export default defineConfig(
       'dom-parser': 'src/parts/dom-parser.ts',
       'dom': 'src/parts/prototype.ts',
     },
-    target: "es2020",
+    target: "esnext",
     exports: true,
     format: ['esm', 'cjs'],
     dts: true,

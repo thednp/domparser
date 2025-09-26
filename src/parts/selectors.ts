@@ -1,6 +1,6 @@
 // selectors.ts
-import { startsWith, toLowerCase } from "./util.ts";
-import type { DOMNode, MatchFunction, SelectorPart } from "./types.ts";
+import { startsWith, toLowerCase } from "./util";
+import type { DOMNode, MatchFunction, SelectorPart } from "./types";
 
 /**
  * Create a selector cache to help improve `match` based queries

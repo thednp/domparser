@@ -1,3 +1,4 @@
+
 //#region src/parts/util.ts
 const ATTR_REGEX = /([^\s=]+)(?:=(?:"([^"]*)"|'([^']*)'|([^\s"']+)))?/g;
 /**
@@ -276,8 +277,7 @@ const tokenize = (html, options = {}) => {
 			} else if (char === 62 && inTag && !inTemplate) {
 				if (token === "/pre") inPre = false;
 				else if (token === "pre" || startsWith(token, "pre")) inPre = true;
-				const startSpecialTag = specialTags.find((t) => t === token || startsWith(token, t));
-				if (startSpecialTag && !endsWith(token, "/")) inStyleScript = true;
+				if (specialTags.find((t) => t === token || startsWith(token, t)) && !endsWith(token, "/")) inStyleScript = true;
 				const isDocType = startsWith(toLowerCase(token), "!doctype");
 				// istanbul ignore else @preserve
 				if (token) {
@@ -307,5 +307,124 @@ const tokenize = (html, options = {}) => {
 };
 
 //#endregion
-export { ATTR_REGEX, DOM_ERROR, charCodeAt, defineProperties, endsWith, escape, fromCharCode, getAttributes, getBaseAttributes, isNode, isObj, isPrimitive, isRoot, isTag, selfClosingTags, startsWith, toLowerCase, toUpperCase, tokenize, trim };
-//# sourceMappingURL=util-9cK5wJoo.js.map
+Object.defineProperty(exports, 'ATTR_REGEX', {
+  enumerable: true,
+  get: function () {
+    return ATTR_REGEX;
+  }
+});
+Object.defineProperty(exports, 'DOM_ERROR', {
+  enumerable: true,
+  get: function () {
+    return DOM_ERROR;
+  }
+});
+Object.defineProperty(exports, 'charCodeAt', {
+  enumerable: true,
+  get: function () {
+    return charCodeAt;
+  }
+});
+Object.defineProperty(exports, 'defineProperties', {
+  enumerable: true,
+  get: function () {
+    return defineProperties;
+  }
+});
+Object.defineProperty(exports, 'endsWith', {
+  enumerable: true,
+  get: function () {
+    return endsWith;
+  }
+});
+Object.defineProperty(exports, 'escape', {
+  enumerable: true,
+  get: function () {
+    return escape;
+  }
+});
+Object.defineProperty(exports, 'fromCharCode', {
+  enumerable: true,
+  get: function () {
+    return fromCharCode;
+  }
+});
+Object.defineProperty(exports, 'getAttributes', {
+  enumerable: true,
+  get: function () {
+    return getAttributes;
+  }
+});
+Object.defineProperty(exports, 'getBaseAttributes', {
+  enumerable: true,
+  get: function () {
+    return getBaseAttributes;
+  }
+});
+Object.defineProperty(exports, 'isNode', {
+  enumerable: true,
+  get: function () {
+    return isNode;
+  }
+});
+Object.defineProperty(exports, 'isObj', {
+  enumerable: true,
+  get: function () {
+    return isObj;
+  }
+});
+Object.defineProperty(exports, 'isPrimitive', {
+  enumerable: true,
+  get: function () {
+    return isPrimitive;
+  }
+});
+Object.defineProperty(exports, 'isRoot', {
+  enumerable: true,
+  get: function () {
+    return isRoot;
+  }
+});
+Object.defineProperty(exports, 'isTag', {
+  enumerable: true,
+  get: function () {
+    return isTag;
+  }
+});
+Object.defineProperty(exports, 'selfClosingTags', {
+  enumerable: true,
+  get: function () {
+    return selfClosingTags;
+  }
+});
+Object.defineProperty(exports, 'startsWith', {
+  enumerable: true,
+  get: function () {
+    return startsWith;
+  }
+});
+Object.defineProperty(exports, 'toLowerCase', {
+  enumerable: true,
+  get: function () {
+    return toLowerCase;
+  }
+});
+Object.defineProperty(exports, 'toUpperCase', {
+  enumerable: true,
+  get: function () {
+    return toUpperCase;
+  }
+});
+Object.defineProperty(exports, 'tokenize', {
+  enumerable: true,
+  get: function () {
+    return tokenize;
+  }
+});
+Object.defineProperty(exports, 'trim', {
+  enumerable: true,
+  get: function () {
+    return trim;
+  }
+});
+//# sourceMappingURL=util-DVTj_GWo.cjs.map

@@ -2,7 +2,6 @@ import { ChildElementList, ChildLike, ChildNode, ChildNodeList, CommentLike, Com
 import { createBasicNode, createDocument, createElement, createNode } from "./prototype-BpI_WO4R.cjs";
 import { Parser } from "./parser-BBxaAUtM.cjs";
 import { DomParser } from "./dom-parser-BMRDfAh1.cjs";
-import { version } from "../package.json";
 
 //#region src/parts/util.d.ts
 declare const ATTR_REGEX: RegExp;

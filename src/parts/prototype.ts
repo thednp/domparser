@@ -1,6 +1,6 @@
 // prototype.ts
-import { tokenize, trim } from "./util.ts";
-import { matchesSelector } from "./selectors.ts";
+import { tokenize, trim } from "./util";
+import { matchesSelector } from "./selectors";
 import {
   defineProperties,
   DOM_ERROR,
@@ -11,7 +11,7 @@ import {
   isTag,
   selfClosingTags,
   toUpperCase,
-} from "./util.ts";
+} from "./util";
 
 import type {
   ChildElementList,
@@ -25,7 +25,7 @@ import type {
   TagNames,
   TextNode,
   TextToken,
-} from "./types.ts";
+} from "./types";
 
 /**
  * Generates text string from node's children textContent.
@@ -176,7 +176,7 @@ function setupChildNode(
     // istanbul ignore else @preserve
     if (index > -1) {
       parent.childNodes.splice(index + 1, 0, ...validNodes);
-      validNodes.forEach((n, i) => {
+      validNodes.forEach((n: ChildNode, i: number) => {
         // istanbul ignore else @preserve
         if (isTag(n)) {
           const childIndex = (parent as DOMNode).children.indexOf(
@@ -501,21 +501,22 @@ export function createElement(
     },
   });
   // define Element attributes methods
-  node.hasAttribute = (attrName) => attributes.has(attrName);
-  node.getAttribute = (attrName) => attributes.get(attrName) ?? null;
-  node.setAttribute = (attrName, attrValue) => {
+  node.hasAttribute = (attrName: string) => attributes.has(attrName);
+  node.getAttribute = (attrName: string) => attributes.get(attrName) ?? null;
+  node.setAttribute = (attrName: string, attrValue: string) => {
     attributes.set(attrName, attrValue);
   };
-  node.removeAttribute = (attrName) => {
+  node.removeAttribute = (attrName: string) => {
     attributes.delete(attrName);
   };
-  node.hasAttributeNS = (_namespace, attrName) => attributes.has(attrName);
-  node.getAttributeNS = (_namespace, attrName) =>
+  node.hasAttributeNS = (_namespace: string, attrName: string) =>
+    attributes.has(attrName);
+  node.getAttributeNS = (_namespace: string, attrName: string) =>
     attributes.get(attrName) ?? null;
-  node.setAttributeNS = (_namespace, attrName, attrValue) => {
+  node.setAttributeNS = (_namespace: string, attrName, attrValue: string) => {
     attributes.set(attrName, attrValue);
   };
-  node.removeAttributeNS = (_namespace, attrName) => {
+  node.removeAttributeNS = (_namespace: string, attrName: string) => {
     attributes.delete(attrName);
   };
   // define Element parent selector

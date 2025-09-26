@@ -1,4 +1,4 @@
-import { ParseResult } from "./types-o6CCsSVu.js";
+import { ParseResult } from "./types-C-roliuf.js";
 
 //#region src/parts/parser.d.ts
 
@@ -24,4 +24,4 @@ declare function Parser(): {
 };
 //#endregion
 export { Parser };
-//# sourceMappingURL=parser-i2wxRfNq.d.ts.map
+//# sourceMappingURL=parser-CE-womPt.d.ts.map

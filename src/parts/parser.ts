@@ -5,7 +5,7 @@ import {
   tokenize,
   toLowerCase,
   toUpperCase,
-} from "./util.ts";
+} from "./util";
 import type {
   CommentLike,
   NodeLike,

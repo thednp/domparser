@@ -1,28 +1,4 @@
-//#region rolldown:runtime
-var __create = Object.create;
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __getOwnPropNames = Object.getOwnPropertyNames;
-var __getProtoOf = Object.getPrototypeOf;
-var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __copyProps = (to, from, except, desc) => {
-	if (from && typeof from === "object" || typeof from === "function") for (var keys = __getOwnPropNames(from), i = 0, n = keys.length, key; i < n; i++) {
-		key = keys[i];
-		if (!__hasOwnProp.call(to, key) && key !== except) __defProp(to, key, {
-			get: ((k) => from[k]).bind(null, key),
-			enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable
-		});
-	}
-	return to;
-};
-var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", {
-	value: mod,
-	enumerable: true
-}) : target, mod));
-
-//#endregion
-const require_util = require('./util-C4sKiPPI.cjs');
-const __oxc_project_runtime_helpers_defineProperty = __toESM(require("@oxc-project/runtime/helpers/defineProperty"));
+const require_util = require('./util-DVTj_GWo.cjs');
 
 //#region src/parts/selectors.ts
 /**
@@ -32,8 +8,8 @@ const __oxc_project_runtime_helpers_defineProperty = __toESM(require("@oxc-proje
 var SelectorCacheMap = class extends Map {
 	constructor() {
 		super();
-		(0, __oxc_project_runtime_helpers_defineProperty.default)(this, "hits", 0);
-		(0, __oxc_project_runtime_helpers_defineProperty.default)(this, "misses", 0);
+		this.hits = 0;
+		this.misses = 0;
 		this.misses = 0;
 		this.hits = 0;
 	}
@@ -113,14 +89,10 @@ const parseSelector = (selector) => {
 * @returns `true` if the node matches the selector, `false` otherwise.
 */
 const matchesSingleSelector = (node, selector) => {
-	const parts = parseSelector(selector);
-	return parts.every((part) => {
+	return parseSelector(selector).every((part) => {
 		switch (part.type) {
 			case "#": return node.attributes.get("id") === part.value;
-			case ".": {
-				const classes = node.attributes.get("class")?.split(/\s+/) || [];
-				return classes.includes(part.value);
-			}
+			case ".": return (node.attributes.get("class")?.split(/\s+/) || []).includes(part.value);
 			case "[": {
 				const attrValue = node.attributes.get(part.name);
 				return part.value ? attrValue === part.value : attrValue !== void 0;
@@ -136,8 +108,7 @@ const matchesSingleSelector = (node, selector) => {
 * @returns `true` if the node matches the selector, `false` otherwise.
 */
 const matchesSelector = (node, selector) => {
-	const matcher = selectorCache.getMatchFunction(selector);
-	return matcher(node);
+	return selectorCache.getMatchFunction(selector)(node);
 };
 
 //#endregion
@@ -367,8 +338,7 @@ function createNode(nodeName, ...childNodes) {
 		},
 		getElementsByClassName(className) {
 			return ALL.filter((n) => {
-				const classAttr = n.attributes.get("class");
-				return classAttr?.split(/\s+/).includes(className) ?? false;
+				return n.attributes.get("class")?.split(/\s+/).includes(className) ?? false;
 			});
 		}
 	};
@@ -549,4 +519,4 @@ Object.defineProperty(exports, 'selectorCache', {
     return selectorCache;
   }
 });
-//# sourceMappingURL=prototype-C9KlvL7Y.cjs.map
+//# sourceMappingURL=prototype-MIu8v-er.cjs.map

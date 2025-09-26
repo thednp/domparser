@@ -1,5 +1,5 @@
 // dom-parser.ts
-import { createBasicNode, createDocument, createElement } from "./prototype.ts";
+import { createBasicNode, createDocument, createElement } from "./prototype";
 import type {
   ChildNode,
   DOMNode,
@@ -7,7 +7,7 @@ import type {
   DomParserResult,
   GetAttributesOptions,
   RootNode,
-} from "./types.ts";
+} from "./types";
 
 import {
   DOM_ERROR,
@@ -17,7 +17,7 @@ import {
   startsWith,
   tokenize,
   toUpperCase,
-} from "./util.ts";
+} from "./util";
 
 /**
  * **DomParser**

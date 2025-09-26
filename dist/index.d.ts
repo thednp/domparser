@@ -1,8 +1,8 @@
-import { ChildElementList, ChildLike, ChildNode, ChildNodeList, CommentLike, CommentNode, DOMNode, DOMNodeAttributes, DomParserOptions, DomParserResult, ElementAPI, GetAttributesOptions, HTMLToken, MatchFunction, MaybeChildNode, NodeAPI, NodeLike, NodeLikeAttributes, ParseResult, RootLike, RootNode, SelectorPart, TagAttr, TagNames, TextLike, TextNode, TextOrComment, TextToken, TokenizerOptions } from "./types-o6CCsSVu.js";
-import { createBasicNode, createDocument, createElement, createNode } from "./prototype-EYfGaz_t.js";
-import { Parser } from "./parser-i2wxRfNq.js";
-import { DomParser } from "./dom-parser-D1joELTY.js";
-import { version } from "../package.json";
+import { version } from "./package-ClzFBxYD.js";
+import { ChildElementList, ChildLike, ChildNode, ChildNodeList, CommentLike, CommentNode, DOMNode, DOMNodeAttributes, DomParserOptions, DomParserResult, ElementAPI, GetAttributesOptions, HTMLToken, MatchFunction, MaybeChildNode, NodeAPI, NodeLike, NodeLikeAttributes, ParseResult, RootLike, RootNode, SelectorPart, TagAttr, TagNames, TextLike, TextNode, TextOrComment, TextToken, TokenizerOptions } from "./types-C-roliuf.js";
+import { createBasicNode, createDocument, createElement, createNode } from "./prototype-C6VoqFqu.js";
+import { Parser } from "./parser-CE-womPt.js";
+import { DomParser } from "./dom-parser-D6SBzr3q.js";
 
 //#region src/parts/util.d.ts
 declare const ATTR_REGEX: RegExp;
