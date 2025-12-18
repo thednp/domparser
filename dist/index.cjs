@@ -4,7 +4,7 @@ const require_parser = require('./parser.cjs');
 const require_dom_parser = require('./dom-parser.cjs');
 
 //#region package.json
-var version = "0.1.8";
+var version = "0.1.7";
 
 //#endregion
 exports.ATTR_REGEX = require_util.ATTR_REGEX;

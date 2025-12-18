@@ -4,7 +4,7 @@ import { Parser } from "./parser.mjs";
 import { DomParser } from "./dom-parser.mjs";
 
 //#region package.json
-var version = "0.1.8";
+var version = "0.1.7";
 
 //#endregion
 export { ATTR_REGEX, DOM_ERROR, DomParser, Parser, charCodeAt, createBasicNode, createDocument, createElement, createNode, defineProperties, endsWith, escape, fromCharCode, getAttributes, getBaseAttributes, isNode, isObj, isPrimitive, isRoot, isTag, matchesSelector, selectorCache, selfClosingTags, startsWith, toLowerCase, toUpperCase, tokenize, trim, version };
