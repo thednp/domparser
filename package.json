@@ -1,6 +1,6 @@
 {
   "name": "@thednp/domparser",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "🍝 Super light HTML parser for isomorphic applications.",
   "keywords": [
     "domparser",
