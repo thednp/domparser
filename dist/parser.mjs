@@ -1,4 +1,4 @@
-import { getBaseAttributes, selfClosingTags, toLowerCase, toUpperCase, tokenize } from "./util-zZmYc56u.js";
+import { _ as toLowerCase, h as selfClosingTags, l as getBaseAttributes, v as toUpperCase, y as tokenize } from "./util-BfmRalo8.mjs";
 
 //#region src/parts/parser.ts
 /**
@@ -71,4 +71,4 @@ function Parser() {
 
 //#endregion
 export { Parser };
-//# sourceMappingURL=parser-BIlBKgsT.js.map
+//# sourceMappingURL=parser.mjs.map

@@ -207,5 +207,5 @@ type GetAttributesOptions = {
  */
 type MatchFunction = (node: DOMNode) => boolean;
 //#endregion
-export { ChildElementList, ChildLike, ChildNode, ChildNodeList, CommentLike, CommentNode, DOMNode, DOMNodeAttributes, DomParserOptions, DomParserResult, ElementAPI, GetAttributesOptions, HTMLToken, MatchFunction, MaybeChildNode, NodeAPI, NodeLike, NodeLikeAttributes, ParseResult, RootLike, RootNode, SelectorPart, TagAttr, TagNames, TextLike, TextNode, TextOrComment, TextToken, TokenizerOptions };
-//# sourceMappingURL=types-CQGajz-V.d.cts.map
+export { TagAttr as C, TextOrComment as D, TextNode as E, TextToken as O, SelectorPart as S, TextLike as T, NodeLike as _, CommentLike as a, RootLike as b, DOMNodeAttributes as c, ElementAPI as d, GetAttributesOptions as f, NodeAPI as g, MaybeChildNode as h, ChildNodeList as i, TokenizerOptions as k, DomParserOptions as l, MatchFunction as m, ChildLike as n, CommentNode as o, HTMLToken as p, ChildNode as r, DOMNode as s, ChildElementList as t, DomParserResult as u, NodeLikeAttributes as v, TagNames as w, RootNode as x, ParseResult as y };
+//# sourceMappingURL=types-DEH-y24P.d.mts.map

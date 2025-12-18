@@ -1,7 +1,7 @@
-import { ChildElementList, ChildLike, ChildNode, ChildNodeList, CommentLike, CommentNode, DOMNode, DOMNodeAttributes, DomParserOptions, DomParserResult, ElementAPI, GetAttributesOptions, HTMLToken, MatchFunction, MaybeChildNode, NodeAPI, NodeLike, NodeLikeAttributes, ParseResult, RootLike, RootNode, SelectorPart, TagAttr, TagNames, TextLike, TextNode, TextOrComment, TextToken, TokenizerOptions } from "./types-CQGajz-V.cjs";
-import { createBasicNode, createDocument, createElement, createNode } from "./prototype-BpI_WO4R.cjs";
-import { Parser } from "./parser-BBxaAUtM.cjs";
-import { DomParser } from "./dom-parser-BMRDfAh1.cjs";
+import { C as TagAttr, D as TextOrComment, E as TextNode, O as TextToken, S as SelectorPart, T as TextLike, _ as NodeLike, a as CommentLike, b as RootLike, c as DOMNodeAttributes, d as ElementAPI, f as GetAttributesOptions, g as NodeAPI, h as MaybeChildNode, i as ChildNodeList, k as TokenizerOptions, l as DomParserOptions, m as MatchFunction, n as ChildLike, o as CommentNode, p as HTMLToken, r as ChildNode, s as DOMNode, t as ChildElementList, u as DomParserResult, v as NodeLikeAttributes, w as TagNames, x as RootNode, y as ParseResult } from "./types-CaW3j-V_.cjs";
+import { createBasicNode, createDocument, createElement, createNode } from "./dom.cjs";
+import { Parser } from "./parser.cjs";
+import { DomParser } from "./dom-parser.cjs";
 
 //#region src/parts/util.d.ts
 declare const ATTR_REGEX: RegExp;
@@ -155,6 +155,9 @@ declare const selectorCache: SelectorCacheMap;
  * @returns `true` if the node matches the selector, `false` otherwise.
  */
 declare const matchesSelector: (node: DOMNode, selector: string) => boolean;
+//#endregion
+//#region package.d.ts
+declare let version: string;
 //#endregion
 export { ATTR_REGEX, ChildElementList, ChildLike, ChildNode, ChildNodeList, CommentLike, CommentNode, DOMNode, DOMNodeAttributes, DOM_ERROR, DomParser, DomParserOptions, DomParserResult, ElementAPI, GetAttributesOptions, HTMLToken, MatchFunction, MaybeChildNode, NodeAPI, NodeLike, NodeLikeAttributes, ParseResult, Parser, RootLike, RootNode, SelectorPart, TagAttr, TagNames, TextLike, TextNode, TextOrComment, TextToken, TokenizerOptions, charCodeAt, createBasicNode, createDocument, createElement, createNode, defineProperties, endsWith, escape, fromCharCode, getAttributes, getBaseAttributes, isNode, isObj, isPrimitive, isRoot, isTag, matchesSelector, selectorCache, selfClosingTags, startsWith, toLowerCase, toUpperCase, tokenize, trim, version };
 //# sourceMappingURL=index.d.cts.map

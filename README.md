@@ -2,9 +2,9 @@
 [![Coverage Status](https://coveralls.io/repos/github/thednp/domparser/badge.svg)](https://coveralls.io/github/thednp/domparser) 
 [![NPM Version](https://img.shields.io/npm/v/@thednp/domparser.svg)](https://www.npmjs.com/package/@thednp/domparser)
 [![ci](https://github.com/thednp/domparser/actions/workflows/ci.yml/badge.svg)](https://github.com/thednp/domparser/actions/workflows/ci.yml)
-[![typescript version](https://img.shields.io/badge/typescript-5.9.2-brightgreen)](https://www.typescriptlang.org/)
+[![typescript version](https://img.shields.io/badge/typescript-5.9.3-brightgreen)](https://www.typescriptlang.org/)
 [![vitest version](https://img.shields.io/badge/vitest-3.2.4-brightgreen)](https://vitest.dev/)
-[![vite version](https://img.shields.io/badge/vite-7.1.7-brightgreen)](https://vitejs.dev/)
+[![vite version](https://img.shields.io/badge/vite-7.3.0-brightgreen)](https://vitejs.dev/)
 
 A TypeScript-based [HTML parser](https://developer.mozilla.org/en-US/docs/Web/API/DOMParser) available in two versions: a lightweight **Parser** focused on speed and memory efficiency (using 64kB chunks), and a feature-rich **DomParser** that provides a DOM-like API with additional capabilities like tag validation.
 

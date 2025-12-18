@@ -1,10 +1,10 @@
 const require_util = require('./util-DVTj_GWo.cjs');
-const require_prototype = require('./prototype-MIu8v-er.cjs');
-const require_parser = require('./parser-BzQuJgBc.cjs');
-const require_dom_parser = require('./dom-parser-BzGeVYGi.cjs');
+const require_prototype = require('./prototype-eKhltkqB.cjs');
+const require_parser = require('./parser.cjs');
+const require_dom_parser = require('./dom-parser.cjs');
 
 //#region package.json
-var version = "0.1.6";
+var version = "0.1.7";
 
 //#endregion
 exports.ATTR_REGEX = require_util.ATTR_REGEX;

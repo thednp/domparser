@@ -1,5 +1,5 @@
 require('./util-DVTj_GWo.cjs');
-const require_prototype = require('./prototype-MIu8v-er.cjs');
+const require_prototype = require('./prototype-eKhltkqB.cjs');
 
 exports.createBasicNode = require_prototype.createBasicNode;
 exports.createDocument = require_prototype.createDocument;

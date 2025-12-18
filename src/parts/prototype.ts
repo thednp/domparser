@@ -39,9 +39,9 @@ const textContent = (node: ChildNode): string => {
   if (!childNodes.length) return "";
   const hasTagChild = childNodes.some(isTag);
 
-  return childNodes.map((n) => isTag(n) ? textContent(n) : n.nodeValue).join(
-    hasTagChild ? "\n" : "",
-  );
+  return childNodes
+    .map((n) => (isTag(n) ? textContent(n) : n.nodeValue))
+    .join(hasTagChild ? "\n" : "");
 };
 
 /**
@@ -50,19 +50,15 @@ const textContent = (node: ChildNode): string => {
  * @param depth Current indentation depth
  * @returns innerHTML string
  */
-const innerHTML = (
-  node: DOMNode,
-  depth = 0,
-): string => {
+const innerHTML = (node: DOMNode, depth = 0): string => {
   const { childNodes: childContents } = node;
   // Remove comments
   const childNodes = childContents.filter((c) => c.nodeName !== "#comment");
   if (!childNodes.length) return "";
-  const childIsText = childNodes.length === 1 &&
-    !isTag(childNodes[0]);
+  const childIsText = childNodes.length === 1 && !isTag(childNodes[0]);
   const space = depth && !childIsText ? "  ".repeat(depth) : "";
   return childNodes
-    .map((n) => isTag(n) ? outerHTML(n, depth) : space + n.nodeValue)
+    .map((n) => (isTag(n) ? outerHTML(n, depth) : space + n.nodeValue))
     .join("\n");
 };
 
@@ -82,9 +78,10 @@ const outerHTML = (node: DOMNode, depth = 0): string => {
   const isSelfClosing = selfClosingTags.has(tagName);
 
   const attrStr = hasAttributes
-    ? " " + Array.from(attributes)
-      .map(([key, val]) => `${key}="${trim(val)}"`)
-      .join(" ")
+    ? " " +
+      Array.from(attributes)
+        .map(([key, val]) => `${key}="${trim(val)}"`)
+        .join(" ")
     : "";
 
   let output = `${space}<${tagName}${attrStr}${isSelfClosing ? " /" : ""}>`;
@@ -102,7 +99,7 @@ const outerHTML = (node: DOMNode, depth = 0): string => {
  * @param text The text content of the node.
  * @returns A TextNode or CommentNode object.
  */
-export function createBasicNode<T extends ("#text" | "#comment")>(
+export function createBasicNode<T extends "#text" | "#comment">(
   nodeName: T,
   text: string,
 ): TextNode | CommentNode {
@@ -110,7 +107,7 @@ export function createBasicNode<T extends ("#text" | "#comment")>(
     nodeName,
     // nodeValue: nodeName !== "#text" ? `<${text}>` : text,
     nodeValue: text,
-  } as (TextNode | CommentNode);
+  } as TextNode | CommentNode;
 }
 
 function setupChildNode(
@@ -121,6 +118,7 @@ function setupChildNode(
   defineProperties(child, {
     textContent: {
       enumerable: false,
+      configurable: true,
       get: () => textContent(child),
       set: (newContent: string) => {
         if (isTag(child)) {
@@ -133,14 +131,17 @@ function setupChildNode(
     },
     parentNode: {
       enumerable: false,
+      configurable: true,
       get: () => parent,
     },
     parentElement: {
       enumerable: false,
+      configurable: true,
       get: () => parent,
     },
     ownerDocument: {
       enumerable: false,
+      configurable: true,
       get: () => ownerDocument,
     },
   });
@@ -249,12 +250,7 @@ export function createNode(
         first?: NodeLikeAttributes | MaybeChildNode,
         ...rest: MaybeChildNode[]
       ) {
-        return createElement.call(
-          node as RootNode,
-          tagName,
-          first,
-          ...rest,
-        );
+        return createElement.call(node as RootNode, tagName, first, ...rest);
       },
       createElementNS(
         _ns: string,
@@ -278,7 +274,7 @@ export function createNode(
     }),
 
     // Element methods
-    ...((!nodeIsRoot) && {
+    ...(!nodeIsRoot && {
       matches(selector: string) {
         return matchesSelector(node as unknown as DOMNode, selector);
       },

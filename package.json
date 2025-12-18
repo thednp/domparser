@@ -1,6 +1,6 @@
 {
   "name": "@thednp/domparser",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "🍝 Super light HTML parser for isomorphic applications.",
   "keywords": [
     "domparser",
@@ -14,24 +14,24 @@
   "browser": "./dist/index.js",
   "main": "./dist/index.cjs",
   "types": "./dist/index.d.cts",
-  "module": "./dist/index.js",
+  "module": "./dist/index.mjs",
   "commonjs": "./dist/index.cjs",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.mjs"
     },
     "./dom": {
-      "import": "./dist/dom.js",
-      "require": "./dist/dom.cjs"
+      "require": "./dist/dom.cjs",
+      "import": "./dist/dom.mjs"
     },
     "./dom-parser": {
-      "import": "./dist/dom-parser.js",
-      "require": "./dist/dom-parser.cjs"
+      "require": "./dist/dom-parser.cjs",
+      "import": "./dist/dom-parser.mjs"
     },
     "./parser": {
-      "import": "./dist/parser.js",
-      "require": "./dist/parser.cjs"
+      "require": "./dist/parser.cjs",
+      "import": "./dist/parser.mjs"
     },
     "./package.json": "./package.json"
   },
@@ -63,13 +63,13 @@
   },
   "devDependencies": {
     "@types/jsdom": "^21.1.7",
-    "@types/node": "^22.18.6",
+    "@types/node": "^25.0.3",
     "@vitest/coverage-istanbul": "^3.2.4",
     "@vitest/ui": "^3.2.4",
     "jsdom": "^26.1.0",
-    "tsdown": "^0.15.4",
-    "typescript": "^5.9.2",
-    "vite": "^7.1.7",
+    "tsdown": "^0.18.1",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.0",
     "vitest": "^3.2.4"
   },
   "packageManager": "pnpm@8.6.12"

@@ -1,4 +1,4 @@
-import { ChildNodeList, CommentNode, DOMNode, MaybeChildNode, NodeLikeAttributes, RootNode, TagNames, TextNode } from "./types-CQGajz-V.cjs";
+import { E as TextNode, h as MaybeChildNode, i as ChildNodeList, o as CommentNode, s as DOMNode, v as NodeLikeAttributes, w as TagNames, x as RootNode } from "./types-DEH-y24P.mjs";
 
 //#region src/parts/prototype.d.ts
 
@@ -8,7 +8,7 @@ import { ChildNodeList, CommentNode, DOMNode, MaybeChildNode, NodeLikeAttributes
  * @param text The text content of the node.
  * @returns A TextNode or CommentNode object.
  */
-declare function createBasicNode<T extends ("#text" | "#comment")>(nodeName: T, text: string): TextNode | CommentNode;
+declare function createBasicNode<T extends "#text" | "#comment">(nodeName: T, text: string): TextNode | CommentNode;
 /**
  * Creates a DOM-like Node (`DOMNode` or `RootNode`) with DOM API properties and methods.
  * This function extends the basic `NodeLike` from **Parser** by adding DOM-specific
@@ -37,4 +37,4 @@ declare function createElement(this: RootNode, tagName: string & TagNames, first
 declare const createDocument: () => RootNode;
 //#endregion
 export { createBasicNode, createDocument, createElement, createNode };
-//# sourceMappingURL=prototype-BpI_WO4R.d.cts.map
+//# sourceMappingURL=dom.d.mts.map
