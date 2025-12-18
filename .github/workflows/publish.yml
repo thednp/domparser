@@ -1,0 +1,36 @@
+name: Publish to npm
+
+on:
+  release:
+    types: [published] # Triggers on GitHub Release creation (with tag)
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read # For checkout
+      id-token: write # Required for provenance / trusted publishing
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20" # Or 'lts/*'
+          registry-url: "https://registry.npmjs.org" # Optional if using trusted publishing
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build (if needed)
+        run: npm run build # Optional
+
+      - name: Test (optional but recommended)
+        run: npm test
+
+      - name: Publish to npm
+        run: npm publish --provenance --access public # --access public for new/public packages
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # Only needed if NOT using trusted publishing
