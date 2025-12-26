@@ -38,7 +38,7 @@
   "scripts": {
     "pre-test": "pnpm clean-coverage",
     "dev": "vite serve demo --port 3000",
-    "test": "pnpm pre-test && vitest --config vitest.config.ts --browser.headless",
+    "test": "pnpm pre-test && vitest --config vitest.config.ts",
     "test-ui": "pnpm pre-test && vitest --config vitest.config.ts --ui",
     "clean-coverage": "rm -rf coverage .nyc_output .coverage",
     "badges": "npx -p dependency-version-badge update-badge typescript vitest vite",
