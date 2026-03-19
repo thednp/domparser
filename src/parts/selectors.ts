@@ -75,8 +75,8 @@ const SELECTOR_REGEX = /([.#]?[\w-]+|\[[\w-]+(?:=[^\]]+)?\])+/g;
  */
 const parseSelector = (selector: string): SelectorPart[] => {
   const parts: SelectorPart[] = [];
-  const matches =
-    selector.match(SELECTOR_REGEX) || /* istanbul ignore next @preserve */ [];
+  /* istanbul ignore next @preserve */
+  const matches = selector.match(SELECTOR_REGEX) || [];
 
   for (const match of matches) {
     if (startsWith(match, "#")) {
