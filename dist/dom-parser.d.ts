@@ -1,7 +1,12 @@
-import { l as DomParserOptions, x as RootNode } from "./types-DEH-y24P.mjs";
+/*!
+* @thednp/domparser ESM v0.1.8
+* Copyright 2026 © thednp
+* Licensed under MIT (https://github.com/thednp/domparser/blob/master/LICENSE)
+*/
+
+import { l as DomParserOptions, x as RootNode } from "./types-BDywVdWu.js";
 
 //#region src/parts/dom-parser.d.ts
-
 /**
  * **DomParser**
  *
@@ -45,4 +50,4 @@ declare const DomParser: (config?: Partial<DomParserOptions>) => {
 };
 //#endregion
 export { DomParser };
-//# sourceMappingURL=dom-parser.d.mts.map
+//# sourceMappingURL=dom-parser.d.ts.map

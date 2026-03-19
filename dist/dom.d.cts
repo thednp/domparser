@@ -1,7 +1,12 @@
-import { E as TextNode, h as MaybeChildNode, i as ChildNodeList, o as CommentNode, s as DOMNode, v as NodeLikeAttributes, w as TagNames, x as RootNode } from "./types-CaW3j-V_.cjs";
+/*!
+* @thednp/domparser CJS v0.1.8
+* Copyright 2026 © thednp
+* Licensed under MIT (https://github.com/thednp/domparser/blob/master/LICENSE)
+*/
+
+import { E as TextNode, h as MaybeChildNode, i as ChildNodeList, o as CommentNode, s as DOMNode, v as NodeLikeAttributes, w as TagNames, x as RootNode } from "./types-Citk_UT6.cjs";
 
 //#region src/parts/prototype.d.ts
-
 /**
  * Creates a basic text or comment node.
  * @param nodeName The node name ("#text" or "#comment").

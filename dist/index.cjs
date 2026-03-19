@@ -1,11 +1,16 @@
-const require_util = require('./util-DVTj_GWo.cjs');
-const require_prototype = require('./prototype-eKhltkqB.cjs');
-const require_parser = require('./parser.cjs');
-const require_dom_parser = require('./dom-parser.cjs');
+/*!
+* @thednp/domparser CJS v0.1.8
+* Copyright 2026 © thednp
+* Licensed under MIT (https://github.com/thednp/domparser/blob/master/LICENSE)
+*/
 
+Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
+const require_util = require("./util-DXov1oLQ.cjs");
+const require_prototype = require("./prototype-DmLXXIj9.cjs");
+const require_parser = require("./parser.cjs");
+const require_dom_parser = require("./dom-parser.cjs");
 //#region package.json
-var version = "0.1.7";
-
+var version = "0.1.8";
 //#endregion
 exports.ATTR_REGEX = require_util.ATTR_REGEX;
 exports.DOM_ERROR = require_util.DOM_ERROR;
@@ -35,10 +40,11 @@ exports.toLowerCase = require_util.toLowerCase;
 exports.toUpperCase = require_util.toUpperCase;
 exports.tokenize = require_util.tokenize;
 exports.trim = require_util.trim;
-Object.defineProperty(exports, 'version', {
-  enumerable: true,
-  get: function () {
-    return version;
-  }
+Object.defineProperty(exports, "version", {
+	enumerable: true,
+	get: function() {
+		return version;
+	}
 });
+
 //# sourceMappingURL=index.cjs.map

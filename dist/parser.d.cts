@@ -1,7 +1,12 @@
-import { y as ParseResult } from "./types-CaW3j-V_.cjs";
+/*!
+* @thednp/domparser CJS v0.1.8
+* Copyright 2026 © thednp
+* Licensed under MIT (https://github.com/thednp/domparser/blob/master/LICENSE)
+*/
+
+import { y as ParseResult } from "./types-Citk_UT6.cjs";
 
 //#region src/parts/parser.d.ts
-
 /**
  * **Parser**
  *

@@ -1,3 +1,9 @@
+/*!
+* @thednp/domparser ESM v0.1.8
+* Copyright 2026 © thednp
+* Licensed under MIT (https://github.com/thednp/domparser/blob/master/LICENSE)
+*/
+
 //#region src/parts/util.ts
 const ATTR_REGEX = /([^\s=]+)(?:=(?:"([^"]*)"|'([^']*)'|([^\s"']+)))?/g;
 /**
@@ -92,7 +98,7 @@ const defineProperties = (obj, props) => Object.defineProperties(obj, props);
 * @param node The object to check.
 * @returns `true` if the node is an object, `false` otherwise.
 */
-const isObj = (node) => node !== null && typeof node === "object";
+const isObj = (node) => node !== null && node !== void 0 && typeof node === "object";
 /**
 * Checks if a node is a root object (`RootNode` or `RootLike`).
 * @param node The object to check.
@@ -204,7 +210,6 @@ const tokenize = (html, options = {}) => {
 			if (inStyleScript) {
 				const endSpecialTag = specialTags.find((t) => startsWith(html, `/${t}`, globalIndex + 1));
 				if (char === 60 && endSpecialTag && !inTemplate && !inQuote) {
-					// istanbul ignore else @preserve
 					if (scriptContent.length < maxScriptSize) tokens.push({
 						tokenType: "text",
 						value: trim(scriptContent),
@@ -219,11 +224,9 @@ const tokenize = (html, options = {}) => {
 					inStyleScript = false;
 					i += endSpecialTag.length + 2;
 				} else {
-					// istanbul ignore next @preserve - don't crash the test!!
 					if (scriptContent.length >= maxScriptSize) continue;
 					if (char === 96) inTemplate = !inTemplate;
 					else if (!inTemplate && (char === 34 || char === 39)) {
-						// istanbul ignore else @preserve
 						if (!inQuote) {
 							quote = char;
 							inQuote = true;
@@ -278,7 +281,6 @@ const tokenize = (html, options = {}) => {
 				else if (token === "pre" || startsWith(token, "pre")) inPre = true;
 				if (specialTags.find((t) => t === token || startsWith(token, t)) && !endsWith(token, "/")) inStyleScript = true;
 				const isDocType = startsWith(toLowerCase(token), "!doctype");
-				// istanbul ignore else @preserve
 				if (token) {
 					const isSC = endsWith(token, "/");
 					const [tagName] = token.split(/\s/);
@@ -304,7 +306,7 @@ const tokenize = (html, options = {}) => {
 	});
 	return tokens;
 };
-
 //#endregion
 export { toLowerCase as _, endsWith as a, trim as b, getAttributes as c, isObj as d, isPrimitive as f, startsWith as g, selfClosingTags as h, defineProperties as i, getBaseAttributes as l, isTag as m, DOM_ERROR as n, escape as o, isRoot as p, charCodeAt as r, fromCharCode as s, ATTR_REGEX as t, isNode as u, toUpperCase as v, tokenize as y };
-//# sourceMappingURL=util-BfmRalo8.mjs.map
+
+//# sourceMappingURL=util-9Q7IEZIl.js.map

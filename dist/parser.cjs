@@ -1,5 +1,11 @@
-const require_util = require('./util-DVTj_GWo.cjs');
+/*!
+* @thednp/domparser CJS v0.1.8
+* Copyright 2026 © thednp
+* Licensed under MIT (https://github.com/thednp/domparser/blob/master/LICENSE)
+*/
 
+Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
+const require_util = require("./util-DXov1oLQ.cjs");
 //#region src/parts/parser.ts
 /**
 * **Parser**
@@ -68,7 +74,7 @@ function Parser() {
 		};
 	} };
 }
-
 //#endregion
 exports.Parser = Parser;
+
 //# sourceMappingURL=parser.cjs.map

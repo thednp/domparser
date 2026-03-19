@@ -1,7 +1,12 @@
-import { E as TextNode, h as MaybeChildNode, i as ChildNodeList, o as CommentNode, s as DOMNode, v as NodeLikeAttributes, w as TagNames, x as RootNode } from "./types-DEH-y24P.mjs";
+/*!
+* @thednp/domparser ESM v0.1.8
+* Copyright 2026 © thednp
+* Licensed under MIT (https://github.com/thednp/domparser/blob/master/LICENSE)
+*/
+
+import { E as TextNode, h as MaybeChildNode, i as ChildNodeList, o as CommentNode, s as DOMNode, v as NodeLikeAttributes, w as TagNames, x as RootNode } from "./types-BDywVdWu.js";
 
 //#region src/parts/prototype.d.ts
-
 /**
  * Creates a basic text or comment node.
  * @param nodeName The node name ("#text" or "#comment").
@@ -37,4 +42,4 @@ declare function createElement(this: RootNode, tagName: string & TagNames, first
 declare const createDocument: () => RootNode;
 //#endregion
 export { createBasicNode, createDocument, createElement, createNode };
-//# sourceMappingURL=dom.d.mts.map
+//# sourceMappingURL=dom.d.ts.map

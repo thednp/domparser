@@ -1,7 +1,12 @@
-import { y as ParseResult } from "./types-DEH-y24P.mjs";
+/*!
+* @thednp/domparser ESM v0.1.8
+* Copyright 2026 © thednp
+* Licensed under MIT (https://github.com/thednp/domparser/blob/master/LICENSE)
+*/
+
+import { y as ParseResult } from "./types-BDywVdWu.js";
 
 //#region src/parts/parser.d.ts
-
 /**
  * **Parser**
  *
@@ -24,4 +29,4 @@ declare function Parser(): {
 };
 //#endregion
 export { Parser };
-//# sourceMappingURL=parser.d.mts.map
+//# sourceMappingURL=parser.d.ts.map

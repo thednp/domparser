@@ -1,6 +1,12 @@
-import { c as getAttributes, d as isObj, g as startsWith, h as selfClosingTags, n as DOM_ERROR, v as toUpperCase, y as tokenize } from "./util-BfmRalo8.mjs";
-import { n as createDocument, r as createElement, t as createBasicNode } from "./prototype-7kzHJ5rm.mjs";
+/*!
+* @thednp/domparser ESM v0.1.8
+* Copyright 2026 © thednp
+* Licensed under MIT (https://github.com/thednp/domparser/blob/master/LICENSE)
+*/
 
+import "./chunk-CSkFUzXk.js";
+import { c as getAttributes, d as isObj, g as startsWith, h as selfClosingTags, n as DOM_ERROR, v as toUpperCase, y as tokenize } from "./util-9Q7IEZIl.js";
+import { n as createDocument, r as createElement, t as createBasicNode } from "./prototype-j7Bz34eb.js";
 //#region src/parts/dom-parser.ts
 /**
 * **DomParser**
@@ -14,12 +20,12 @@ import { n as createDocument, r as createElement, t as createBasicNode } from ".
 * const config = {
 *   // On creating new node callback function
 *   onNodeCallback?: myFunction(node: DOMNode) => DOMNode | YOURNode,
-*   // Common dangerous tags that could lead to XSS attacks
+*    attacks
 *   filterTags: [
 *     "script", "style", "iframe", "object", "embed", "base", "form",
 *     "input", "button", "textarea", "select", "option"
 *   ],
-*   // Unsafe attributes that could lead to XSS attacks
+*    attacks
 *   filterAttrs: [
 *     "onerror", "onload", "onunload", "onclick", "ondblclick", "onmousedown",
 *     "onmouseup", "onmouseover", "onmousemove", "onmouseout", "onkeydown",
@@ -110,7 +116,7 @@ const DomParser = (config) => {
 		};
 	} };
 };
-
 //#endregion
 export { DomParser };
-//# sourceMappingURL=dom-parser.mjs.map
+
+//# sourceMappingURL=dom-parser.js.map

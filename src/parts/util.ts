@@ -150,7 +150,7 @@ export const defineProperties = <T extends Record<string, unknown>>(
  * @returns `true` if the node is an object, `false` otherwise.
  */
 export const isObj = (node: unknown) =>
-  node !== null && typeof node === "object";
+  node !== null && node !== undefined && typeof node === "object";
 
 /**
  * Checks if a node is a root object (`RootNode` or `RootLike`).

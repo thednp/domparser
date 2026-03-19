@@ -1,6 +1,12 @@
-const require_util = require('./util-DVTj_GWo.cjs');
-const require_prototype = require('./prototype-eKhltkqB.cjs');
+/*!
+* @thednp/domparser CJS v0.1.8
+* Copyright 2026 © thednp
+* Licensed under MIT (https://github.com/thednp/domparser/blob/master/LICENSE)
+*/
 
+Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
+const require_util = require("./util-DXov1oLQ.cjs");
+const require_prototype = require("./prototype-DmLXXIj9.cjs");
 //#region src/parts/dom-parser.ts
 /**
 * **DomParser**
@@ -14,12 +20,12 @@ const require_prototype = require('./prototype-eKhltkqB.cjs');
 * const config = {
 *   // On creating new node callback function
 *   onNodeCallback?: myFunction(node: DOMNode) => DOMNode | YOURNode,
-*   // Common dangerous tags that could lead to XSS attacks
+*    attacks
 *   filterTags: [
 *     "script", "style", "iframe", "object", "embed", "base", "form",
 *     "input", "button", "textarea", "select", "option"
 *   ],
-*   // Unsafe attributes that could lead to XSS attacks
+*    attacks
 *   filterAttrs: [
 *     "onerror", "onload", "onunload", "onclick", "ondblclick", "onmousedown",
 *     "onmouseup", "onmouseover", "onmousemove", "onmouseout", "onkeydown",
@@ -110,7 +116,7 @@ const DomParser = (config) => {
 		};
 	} };
 };
-
 //#endregion
 exports.DomParser = DomParser;
+
 //# sourceMappingURL=dom-parser.cjs.map

@@ -1,4 +1,29 @@
+/*!
+* @thednp/domparser CJS v0.1.8
+* Copyright 2026 © thednp
+* Licensed under MIT (https://github.com/thednp/domparser/blob/master/LICENSE)
+*/
 
+(() => {
+	var table = new Uint8Array(128);
+	for (var i = 0; i < 64; i++) table[i < 26 ? i + 65 : i < 52 ? i + 71 : i < 62 ? i - 4 : i * 4 - 205] = i;
+	return (base64) => {
+		var n = base64.length, bytes = new Uint8Array((n - (base64[n - 1] == "=") - (base64[n - 2] == "=")) * 3 / 4 | 0);
+		for (var i = 0, j = 0; i < n;) {
+			var c0 = table[base64.charCodeAt(i++)], c1 = table[base64.charCodeAt(i++)];
+			var c2 = table[base64.charCodeAt(i++)], c3 = table[base64.charCodeAt(i++)];
+			bytes[j++] = c0 << 2 | c1 >> 4;
+			bytes[j++] = c1 << 4 | c2 >> 2;
+			bytes[j++] = c2 << 6 | c3;
+		}
+		return bytes;
+	};
+})();
+((x) => typeof require !== "undefined" ? require : typeof Proxy !== "undefined" ? new Proxy(x, { get: (a, b) => (typeof require !== "undefined" ? require : a)[b] }) : x)(function(x) {
+	if (typeof require !== "undefined") return require.apply(this, arguments);
+	throw Error("Calling `require` for \"" + x + "\" in an environment that doesn't expose the `require` function. See https://rolldown.rs/in-depth/bundling-cjs#require-external-modules for more details.");
+});
+//#endregion
 //#region src/parts/util.ts
 const ATTR_REGEX = /([^\s=]+)(?:=(?:"([^"]*)"|'([^']*)'|([^\s"']+)))?/g;
 /**
@@ -93,7 +118,7 @@ const defineProperties = (obj, props) => Object.defineProperties(obj, props);
 * @param node The object to check.
 * @returns `true` if the node is an object, `false` otherwise.
 */
-const isObj = (node) => node !== null && typeof node === "object";
+const isObj = (node) => node !== null && node !== void 0 && typeof node === "object";
 /**
 * Checks if a node is a root object (`RootNode` or `RootLike`).
 * @param node The object to check.
@@ -205,7 +230,6 @@ const tokenize = (html, options = {}) => {
 			if (inStyleScript) {
 				const endSpecialTag = specialTags.find((t) => startsWith(html, `/${t}`, globalIndex + 1));
 				if (char === 60 && endSpecialTag && !inTemplate && !inQuote) {
-					// istanbul ignore else @preserve
 					if (scriptContent.length < maxScriptSize) tokens.push({
 						tokenType: "text",
 						value: trim(scriptContent),
@@ -220,11 +244,9 @@ const tokenize = (html, options = {}) => {
 					inStyleScript = false;
 					i += endSpecialTag.length + 2;
 				} else {
-					// istanbul ignore next @preserve - don't crash the test!!
 					if (scriptContent.length >= maxScriptSize) continue;
 					if (char === 96) inTemplate = !inTemplate;
 					else if (!inTemplate && (char === 34 || char === 39)) {
-						// istanbul ignore else @preserve
 						if (!inQuote) {
 							quote = char;
 							inQuote = true;
@@ -279,7 +301,6 @@ const tokenize = (html, options = {}) => {
 				else if (token === "pre" || startsWith(token, "pre")) inPre = true;
 				if (specialTags.find((t) => t === token || startsWith(token, t)) && !endsWith(token, "/")) inStyleScript = true;
 				const isDocType = startsWith(toLowerCase(token), "!doctype");
-				// istanbul ignore else @preserve
 				if (token) {
 					const isSC = endsWith(token, "/");
 					const [tagName] = token.split(/\s/);
@@ -305,126 +326,126 @@ const tokenize = (html, options = {}) => {
 	});
 	return tokens;
 };
-
 //#endregion
-Object.defineProperty(exports, 'ATTR_REGEX', {
-  enumerable: true,
-  get: function () {
-    return ATTR_REGEX;
-  }
+Object.defineProperty(exports, "ATTR_REGEX", {
+	enumerable: true,
+	get: function() {
+		return ATTR_REGEX;
+	}
 });
-Object.defineProperty(exports, 'DOM_ERROR', {
-  enumerable: true,
-  get: function () {
-    return DOM_ERROR;
-  }
+Object.defineProperty(exports, "DOM_ERROR", {
+	enumerable: true,
+	get: function() {
+		return DOM_ERROR;
+	}
 });
-Object.defineProperty(exports, 'charCodeAt', {
-  enumerable: true,
-  get: function () {
-    return charCodeAt;
-  }
+Object.defineProperty(exports, "charCodeAt", {
+	enumerable: true,
+	get: function() {
+		return charCodeAt;
+	}
 });
-Object.defineProperty(exports, 'defineProperties', {
-  enumerable: true,
-  get: function () {
-    return defineProperties;
-  }
+Object.defineProperty(exports, "defineProperties", {
+	enumerable: true,
+	get: function() {
+		return defineProperties;
+	}
 });
-Object.defineProperty(exports, 'endsWith', {
-  enumerable: true,
-  get: function () {
-    return endsWith;
-  }
+Object.defineProperty(exports, "endsWith", {
+	enumerable: true,
+	get: function() {
+		return endsWith;
+	}
 });
-Object.defineProperty(exports, 'escape', {
-  enumerable: true,
-  get: function () {
-    return escape;
-  }
+Object.defineProperty(exports, "escape", {
+	enumerable: true,
+	get: function() {
+		return escape;
+	}
 });
-Object.defineProperty(exports, 'fromCharCode', {
-  enumerable: true,
-  get: function () {
-    return fromCharCode;
-  }
+Object.defineProperty(exports, "fromCharCode", {
+	enumerable: true,
+	get: function() {
+		return fromCharCode;
+	}
 });
-Object.defineProperty(exports, 'getAttributes', {
-  enumerable: true,
-  get: function () {
-    return getAttributes;
-  }
+Object.defineProperty(exports, "getAttributes", {
+	enumerable: true,
+	get: function() {
+		return getAttributes;
+	}
 });
-Object.defineProperty(exports, 'getBaseAttributes', {
-  enumerable: true,
-  get: function () {
-    return getBaseAttributes;
-  }
+Object.defineProperty(exports, "getBaseAttributes", {
+	enumerable: true,
+	get: function() {
+		return getBaseAttributes;
+	}
 });
-Object.defineProperty(exports, 'isNode', {
-  enumerable: true,
-  get: function () {
-    return isNode;
-  }
+Object.defineProperty(exports, "isNode", {
+	enumerable: true,
+	get: function() {
+		return isNode;
+	}
 });
-Object.defineProperty(exports, 'isObj', {
-  enumerable: true,
-  get: function () {
-    return isObj;
-  }
+Object.defineProperty(exports, "isObj", {
+	enumerable: true,
+	get: function() {
+		return isObj;
+	}
 });
-Object.defineProperty(exports, 'isPrimitive', {
-  enumerable: true,
-  get: function () {
-    return isPrimitive;
-  }
+Object.defineProperty(exports, "isPrimitive", {
+	enumerable: true,
+	get: function() {
+		return isPrimitive;
+	}
 });
-Object.defineProperty(exports, 'isRoot', {
-  enumerable: true,
-  get: function () {
-    return isRoot;
-  }
+Object.defineProperty(exports, "isRoot", {
+	enumerable: true,
+	get: function() {
+		return isRoot;
+	}
 });
-Object.defineProperty(exports, 'isTag', {
-  enumerable: true,
-  get: function () {
-    return isTag;
-  }
+Object.defineProperty(exports, "isTag", {
+	enumerable: true,
+	get: function() {
+		return isTag;
+	}
 });
-Object.defineProperty(exports, 'selfClosingTags', {
-  enumerable: true,
-  get: function () {
-    return selfClosingTags;
-  }
+Object.defineProperty(exports, "selfClosingTags", {
+	enumerable: true,
+	get: function() {
+		return selfClosingTags;
+	}
 });
-Object.defineProperty(exports, 'startsWith', {
-  enumerable: true,
-  get: function () {
-    return startsWith;
-  }
+Object.defineProperty(exports, "startsWith", {
+	enumerable: true,
+	get: function() {
+		return startsWith;
+	}
 });
-Object.defineProperty(exports, 'toLowerCase', {
-  enumerable: true,
-  get: function () {
-    return toLowerCase;
-  }
+Object.defineProperty(exports, "toLowerCase", {
+	enumerable: true,
+	get: function() {
+		return toLowerCase;
+	}
 });
-Object.defineProperty(exports, 'toUpperCase', {
-  enumerable: true,
-  get: function () {
-    return toUpperCase;
-  }
+Object.defineProperty(exports, "toUpperCase", {
+	enumerable: true,
+	get: function() {
+		return toUpperCase;
+	}
 });
-Object.defineProperty(exports, 'tokenize', {
-  enumerable: true,
-  get: function () {
-    return tokenize;
-  }
+Object.defineProperty(exports, "tokenize", {
+	enumerable: true,
+	get: function() {
+		return tokenize;
+	}
 });
-Object.defineProperty(exports, 'trim', {
-  enumerable: true,
-  get: function () {
-    return trim;
-  }
+Object.defineProperty(exports, "trim", {
+	enumerable: true,
+	get: function() {
+		return trim;
+	}
 });
-//# sourceMappingURL=util-DVTj_GWo.cjs.map
+
+//# sourceMappingURL=util-DXov1oLQ.cjs.map
