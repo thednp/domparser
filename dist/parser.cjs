@@ -1,11 +1,11 @@
 /*!
-* @thednp/domparser CJS v0.1.8
+* @thednp/domparser CJS v0.1.9
 * Copyright 2026 © thednp
 * Licensed under MIT (https://github.com/thednp/domparser/blob/master/LICENSE)
 */
 
 Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
-const require_util = require("./util-DXov1oLQ.cjs");
+const require_util = require("./util-CPoLHN9T.cjs");
 //#region src/parts/parser.ts
 /**
 * **Parser**

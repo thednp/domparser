@@ -1,10 +1,10 @@
 /*!
-* @thednp/domparser CJS v0.1.8
+* @thednp/domparser CJS v0.1.9
 * Copyright 2026 © thednp
 * Licensed under MIT (https://github.com/thednp/domparser/blob/master/LICENSE)
 */
 
-import { E as TextNode, h as MaybeChildNode, i as ChildNodeList, o as CommentNode, s as DOMNode, v as NodeLikeAttributes, w as TagNames, x as RootNode } from "./types-Citk_UT6.cjs";
+import { E as TextNode, h as MaybeChildNode, i as ChildNodeList, o as CommentNode, s as DOMNode, v as NodeLikeAttributes, w as TagNames, x as RootNode } from "./types-nb0dzUo9.cjs";
 
 //#region src/parts/prototype.d.ts
 /**

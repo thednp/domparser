@@ -1,10 +1,10 @@
 /*!
-* @thednp/domparser ESM v0.1.8
+* @thednp/domparser ESM v0.1.9
 * Copyright 2026 © thednp
 * Licensed under MIT (https://github.com/thednp/domparser/blob/master/LICENSE)
 */
 
-import { y as ParseResult } from "./types-BDywVdWu.js";
+import { y as ParseResult } from "./types-BcwTVx5z.js";
 
 //#region src/parts/parser.d.ts
 /**

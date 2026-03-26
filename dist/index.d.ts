@@ -1,10 +1,10 @@
 /*!
-* @thednp/domparser ESM v0.1.8
+* @thednp/domparser ESM v0.1.9
 * Copyright 2026 © thednp
 * Licensed under MIT (https://github.com/thednp/domparser/blob/master/LICENSE)
 */
 
-import { C as TagAttr, D as TextOrComment, E as TextNode, O as TextToken, S as SelectorPart, T as TextLike, _ as NodeLike, a as CommentLike, b as RootLike, c as DOMNodeAttributes, d as ElementAPI, f as GetAttributesOptions, g as NodeAPI, h as MaybeChildNode, i as ChildNodeList, k as TokenizerOptions, l as DomParserOptions, m as MatchFunction, n as ChildLike, o as CommentNode, p as HTMLToken, r as ChildNode, s as DOMNode, t as ChildElementList, u as DomParserResult, v as NodeLikeAttributes, w as TagNames, x as RootNode, y as ParseResult } from "./types-BDywVdWu.js";
+import { C as TagAttr, D as TextOrComment, E as TextNode, O as TextToken, S as SelectorPart, T as TextLike, _ as NodeLike, a as CommentLike, b as RootLike, c as DOMNodeAttributes, d as ElementAPI, f as GetAttributesOptions, g as NodeAPI, h as MaybeChildNode, i as ChildNodeList, k as TokenizerOptions, l as DomParserOptions, m as MatchFunction, n as ChildLike, o as CommentNode, p as HTMLToken, r as ChildNode, s as DOMNode, t as ChildElementList, u as DomParserResult, v as NodeLikeAttributes, w as TagNames, x as RootNode, y as ParseResult } from "./types-BcwTVx5z.js";
 import { createBasicNode, createDocument, createElement, createNode } from "./dom.js";
 import { Parser } from "./parser.js";
 import { DomParser } from "./dom-parser.js";

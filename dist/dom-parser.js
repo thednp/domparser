@@ -1,12 +1,11 @@
 /*!
-* @thednp/domparser ESM v0.1.8
+* @thednp/domparser ESM v0.1.9
 * Copyright 2026 © thednp
 * Licensed under MIT (https://github.com/thednp/domparser/blob/master/LICENSE)
 */
 
-import "./chunk-CSkFUzXk.js";
-import { c as getAttributes, d as isObj, g as startsWith, h as selfClosingTags, n as DOM_ERROR, v as toUpperCase, y as tokenize } from "./util-9Q7IEZIl.js";
-import { n as createDocument, r as createElement, t as createBasicNode } from "./prototype-j7Bz34eb.js";
+import { c as getAttributes, d as isObj, g as startsWith, h as selfClosingTags, n as DOM_ERROR, v as toUpperCase, y as tokenize } from "./util-CeKWpfiV.js";
+import { n as createDocument, r as createElement, t as createBasicNode } from "./prototype-Pw5zXNuq.js";
 //#region src/parts/dom-parser.ts
 /**
 * **DomParser**

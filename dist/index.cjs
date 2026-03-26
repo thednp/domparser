@@ -1,16 +1,16 @@
 /*!
-* @thednp/domparser CJS v0.1.8
+* @thednp/domparser CJS v0.1.9
 * Copyright 2026 © thednp
 * Licensed under MIT (https://github.com/thednp/domparser/blob/master/LICENSE)
 */
 
 Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
-const require_util = require("./util-DXov1oLQ.cjs");
-const require_prototype = require("./prototype-DmLXXIj9.cjs");
+const require_util = require("./util-CPoLHN9T.cjs");
+const require_prototype = require("./prototype-FgrPAnBq.cjs");
 const require_parser = require("./parser.cjs");
 const require_dom_parser = require("./dom-parser.cjs");
 //#region package.json
-var version = "0.1.8";
+var version = "0.1.9";
 //#endregion
 exports.ATTR_REGEX = require_util.ATTR_REGEX;
 exports.DOM_ERROR = require_util.DOM_ERROR;

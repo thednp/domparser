@@ -1,5 +1,5 @@
 /*!
-* @thednp/domparser ESM v0.1.8
+* @thednp/domparser CJS v0.1.9
 * Copyright 2026 © thednp
 * Licensed under MIT (https://github.com/thednp/domparser/blob/master/LICENSE)
 */
@@ -307,6 +307,125 @@ const tokenize = (html, options = {}) => {
 	return tokens;
 };
 //#endregion
-export { toLowerCase as _, endsWith as a, trim as b, getAttributes as c, isObj as d, isPrimitive as f, startsWith as g, selfClosingTags as h, defineProperties as i, getBaseAttributes as l, isTag as m, DOM_ERROR as n, escape as o, isRoot as p, charCodeAt as r, fromCharCode as s, ATTR_REGEX as t, isNode as u, toUpperCase as v, tokenize as y };
+Object.defineProperty(exports, "ATTR_REGEX", {
+	enumerable: true,
+	get: function() {
+		return ATTR_REGEX;
+	}
+});
+Object.defineProperty(exports, "DOM_ERROR", {
+	enumerable: true,
+	get: function() {
+		return DOM_ERROR;
+	}
+});
+Object.defineProperty(exports, "charCodeAt", {
+	enumerable: true,
+	get: function() {
+		return charCodeAt;
+	}
+});
+Object.defineProperty(exports, "defineProperties", {
+	enumerable: true,
+	get: function() {
+		return defineProperties;
+	}
+});
+Object.defineProperty(exports, "endsWith", {
+	enumerable: true,
+	get: function() {
+		return endsWith;
+	}
+});
+Object.defineProperty(exports, "escape", {
+	enumerable: true,
+	get: function() {
+		return escape;
+	}
+});
+Object.defineProperty(exports, "fromCharCode", {
+	enumerable: true,
+	get: function() {
+		return fromCharCode;
+	}
+});
+Object.defineProperty(exports, "getAttributes", {
+	enumerable: true,
+	get: function() {
+		return getAttributes;
+	}
+});
+Object.defineProperty(exports, "getBaseAttributes", {
+	enumerable: true,
+	get: function() {
+		return getBaseAttributes;
+	}
+});
+Object.defineProperty(exports, "isNode", {
+	enumerable: true,
+	get: function() {
+		return isNode;
+	}
+});
+Object.defineProperty(exports, "isObj", {
+	enumerable: true,
+	get: function() {
+		return isObj;
+	}
+});
+Object.defineProperty(exports, "isPrimitive", {
+	enumerable: true,
+	get: function() {
+		return isPrimitive;
+	}
+});
+Object.defineProperty(exports, "isRoot", {
+	enumerable: true,
+	get: function() {
+		return isRoot;
+	}
+});
+Object.defineProperty(exports, "isTag", {
+	enumerable: true,
+	get: function() {
+		return isTag;
+	}
+});
+Object.defineProperty(exports, "selfClosingTags", {
+	enumerable: true,
+	get: function() {
+		return selfClosingTags;
+	}
+});
+Object.defineProperty(exports, "startsWith", {
+	enumerable: true,
+	get: function() {
+		return startsWith;
+	}
+});
+Object.defineProperty(exports, "toLowerCase", {
+	enumerable: true,
+	get: function() {
+		return toLowerCase;
+	}
+});
+Object.defineProperty(exports, "toUpperCase", {
+	enumerable: true,
+	get: function() {
+		return toUpperCase;
+	}
+});
+Object.defineProperty(exports, "tokenize", {
+	enumerable: true,
+	get: function() {
+		return tokenize;
+	}
+});
+Object.defineProperty(exports, "trim", {
+	enumerable: true,
+	get: function() {
+		return trim;
+	}
+});
 
-//# sourceMappingURL=util-9Q7IEZIl.js.map
+//# sourceMappingURL=util-CPoLHN9T.cjs.map

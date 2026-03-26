@@ -1,12 +1,12 @@
 /*!
-* @thednp/domparser CJS v0.1.8
+* @thednp/domparser CJS v0.1.9
 * Copyright 2026 © thednp
 * Licensed under MIT (https://github.com/thednp/domparser/blob/master/LICENSE)
 */
 
 Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
-const require_util = require("./util-DXov1oLQ.cjs");
-const require_prototype = require("./prototype-DmLXXIj9.cjs");
+const require_util = require("./util-CPoLHN9T.cjs");
+const require_prototype = require("./prototype-FgrPAnBq.cjs");
 //#region src/parts/dom-parser.ts
 /**
 * **DomParser**

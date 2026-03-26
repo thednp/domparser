@@ -1,10 +1,10 @@
 /*!
-* @thednp/domparser ESM v0.1.8
+* @thednp/domparser CJS v0.1.9
 * Copyright 2026 © thednp
 * Licensed under MIT (https://github.com/thednp/domparser/blob/master/LICENSE)
 */
 
-import { _ as toLowerCase, b as trim, d as isObj, f as isPrimitive, g as startsWith, h as selfClosingTags, i as defineProperties, m as isTag, n as DOM_ERROR, p as isRoot, u as isNode, v as toUpperCase, y as tokenize } from "./util-9Q7IEZIl.js";
+const require_util = require("./util-CPoLHN9T.cjs");
 //#region src/parts/selectors.ts
 /**
 * Create a selector cache to help improve `match` based queries
@@ -63,17 +63,17 @@ const SELECTOR_REGEX = /([.#]?[\w-]+|\[[\w-]+(?:=[^\]]+)?\])+/g;
 const parseSelector = (selector) => {
 	const parts = [];
 	const matches = selector.match(SELECTOR_REGEX) || [];
-	for (const match of matches) if (startsWith(match, "#")) parts.push({
+	for (const match of matches) if (require_util.startsWith(match, "#")) parts.push({
 		type: "#",
 		name: "id",
 		value: match.slice(1)
 	});
-	else if (startsWith(match, ".")) parts.push({
+	else if (require_util.startsWith(match, ".")) parts.push({
 		type: ".",
 		name: "class",
 		value: match.slice(1)
 	});
-	else if (startsWith(match, "[")) {
+	else if (require_util.startsWith(match, "[")) {
 		const [name, value] = match.slice(1, -1).split("=");
 		parts.push({
 			type: "[",
@@ -101,7 +101,7 @@ const matchesSingleSelector = (node, selector) => {
 				const attrValue = node.attributes.get(part.name);
 				return part.value ? attrValue === part.value : attrValue !== void 0;
 			}
-			default: return toLowerCase(node.tagName) === toLowerCase(part.name);
+			default: return require_util.toLowerCase(node.tagName) === require_util.toLowerCase(part.name);
 		}
 	});
 };
@@ -122,12 +122,12 @@ const matchesSelector = (node, selector) => {
 * @returns textContent string
 */
 const textContent = (node) => {
-	if (!isTag(node)) return node.nodeValue;
+	if (!require_util.isTag(node)) return node.nodeValue;
 	const { childNodes, nodeName } = node;
 	if (nodeName === "BR") return "\n";
 	if (!childNodes.length) return "";
-	const hasTagChild = childNodes.some(isTag);
-	return childNodes.map((n) => isTag(n) ? textContent(n) : n.nodeValue).join(hasTagChild ? "\n" : "");
+	const hasTagChild = childNodes.some(require_util.isTag);
+	return childNodes.map((n) => require_util.isTag(n) ? textContent(n) : n.nodeValue).join(hasTagChild ? "\n" : "");
 };
 /**
 * Generates HTML string for node's children
@@ -139,9 +139,9 @@ const innerHTML = (node, depth = 0) => {
 	const { childNodes: childContents } = node;
 	const childNodes = childContents.filter((c) => c.nodeName !== "#comment");
 	if (!childNodes.length) return "";
-	const childIsText = childNodes.length === 1 && !isTag(childNodes[0]);
+	const childIsText = childNodes.length === 1 && !require_util.isTag(childNodes[0]);
 	const space = depth && !childIsText ? "  ".repeat(depth) : "";
-	return childNodes.map((n) => isTag(n) ? outerHTML(n, depth) : space + n.nodeValue).join("\n");
+	return childNodes.map((n) => require_util.isTag(n) ? outerHTML(n, depth) : space + n.nodeValue).join("\n");
 };
 /**
 * Generates HTML string for a node including its opening/closing tags
@@ -154,10 +154,10 @@ const outerHTML = (node, depth = 0) => {
 	const childNodes = childContents.filter((c) => c.nodeName !== "#comment");
 	const space = depth ? "  ".repeat(depth) : "";
 	const hasChildren = childNodes.length > 0;
-	const childIsText = childNodes.length === 1 && !isTag(childNodes[0]);
+	const childIsText = childNodes.length === 1 && !require_util.isTag(childNodes[0]);
 	const hasAttributes = attributes.size > 0;
-	const isSelfClosing = selfClosingTags.has(tagName);
-	let output = `${space}<${tagName}${hasAttributes ? " " + Array.from(attributes).map(([key, val]) => `${key}="${trim(val)}"`).join(" ") : ""}${isSelfClosing ? " /" : ""}>`;
+	const isSelfClosing = require_util.selfClosingTags.has(tagName);
+	let output = `${space}<${tagName}${hasAttributes ? " " + Array.from(attributes).map(([key, val]) => `${key}="${require_util.trim(val)}"`).join(" ") : ""}${isSelfClosing ? " /" : ""}>`;
 	output += !childIsText && hasChildren ? "\n" : "";
 	output += hasChildren ? innerHTML(node, depth + 1) : "";
 	output += !childIsText && hasChildren ? `\n${space}` : "";
@@ -177,13 +177,13 @@ function createBasicNode(nodeName, text) {
 	};
 }
 function setupChildNode(child, parent, ownerDocument) {
-	defineProperties(child, {
+	require_util.defineProperties(child, {
 		textContent: {
 			enumerable: false,
 			configurable: true,
 			get: () => textContent(child),
 			set: (newContent) => {
-				if (isTag(child)) {
+				if (require_util.isTag(child)) {
 					child.replaceChildren();
 					child.appendChild(createBasicNode("#text", newContent));
 				} else child.nodeValue = newContent;
@@ -207,32 +207,32 @@ function setupChildNode(child, parent, ownerDocument) {
 	});
 	child.remove = () => parent.removeChild(child);
 	child.before = (...nodes) => {
-		const validNodes = nodes.map(convertToNode).filter(isNode);
+		const validNodes = nodes.map(convertToNode).filter(require_util.isNode);
 		const index = parent.childNodes.indexOf(child);
 		if (index > -1) {
 			parent.childNodes.splice(index, 0, ...validNodes);
 			validNodes.forEach((n, i) => {
-				if (isTag(n)) {
+				if (require_util.isTag(n)) {
 					const childIndex = parent.children.indexOf(child);
 					parent.children.splice(childIndex + i, 0, n);
 					ownerDocument?.register(n);
-					if (isTag(parent)) parent.registerChild(n);
+					if (require_util.isTag(parent)) parent.registerChild(n);
 				}
 				setupChildNode(n, parent, ownerDocument);
 			});
 		}
 	};
 	child.after = (...nodes) => {
-		const validNodes = nodes.map(convertToNode).filter(isNode);
+		const validNodes = nodes.map(convertToNode).filter(require_util.isNode);
 		const index = parent.childNodes.indexOf(child);
 		if (index > -1) {
 			parent.childNodes.splice(index + 1, 0, ...validNodes);
 			validNodes.forEach((n, i) => {
-				if (isTag(n)) {
+				if (require_util.isTag(n)) {
 					const childIndex = parent.children.indexOf(child);
 					parent.children.splice(childIndex + 1 + i, 0, n);
 					ownerDocument?.register(n);
-					if (isTag(parent)) parent.registerChild(n);
+					if (require_util.isTag(parent)) parent.registerChild(n);
 				}
 				setupChildNode(n, parent, ownerDocument);
 			});
@@ -258,9 +258,9 @@ function createNode(nodeName, ...childNodes) {
 	const node = {
 		nodeName,
 		appendChild(child) {
-			if (!isNode(child)) throw new Error(`${DOM_ERROR} Invalid node.`);
+			if (!require_util.isNode(child)) throw new Error(`${require_util.DOM_ERROR} Invalid node.`);
 			CHILDNODES.push(child);
-			if (isTag(child)) {
+			if (require_util.isTag(child)) {
 				ALL.push(child);
 				CHILDREN.push(child);
 				ownerDocument?.register(child);
@@ -275,7 +275,7 @@ function createNode(nodeName, ...childNodes) {
 			CHILDREN.length = 0;
 			CHILDNODES.length = 0;
 		},
-		...isRoot({ nodeName }) && {
+		...require_util.isRoot({ nodeName }) && {
 			createElement(tagName, first, ...rest) {
 				return createElement.call(node, tagName, first, ...rest);
 			},
@@ -296,7 +296,7 @@ function createNode(nodeName, ...childNodes) {
 			return matchesSelector(node, selector);
 		} },
 		contains: (childNode) => {
-			if (!childNode || !isTag(childNode)) throw new Error("DomError: the childNode parameter must be a valid DOMNode");
+			if (!childNode || !require_util.isTag(childNode)) throw new Error("DomError: the childNode parameter must be a valid DOMNode");
 			if (node.children.includes(childNode)) return true;
 			let currentParent = childNode.parentNode;
 			while (currentParent) {
@@ -306,9 +306,9 @@ function createNode(nodeName, ...childNodes) {
 			return false;
 		},
 		removeChild(childNode) {
-			if (!childNode || !isNode(childNode)) throw new Error("DomError: the childNode parameter must be a valid ChildNode");
+			if (!childNode || !require_util.isNode(childNode)) throw new Error("DomError: the childNode parameter must be a valid ChildNode");
 			const indexOf = (arr) => arr.indexOf(childNode);
-			if (isTag(childNode)) {
+			if (require_util.isTag(childNode)) {
 				const idx1 = indexOf(ALL);
 				const idx2 = indexOf(CHILDREN);
 				if (idx1 > -1) ALL.splice(idx1, 1);
@@ -338,7 +338,7 @@ function createNode(nodeName, ...childNodes) {
 			});
 		}
 	};
-	defineProperties(node, {
+	require_util.defineProperties(node, {
 		childNodes: {
 			enumerable: true,
 			get: () => CHILDNODES
@@ -354,22 +354,22 @@ function createNode(nodeName, ...childNodes) {
 			}
 		} } : {}
 	});
-	if (nodeIsRoot) defineProperties(node, {
+	if (nodeIsRoot) require_util.defineProperties(node, {
 		all: {
 			enumerable: true,
 			get: () => ALL
 		},
 		documentElement: {
 			enumerable: true,
-			get: () => ALL.find((node) => toUpperCase(node.tagName) === "HTML")
+			get: () => ALL.find((node) => require_util.toUpperCase(node.tagName) === "HTML")
 		},
 		head: {
 			enumerable: true,
-			get: () => ALL.find((node) => toUpperCase(node.tagName) === "HEAD")
+			get: () => ALL.find((node) => require_util.toUpperCase(node.tagName) === "HEAD")
 		},
 		body: {
 			enumerable: true,
-			get: () => ALL.find((node) => toUpperCase(node.tagName) === "BODY")
+			get: () => ALL.find((node) => require_util.toUpperCase(node.tagName) === "BODY")
 		},
 		register: {
 			enumerable: false,
@@ -385,7 +385,7 @@ function createNode(nodeName, ...childNodes) {
 			}
 		}
 	});
-	else defineProperties(node, {
+	else require_util.defineProperties(node, {
 		innerHTML: {
 			enumerable: false,
 			get: () => innerHTML(node)
@@ -399,8 +399,8 @@ function createNode(nodeName, ...childNodes) {
 	return node;
 }
 const convertToNode = (n) => {
-	if (isPrimitive(n)) {
-		const { tokenType, value } = tokenize(String(n))[0];
+	if (require_util.isPrimitive(n)) {
+		const { tokenType, value } = require_util.tokenize(String(n))[0];
 		return createBasicNode(`#${tokenType}`, value);
 	}
 	return n;
@@ -416,14 +416,14 @@ const convertToNode = (n) => {
 function createElement(tagName, first, ...args) {
 	const childNodes = [];
 	let attributes = /* @__PURE__ */ new Map();
-	if (first) if (isObj(first) && !isNode(first)) attributes = new Map(Object.entries(first));
+	if (first) if (require_util.isObj(first) && !require_util.isNode(first)) attributes = new Map(Object.entries(first));
 	else childNodes.push(convertToNode(first));
-	const nodes = args.map(convertToNode).filter(isNode);
+	const nodes = args.map(convertToNode).filter(require_util.isNode);
 	childNodes.push(...nodes);
-	const node = createNode.call(this, toUpperCase(tagName), ...childNodes);
+	const node = createNode.call(this, require_util.toUpperCase(tagName), ...childNodes);
 	const charset = attributes.get("charset");
-	if (tagName === "meta" && charset) this.charset = toUpperCase(charset);
-	defineProperties(node, {
+	if (tagName === "meta" && charset) this.charset = require_util.toUpperCase(charset);
+	require_util.defineProperties(node, {
 		tagName: {
 			enumerable: true,
 			get: () => tagName
@@ -461,7 +461,7 @@ function createElement(tagName, first, ...args) {
 		if (!selector) throw new Error("DomError: selector must be a string");
 		if (node.matches(selector)) return node;
 		let currentParent = node.parentNode;
-		while (!isRoot(currentParent)) {
+		while (!require_util.isRoot(currentParent)) {
 			if (currentParent.matches(selector)) return currentParent;
 			currentParent = currentParent.parentNode;
 		}
@@ -476,6 +476,41 @@ function createElement(tagName, first, ...args) {
 */
 const createDocument = () => createNode.call(null, "#document");
 //#endregion
-export { matchesSelector as a, createNode as i, createDocument as n, selectorCache as o, createElement as r, createBasicNode as t };
+Object.defineProperty(exports, "createBasicNode", {
+	enumerable: true,
+	get: function() {
+		return createBasicNode;
+	}
+});
+Object.defineProperty(exports, "createDocument", {
+	enumerable: true,
+	get: function() {
+		return createDocument;
+	}
+});
+Object.defineProperty(exports, "createElement", {
+	enumerable: true,
+	get: function() {
+		return createElement;
+	}
+});
+Object.defineProperty(exports, "createNode", {
+	enumerable: true,
+	get: function() {
+		return createNode;
+	}
+});
+Object.defineProperty(exports, "matchesSelector", {
+	enumerable: true,
+	get: function() {
+		return matchesSelector;
+	}
+});
+Object.defineProperty(exports, "selectorCache", {
+	enumerable: true,
+	get: function() {
+		return selectorCache;
+	}
+});
 
-//# sourceMappingURL=prototype-j7Bz34eb.js.map
+//# sourceMappingURL=prototype-FgrPAnBq.cjs.map

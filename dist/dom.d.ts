@@ -1,10 +1,10 @@
 /*!
-* @thednp/domparser ESM v0.1.8
+* @thednp/domparser ESM v0.1.9
 * Copyright 2026 © thednp
 * Licensed under MIT (https://github.com/thednp/domparser/blob/master/LICENSE)
 */
 
-import { E as TextNode, h as MaybeChildNode, i as ChildNodeList, o as CommentNode, s as DOMNode, v as NodeLikeAttributes, w as TagNames, x as RootNode } from "./types-BDywVdWu.js";
+import { E as TextNode, h as MaybeChildNode, i as ChildNodeList, o as CommentNode, s as DOMNode, v as NodeLikeAttributes, w as TagNames, x as RootNode } from "./types-BcwTVx5z.js";
 
 //#region src/parts/prototype.d.ts
 /**
