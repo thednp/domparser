@@ -14,6 +14,8 @@
     "dist",
     "README.md",
     "LICENSE",
+    "AGENTS.md",
+    "llms.txt",
     "package.json"
   ],
   "keywords": [
