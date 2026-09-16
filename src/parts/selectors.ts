@@ -1,6 +1,6 @@
 // selectors.ts
-import { startsWith, toLowerCase } from "./util";
-import type { DOMNode, MatchFunction, SelectorPart } from "./types";
+import type { DOMNode, MatchFunction, SelectorPart } from "./types.d.ts";
+import { startsWith, toLowerCase } from "./util.ts";
 
 /**
  * Create a selector cache to help improve `match` based queries
@@ -19,7 +19,7 @@ class SelectorCacheMap extends Map<string, MatchFunction> {
     this.hits += 1;
   }
   miss() {
-    this.hits += 1;
+    this.misses += 1;
   }
   getMatchFunction(selector: string, maxSize = 100): MatchFunction {
     let matchFn = this.get(selector);
@@ -34,10 +34,12 @@ class SelectorCacheMap extends Map<string, MatchFunction> {
       }
 
       // Parse selector parts once and create a matcher function
-      const parts = selector.split(",").map((s) => s.trim());
+      const selectorGroups = selector
+        .split(",")
+        .map((s) => parseSelector(s.trim()));
 
       matchFn = (node: DOMNode): boolean =>
-        parts.some((part) => matchesSingleSelector(node, part));
+        selectorGroups.some((parts) => matchParts(node, parts));
 
       this.set(selector, matchFn);
     } else {
@@ -91,22 +93,20 @@ const parseSelector = (selector: string): SelectorPart[] => {
         value: value ? value.replace(/['"]/g, "") : undefined,
       });
     } else {
-      parts.push({ type: "", name: match });
+      parts.push({ type: "", name: toLowerCase(match) });
     }
   }
   return parts;
 };
 
 /**
- * Checks if a node matches a single CSS selector.
+ * Checks if a node matches pre-parsed selector parts.
  * @param node The `DOMNode` object to test against the selector.
- * @param selector The CSS selector string.
+ * @param parts Pre-parsed selector parts.
  * @returns `true` if the node matches the selector, `false` otherwise.
  */
-const matchesSingleSelector = (node: DOMNode, selector: string): boolean => {
-  const parts = parseSelector(selector);
-
-  return parts.every((part) => {
+const matchParts = (node: DOMNode, parts: SelectorPart[]): boolean =>
+  parts.every((part) => {
     switch (part.type) {
       case "#": {
         return node.attributes.get("id") === part.value;
@@ -120,11 +120,10 @@ const matchesSingleSelector = (node: DOMNode, selector: string): boolean => {
         return part.value ? attrValue === part.value : attrValue !== undefined;
       }
       default: {
-        return toLowerCase(node.tagName) === toLowerCase(part.name);
+        return toLowerCase(node.tagName) === part.name;
       }
     }
   });
-};
 
 /**
  * Checks if a node matches one or mode CSS selectors.

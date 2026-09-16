@@ -1,11 +1,10 @@
 /*!
-* @thednp/domparser CJS v0.1.9
+* @thednp/domparser CJS v0.2.0
 * Copyright 2026 © thednp
 * Licensed under MIT (https://github.com/thednp/domparser/blob/master/LICENSE)
 */
 
-import { y as ParseResult } from "./types-nb0dzUo9.cjs";
-
+import { y as ParseResult } from "./types-BKepT8m1.cjs";
 //#region src/parts/parser.d.ts
 /**
  * **Parser**
@@ -24,9 +23,8 @@ import { y as ParseResult } from "./types-nb0dzUo9.cjs";
  *
  * @returns The result of the parser.
  */
-declare function Parser(): {
+export declare function Parser(): {
   parseFromString(htmlString?: string): ParseResult;
 };
 //#endregion
-export { Parser };
 //# sourceMappingURL=parser.d.cts.map

@@ -1,11 +1,10 @@
 /*!
-* @thednp/domparser CJS v0.1.9
+* @thednp/domparser CJS v0.2.0
 * Copyright 2026 © thednp
 * Licensed under MIT (https://github.com/thednp/domparser/blob/master/LICENSE)
 */
 
-import { E as TextNode, h as MaybeChildNode, i as ChildNodeList, o as CommentNode, s as DOMNode, v as NodeLikeAttributes, w as TagNames, x as RootNode } from "./types-nb0dzUo9.cjs";
-
+import { E as TextNode, h as MaybeChildNode, i as ChildNodeList, o as CommentNode, s as DOMNode, v as NodeLikeAttributes, w as TagNames, x as RootNode } from "./types-BKepT8m1.cjs";
 //#region src/parts/prototype.d.ts
 /**
  * Creates a basic text or comment node.
@@ -13,7 +12,7 @@ import { E as TextNode, h as MaybeChildNode, i as ChildNodeList, o as CommentNod
  * @param text The text content of the node.
  * @returns A TextNode or CommentNode object.
  */
-declare function createBasicNode<T extends "#text" | "#comment">(nodeName: T, text: string): TextNode | CommentNode;
+export declare function createBasicNode<T extends "#text" | "#comment">(nodeName: T, text: string): TextNode | CommentNode;
 /**
  * Creates a DOM-like Node (`DOMNode` or `RootNode`) with DOM API properties and methods.
  * This function extends the basic `NodeLike` from **Parser** by adding DOM-specific
@@ -24,7 +23,7 @@ declare function createBasicNode<T extends "#text" | "#comment">(nodeName: T, te
  * @param childNodes Optional child nodes to append to the created node.
  * @returns An extended `DOMNode` or `RootNode` object with DOM API.
  */
-declare function createNode(this: RootNode | null, nodeName: string, ...childNodes: ChildNodeList): Omit<DOMNode, "tagName" | "attributes"> | RootNode;
+export declare function createNode(this: RootNode | null, nodeName: string, ...childNodes: ChildNodeList): Omit<DOMNode, "tagName" | "attributes"> | RootNode;
 /**
  * Creates a new `Element` like node
  * @param this The RootNode instance
@@ -33,13 +32,12 @@ declare function createNode(this: RootNode | null, nodeName: string, ...childNod
  * @param args Additional child nodes
  * @returns New element node
  */
-declare function createElement(this: RootNode, tagName: string & TagNames, first?: NodeLikeAttributes | MaybeChildNode, ...args: MaybeChildNode[]): DOMNode;
+export declare function createElement(this: RootNode, tagName: string & TagNames, first?: NodeLikeAttributes | MaybeChildNode, ...args: MaybeChildNode[]): DOMNode;
 /**
  * Creates a new `Document` like root node.
  *
  * @returns a new root node
  */
-declare const createDocument: () => RootNode;
+export declare const createDocument: () => RootNode;
 //#endregion
-export { createBasicNode, createDocument, createElement, createNode };
 //# sourceMappingURL=dom.d.cts.map

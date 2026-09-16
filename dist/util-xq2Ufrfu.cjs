@@ -1,5 +1,5 @@
 /*!
-* @thednp/domparser ESM v0.1.9
+* @thednp/domparser CJS v0.2.0
 * Copyright 2026 © thednp
 * Licensed under MIT (https://github.com/thednp/domparser/blob/master/LICENSE)
 */
@@ -134,7 +134,7 @@ const trim = (str) => str.trim();
 /**
 * Set of self-closing HTML tags used by the `Parser`.
 */
-const selfClosingTags = new Set([
+const selfClosingTags = /* @__PURE__ */ new Set([
 	"?xml",
 	"area",
 	"base",
@@ -160,23 +160,20 @@ const selfClosingTags = new Set([
 	"polygon",
 	"polyline"
 ]);
+const ESCAPE_MAP = {
+	"&": "&amp;",
+	"<": "&lt;",
+	">": "&gt;",
+	"\"": "&quot;",
+	"'": "&#039;"
+};
 const escape = (str) => {
-	if (str === null || str === "") return "";
-	else str = str.toString();
-	const map = {
-		"&": "&amp;",
-		"<": "&lt;",
-		">": "&gt;",
-		"\"": "&quot;",
-		"'": "&#039;"
-	};
-	return str.replace(/[&<>"']/g, (m) => {
-		return map[m];
-	});
+	if (!str) return "";
+	return str.replace(/[&<>"']/g, (m) => ESCAPE_MAP[m]);
 };
 const DOM_ERROR = "DomParserError:";
-const DEFAULT_CHUNK_SIZE = 64 * 1024;
-const DEFAULT_MAX_SCRIPT_SIZE = 128 * 1024;
+const DEFAULT_CHUNK_SIZE = 65536;
+const DEFAULT_MAX_SCRIPT_SIZE = 131072;
 /**
 * Tokenizes an HTML string into an array of HTML tokens.
 * These tokens represent opening tags, closing tags, text content, and comments.
@@ -201,6 +198,7 @@ const tokenize = (html, options = {}) => {
 	let inComment = false;
 	let inStyleScript = false;
 	let currentChunkStart = 0;
+	let hasEquals = false;
 	while (currentChunkStart < len) {
 		const chunkEnd = Math.min(currentChunkStart + chunkSize, len);
 		const chunk = html.slice(currentChunkStart, chunkEnd);
@@ -251,7 +249,7 @@ const tokenize = (html, options = {}) => {
 				}
 				continue;
 			}
-			if (inTag && token.includes("=") && (char === 34 || char === 39)) {
+			if (inTag && hasEquals && (char === 34 || char === 39)) {
 				if (!inQuote) {
 					quote = char;
 					inQuote = true;
@@ -276,6 +274,7 @@ const tokenize = (html, options = {}) => {
 					continue;
 				}
 				inTag = true;
+				hasEquals = false;
 			} else if (char === 62 && inTag && !inTemplate) {
 				if (token === "/pre") inPre = false;
 				else if (token === "pre" || startsWith(token, "pre")) inPre = true;
@@ -294,7 +293,11 @@ const tokenize = (html, options = {}) => {
 				token = "";
 				inTag = false;
 				inQuote = false;
-			} else token += fromCharCode(char);
+				hasEquals = false;
+			} else {
+				token += fromCharCode(char);
+				if (char === 61) hasEquals = true;
+			}
 		}
 		currentChunkStart = chunkEnd;
 	}
@@ -307,6 +310,125 @@ const tokenize = (html, options = {}) => {
 	return tokens;
 };
 //#endregion
-export { toLowerCase as _, endsWith as a, trim as b, getAttributes as c, isObj as d, isPrimitive as f, startsWith as g, selfClosingTags as h, defineProperties as i, getBaseAttributes as l, isTag as m, DOM_ERROR as n, escape as o, isRoot as p, charCodeAt as r, fromCharCode as s, ATTR_REGEX as t, isNode as u, toUpperCase as v, tokenize as y };
+Object.defineProperty(exports, "ATTR_REGEX", {
+	enumerable: true,
+	get: function() {
+		return ATTR_REGEX;
+	}
+});
+Object.defineProperty(exports, "DOM_ERROR", {
+	enumerable: true,
+	get: function() {
+		return DOM_ERROR;
+	}
+});
+Object.defineProperty(exports, "charCodeAt", {
+	enumerable: true,
+	get: function() {
+		return charCodeAt;
+	}
+});
+Object.defineProperty(exports, "defineProperties", {
+	enumerable: true,
+	get: function() {
+		return defineProperties;
+	}
+});
+Object.defineProperty(exports, "endsWith", {
+	enumerable: true,
+	get: function() {
+		return endsWith;
+	}
+});
+Object.defineProperty(exports, "escape", {
+	enumerable: true,
+	get: function() {
+		return escape;
+	}
+});
+Object.defineProperty(exports, "fromCharCode", {
+	enumerable: true,
+	get: function() {
+		return fromCharCode;
+	}
+});
+Object.defineProperty(exports, "getAttributes", {
+	enumerable: true,
+	get: function() {
+		return getAttributes;
+	}
+});
+Object.defineProperty(exports, "getBaseAttributes", {
+	enumerable: true,
+	get: function() {
+		return getBaseAttributes;
+	}
+});
+Object.defineProperty(exports, "isNode", {
+	enumerable: true,
+	get: function() {
+		return isNode;
+	}
+});
+Object.defineProperty(exports, "isObj", {
+	enumerable: true,
+	get: function() {
+		return isObj;
+	}
+});
+Object.defineProperty(exports, "isPrimitive", {
+	enumerable: true,
+	get: function() {
+		return isPrimitive;
+	}
+});
+Object.defineProperty(exports, "isRoot", {
+	enumerable: true,
+	get: function() {
+		return isRoot;
+	}
+});
+Object.defineProperty(exports, "isTag", {
+	enumerable: true,
+	get: function() {
+		return isTag;
+	}
+});
+Object.defineProperty(exports, "selfClosingTags", {
+	enumerable: true,
+	get: function() {
+		return selfClosingTags;
+	}
+});
+Object.defineProperty(exports, "startsWith", {
+	enumerable: true,
+	get: function() {
+		return startsWith;
+	}
+});
+Object.defineProperty(exports, "toLowerCase", {
+	enumerable: true,
+	get: function() {
+		return toLowerCase;
+	}
+});
+Object.defineProperty(exports, "toUpperCase", {
+	enumerable: true,
+	get: function() {
+		return toUpperCase;
+	}
+});
+Object.defineProperty(exports, "tokenize", {
+	enumerable: true,
+	get: function() {
+		return tokenize;
+	}
+});
+Object.defineProperty(exports, "trim", {
+	enumerable: true,
+	get: function() {
+		return trim;
+	}
+});
 
-//# sourceMappingURL=util-CeKWpfiV.js.map
+//# sourceMappingURL=util-xq2Ufrfu.cjs.map

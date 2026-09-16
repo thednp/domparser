@@ -1,0 +1,27 @@
+# @thednp/domparser
+
+> A lightweight TypeScript HTML parser for isomorphic applications. Provides a fast Parser (~1.5kB), a full DomParser with selectors and DOM manipulation (~4.1kB), and a Document-like creation API (~2.6kB). Zero runtime dependencies.
+
+`@thednp/domparser` parses HTML into a DOM tree with a chunking strategy (64KB chunks) for memory safety. It handles malformed HTML, self-closing tags, CDATA, comments, and script/style content limits. The DomParser adds CSS selector queries (`querySelector`, `getElementById`, etc.), attribute manipulation, and node tree operations. Unlike jsdom or cheerio, it focuses on essential DOM features for dramatically better performance.
+
+## Documentation
+
+- [README](https://github.com/thednp/domparser/blob/master/README.md): Full API reference with examples for Parser, DomParser, and DOM creation
+- [CHANGELOG](https://github.com/thednp/domparser/blob/master/CHANGELOG.md): Version history and release notes
+
+## Source
+
+- [Main entry](https://github.com/thednp/domparser/blob/master/src/index.ts): Re-exports all public API components
+- [Tokenizer and utilities](https://github.com/thednp/domparser/blob/master/src/parts/util.ts): HTML tokenizer with chunking, attribute parser, type guards
+- [TypeScript types](https://github.com/thednp/domparser/blob/master/src/parts/types.ts): All type definitions for nodes, options, and results
+- [Lightweight Parser](https://github.com/thednp/domparser/blob/master/src/parts/parser.ts): Fast DOM tree creation without DOM API
+- [DomParser](https://github.com/thednp/domparser/blob/master/src/parts/dom-parser.ts): Full DOM-like parser with filtering and validation
+- [DOM prototype](https://github.com/thednp/domparser/blob/master/src/parts/prototype.ts): Node creation, tree manipulation, serialization, selector integration
+- [Selector engine](https://github.com/thednp/domparser/blob/master/src/parts/selectors.ts): CSS selector matching with LRU cache (100 entries)
+- [Tests](https://github.com/thednp/domparser/blob/master/test/index.test.ts): 100% coverage test suite
+
+## Optional
+
+- [Benchmark](https://github.com/thednp/domparser/blob/master/demo/benchmark.ts): Performance comparison against jsdom
+- [npm](https://www.npmjs.com/package/@thednp/domparser): Package registry
+- [GitHub](https://github.com/thednp/domparser): Repository and issues

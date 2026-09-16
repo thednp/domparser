@@ -1,12 +1,12 @@
 /*!
-* @thednp/domparser CJS v0.1.9
+* @thednp/domparser CJS v0.2.0
 * Copyright 2026 © thednp
 * Licensed under MIT (https://github.com/thednp/domparser/blob/master/LICENSE)
 */
 
 Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
-const require_util = require("./util-CPoLHN9T.cjs");
-const require_prototype = require("./prototype-FgrPAnBq.cjs");
+const require_util = require("./util-xq2Ufrfu.cjs");
+const require_prototype = require("./prototype-BJ-xbcFY.cjs");
 //#region src/parts/dom-parser.ts
 /**
 * **DomParser**
@@ -48,8 +48,8 @@ const DomParser = (config) => {
 	let unsafeTagDepth = 0;
 	let unsafeAttrs = /* @__PURE__ */ new Set();
 	const { filterTags, filterAttrs, onNodeCallback } = config || {};
-	if (filterTags?.length) unsafeTags = new Set(filterTags);
-	if (filterAttrs?.length) unsafeAttrs = new Set(filterAttrs);
+	if (filterTags?.length) unsafeTags = new Set(filterTags.map(require_util.toLowerCase));
+	if (filterAttrs?.length) unsafeAttrs = new Set(filterAttrs.map(require_util.toLowerCase));
 	const getAttrOptions = { unsafeAttrs };
 	return { parseFromString(htmlString) {
 		if (htmlString && typeof htmlString !== "string") throw new Error(`${require_util.DOM_ERROR} 1st parameter is not a string.`);
@@ -75,20 +75,27 @@ const DomParser = (config) => {
 			const currentParent = stack[stack.length - 1];
 			const isClosing = require_util.startsWith(value, "/");
 			const tagName = isClosing ? value.slice(1) : value.split(/[\s/>]/)[0];
-			const isSelfClosing = isSC || require_util.selfClosingTags.has(tagName);
-			if (tokenType === "tag" && !isSelfClosing) if (!isClosing) tagStack.push(tagName);
-			else {
-				const expectedTag = tagStack.pop();
-				if (expectedTag !== tagName) if (expectedTag === void 0) throw new Error(`${require_util.DOM_ERROR} Mismatched closing tag: </${tagName}>. No open tag found.`);
-				else throw new Error(`${require_util.DOM_ERROR} Mismatched closing tag: </${tagName}>. Expected closing tag for <${expectedTag}>.`);
+			const tagNameLower = require_util.toLowerCase(tagName);
+			const isSelfClosing = isSC || require_util.selfClosingTags.has(tagNameLower);
+			if (tokenType === "tag" && !isSelfClosing) {
+				if (!isClosing) tagStack.push(tagNameLower);
+				else {
+					const expectedTag = tagStack.pop();
+					if (expectedTag !== tagNameLower) {
+						if (expectedTag === void 0) throw new Error(`${require_util.DOM_ERROR} Mismatched closing tag: </${tagName}>. No open tag found.`);
+						else throw new Error(`${require_util.DOM_ERROR} Mismatched closing tag: </${tagName}>. Expected closing tag for <${expectedTag}>.`);
+					}
+				}
 			}
-			if (unsafeTags.has(tagName)) {
-				if (!isSelfClosing) if (!isClosing) unsafeTagDepth++;
-				else unsafeTagDepth--;
+			if (unsafeTags.has(tagNameLower)) {
+				if (!isSelfClosing) {
+					if (!isClosing) unsafeTagDepth++;
+					else unsafeTagDepth--;
+				}
 				continue;
 			}
 			if (unsafeTagDepth > 0) continue;
-			if (["text", "comment"].includes(tokenType)) {
+			if (tokenType === "text" || tokenType === "comment") {
 				newNode = require_prototype.createBasicNode(`#${tokenType}`, value);
 				currentParent.append(newNode);
 				continue;
@@ -98,7 +105,6 @@ const DomParser = (config) => {
 				const attributes = require_util.getAttributes(value, getAttrOptions);
 				newNode = require_prototype.createElement.call(root, tagName, attributes);
 				currentParent.append(newNode);
-				stack.slice(1, -1).map((parent) => parent.registerChild(newNode));
 				if (onNodeCallback) onNodeCallback(newNode, currentParent, root);
 				const charset = attributes?.charset;
 				if (tagName === "meta" && charset) root.charset = require_util.toUpperCase(charset);

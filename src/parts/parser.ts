@@ -1,18 +1,18 @@
 // parser.ts
-import {
-  getBaseAttributes,
-  selfClosingTags,
-  tokenize,
-  toLowerCase,
-  toUpperCase,
-} from "./util";
 import type {
   CommentLike,
   NodeLike,
   ParseResult,
   RootLike,
   TextLike,
-} from "./types";
+} from "./types.d.ts";
+import {
+  getBaseAttributes,
+  selfClosingTags,
+  tokenize,
+  toLowerCase,
+  toUpperCase,
+} from "./util.ts";
 
 /**
  * **Parser**
@@ -48,7 +48,7 @@ export function Parser() {
         const currentParent = stack[stack.length - 1];
         if (tokenType === "doctype") continue;
 
-        if (["text", "comment"].includes(tokenType)) {
+        if (tokenType === "text" || tokenType === "comment") {
           currentParent.children.push(
             {
               nodeName: `#${tokenType}`,

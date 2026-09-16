@@ -22,7 +22,7 @@ const LIBS = {
   DomParser
 }
 
-const libName = process.argv[2];
+const libName = process.argv[2] as keyof typeof LIBS;
 const parser = LIBS[libName];
 const divLength = 200;
 const standardParseTime = 1; // Parser

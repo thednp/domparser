@@ -24,7 +24,10 @@ export default defineConfig({
   target: "esnext",
   platform: "neutral",
   exports: true,
-  dts: true,
+  dts: {
+    sideEffects: false,
+    sourcemap: false
+  },
   clean: true,
   format: ["esm", "cjs"],
   banner: ({ format }) => {
@@ -34,7 +37,7 @@ export default defineConfig({
   sourcemap: true,
   plugins: [strip({ type: "keep-jsdoc" })],
   globalName: "DomParser",
-  deps: { 
-    skipNodeModulesBundle: true,
-  }
+  // deps: { 
+  //   skipNodeModulesBundle: true,
+  // }
 });

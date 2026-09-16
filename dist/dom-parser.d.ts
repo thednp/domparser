@@ -1,11 +1,10 @@
 /*!
-* @thednp/domparser ESM v0.1.9
+* @thednp/domparser ESM v0.2.0
 * Copyright 2026 © thednp
 * Licensed under MIT (https://github.com/thednp/domparser/blob/master/LICENSE)
 */
 
-import { l as DomParserOptions, x as RootNode } from "./types-BcwTVx5z.js";
-
+import { l as DomParserOptions, x as RootNode } from "./types-C_vwulp0.js";
 //#region src/parts/dom-parser.d.ts
 /**
  * **DomParser**
@@ -41,7 +40,7 @@ import { l as DomParserOptions, x as RootNode } from "./types-BcwTVx5z.js";
  * @param config the `Parser` options to apply to the parsing of the startHTML markup.
  * @returns The `Document` like root node
  */
-declare const DomParser: (config?: Partial<DomParserOptions>) => {
+export declare const DomParser: (config?: Partial<DomParserOptions>) => {
   parseFromString(htmlString?: string): {
     root: RootNode;
     components: string[];
@@ -49,5 +48,4 @@ declare const DomParser: (config?: Partial<DomParserOptions>) => {
   };
 };
 //#endregion
-export { DomParser };
 //# sourceMappingURL=dom-parser.d.ts.map

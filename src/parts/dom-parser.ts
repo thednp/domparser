@@ -7,7 +7,7 @@ import type {
   DomParserResult,
   GetAttributesOptions,
   RootNode,
-} from "./types";
+} from "./types.d.ts";
 
 import {
   DOM_ERROR,
@@ -16,8 +16,9 @@ import {
   selfClosingTags,
   startsWith,
   tokenize,
+  toLowerCase,
   toUpperCase,
-} from "./util";
+} from "./util.ts";
 
 /**
  * **DomParser**
@@ -69,8 +70,8 @@ export const DomParser = (
 
   // Apply config
   const { filterTags, filterAttrs, onNodeCallback } = config || {};
-  if (filterTags?.length) unsafeTags = new Set(filterTags);
-  if (filterAttrs?.length) unsafeAttrs = new Set(filterAttrs);
+  if (filterTags?.length) unsafeTags = new Set(filterTags.map(toLowerCase));
+  if (filterAttrs?.length) unsafeAttrs = new Set(filterAttrs.map(toLowerCase));
   const getAttrOptions = { unsafeAttrs } as GetAttributesOptions;
   // don't override the default function unless it's actualy set
 
@@ -102,19 +103,20 @@ export const DomParser = (
         const currentParent = stack[stack.length - 1];
         const isClosing = startsWith(value, "/");
         const tagName = isClosing ? value.slice(1) : value.split(/[\s/>]/)[0];
-        const isSelfClosing = isSC || selfClosingTags.has(tagName);
+        const tagNameLower = toLowerCase(tagName);
+        const isSelfClosing = isSC || selfClosingTags.has(tagNameLower);
 
         // Tag Matching Detection Logic
         if (tokenType === "tag" && !isSelfClosing) {
           // Start Tag (and not self-closing)
           if (!isClosing) {
             // Push tag name onto the tag stack
-            tagStack.push(tagName);
+            tagStack.push(tagNameLower);
             // Closing Tag
           } else {
             // Pop the last opened tag
             const expectedTag = tagStack.pop();
-            if (expectedTag !== tagName) {
+            if (expectedTag !== tagNameLower) {
               if (expectedTag === undefined) {
                 throw new Error(
                   `${DOM_ERROR} Mismatched closing tag: </${tagName}>. No open tag found.`,
@@ -129,7 +131,7 @@ export const DomParser = (
         }
 
         // Skip unsafe tags AND their children
-        if (unsafeTags.has(tagName)) {
+        if (unsafeTags.has(tagNameLower)) {
           if (!isSelfClosing) {
             if (!isClosing) {
               unsafeTagDepth++;
@@ -143,7 +145,7 @@ export const DomParser = (
         // Don't process anything while inside unsafe tags
         if (unsafeTagDepth > 0) continue;
 
-        if (["text", "comment"].includes(tokenType)) {
+        if (tokenType === "text" || tokenType === "comment") {
           newNode = createBasicNode(
             `#${tokenType as "text" | "comment"}`,
             value,
@@ -165,9 +167,6 @@ export const DomParser = (
             attributes,
           );
           currentParent.append(newNode);
-          stack.slice(1, -1).map((parent) =>
-            (parent as DOMNode).registerChild(newNode as DOMNode)
-          );
 
           if (onNodeCallback) onNodeCallback(newNode, currentParent, root);
 

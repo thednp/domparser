@@ -1,6 +1,6 @@
 {
   "name": "@thednp/domparser",
-  "version": "0.1.9",
+  "version": "0.2.0",
   "description": "🍝 Super light HTML parser for isomorphic applications.",
   "license": "MIT",
   "author": "thednp",
@@ -44,7 +44,8 @@
   "scripts": {
     "pre-test": "pnpm clean-coverage",
     "dev": "vite serve demo --port 3000",
-    "test": "pnpm pre-test && vitest --browser.headless",
+    "test": "pnpm pre-test && vitest --run --browser.headless",
+    "test:watch": "pnpm pre-test && vitest --browser.headless",
     "clean-coverage": "rm -rf coverage .nyc_output .coverage",
     "format": "deno fmt src",
     "lint": "pnpm lint:ts && pnpm check:ts",
@@ -66,16 +67,16 @@
     "url": "https://github.com/thednp/domparser/issues"
   },
   "devDependencies": {
-    "@types/jsdom": "^28.0.1",
-    "@types/node": "^25.5.0",
-    "@vitest/coverage-istanbul": "^4.1.2",
-    "@vitest/ui": "^4.1.2",
-    "jsdom": "^29.0.1",
-    "tsdown": "^0.21.5",
-    "typescript": "^6.0.2",
-    "vite": "^8.0.3",
+    "@types/jsdom": "^30.0.0",
+    "@types/node": "^25.9.7",
+    "@vitest/coverage-istanbul": "^5.0.1",
+    "@vitest/ui": "^5.0.1",
+    "jsdom": "^30.0.1",
+    "tsdown": "^0.23.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.0",
     "vite-plugin-strip-comments": "^0.0.10",
-    "vitest": "^4.1.2"
+    "vitest": "^5.0.1"
   },
   "packageManager": "pnpm@10.33.0"
 }

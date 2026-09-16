@@ -1,22 +1,21 @@
 /*!
-* @thednp/domparser CJS v0.1.9
+* @thednp/domparser CJS v0.2.0
 * Copyright 2026 © thednp
 * Licensed under MIT (https://github.com/thednp/domparser/blob/master/LICENSE)
 */
 
-import { C as TagAttr, D as TextOrComment, E as TextNode, O as TextToken, S as SelectorPart, T as TextLike, _ as NodeLike, a as CommentLike, b as RootLike, c as DOMNodeAttributes, d as ElementAPI, f as GetAttributesOptions, g as NodeAPI, h as MaybeChildNode, i as ChildNodeList, k as TokenizerOptions, l as DomParserOptions, m as MatchFunction, n as ChildLike, o as CommentNode, p as HTMLToken, r as ChildNode, s as DOMNode, t as ChildElementList, u as DomParserResult, v as NodeLikeAttributes, w as TagNames, x as RootNode, y as ParseResult } from "./types-nb0dzUo9.cjs";
+import { C as TagAttr, D as TextOrComment, E as TextNode, O as TextToken, S as SelectorPart, T as TextLike, _ as NodeLike, a as CommentLike, b as RootLike, c as DOMNodeAttributes, d as ElementAPI, f as GetAttributesOptions, g as NodeAPI, h as MaybeChildNode, i as ChildNodeList, k as TokenizerOptions, l as DomParserOptions, m as MatchFunction, n as ChildLike, o as CommentNode, p as HTMLToken, r as ChildNode, s as DOMNode, t as ChildElementList, u as DomParserResult, v as NodeLikeAttributes, w as TagNames, x as RootNode, y as ParseResult } from "./types-BKepT8m1.cjs";
 import { createBasicNode, createDocument, createElement, createNode } from "./dom.cjs";
 import { Parser } from "./parser.cjs";
 import { DomParser } from "./dom-parser.cjs";
-
 //#region src/parts/util.d.ts
-declare const ATTR_REGEX: RegExp;
+export declare const ATTR_REGEX: RegExp;
 /**
  * Get attributes from a string token and return an object
  * @param token the string token
  * @returns the attributes object
  */
-declare const getBaseAttributes: (token: string) => NodeLikeAttributes;
+export declare const getBaseAttributes: (token: string) => NodeLikeAttributes;
 /**
  * Get attributes from a string token and return an object.
  * In addition to the base tool, this also filters configured
@@ -25,19 +24,19 @@ declare const getBaseAttributes: (token: string) => NodeLikeAttributes;
  * @param config an optional set of options
  * @returns the attributes object
  */
-declare const getAttributes: (tagStr: string, config?: Partial<GetAttributesOptions>) => NodeLikeAttributes;
+export declare const getAttributes: (tagStr: string, config?: Partial<GetAttributesOptions>) => NodeLikeAttributes;
 /**
  * Converts a string to lowercase.
  * @param str The string to convert.
  * @returns The lowercase string.
  */
-declare const toLowerCase: (str: string) => string;
+export declare const toLowerCase: (str: string) => string;
 /**
  * Converts a string to uppercase.
  * @param str The string to convert.
  * @returns The uppercase string.
  */
-declare const toUpperCase: (str: string) => string;
+export declare const toUpperCase: (str: string) => string;
 /**
  * Checks if a string starts with a specified prefix.
  * @param str The string to check.
@@ -45,7 +44,7 @@ declare const toUpperCase: (str: string) => string;
  * @param position The position to start looking from.
  * @returns `true` if the string starts with the prefix, `false` otherwise.
  */
-declare const startsWith: (str: string, prefix: string, position?: number) => boolean;
+export declare const startsWith: (str: string, prefix: string, position?: number) => boolean;
 /**
  * Checks if a string ends with a specified suffix.
  * @param str The string to check.
@@ -53,20 +52,20 @@ declare const startsWith: (str: string, prefix: string, position?: number) => bo
  * @param position The position to start looking from.
  * @returns `true` if the string ends with the suffix, `false` otherwise.
  */
-declare const endsWith: (str: string, suffix: string, position?: number) => boolean;
+export declare const endsWith: (str: string, suffix: string, position?: number) => boolean;
 /**
  * Creates a string from a character code.
  * @param char The character code.
  * @returns The string representation of the character code.
  */
-declare const fromCharCode: (char: number) => string;
+export declare const fromCharCode: (char: number) => string;
 /**
  * Returns the character code at a specific index in a string.
  * @param str The string to check.
  * @param index The index of the character to get the code for.
  * @returns The character code at the specified index.
  */
-declare const charCodeAt: (str: string, index: number) => number;
+export declare const charCodeAt: (str: string, index: number) => number;
 /**
  * Defines a property on an object.
  * @param obj The object to define the property on.
@@ -80,25 +79,25 @@ declare const charCodeAt: (str: string, index: number) => number;
  * @param props An object where keys are property names and values are property descriptors.
  * @returns The object after defining the properties.
  */
-declare const defineProperties: <T extends Record<string, unknown>>(obj: T, props: Record<PropertyKey, PropertyDescriptor>) => T;
+export declare const defineProperties: <T extends Record<string, unknown>>(obj: T, props: Record<PropertyKey, PropertyDescriptor>) => T;
 /**
  * Checks if a node is an object.
  * @param node The object to check.
  * @returns `true` if the node is an object, `false` otherwise.
  */
-declare const isObj: (node: unknown) => node is object;
+export declare const isObj: (node: unknown) => node is object;
 /**
  * Checks if a node is a root object (`RootNode` or `RootLike`).
  * @param node The object to check.
  * @returns `true` if the node is an object, `false` otherwise.
  */
-declare const isRoot: (node: RootLike | RootNode | ChildLike | ChildNode) => node is RootLike | RootNode;
+export declare const isRoot: (node: RootLike | RootNode | ChildLike | ChildNode) => node is RootLike | RootNode;
 /**
  * Checks if a node is a tag node (`NodeLike` or `DOMNode`).
  * @param node The node to check.
  * @returns `true` if the node is a tag node, `false` otherwise.
  */
-declare const isTag: (node: ChildLike | ChildNode) => node is NodeLike | DOMNode;
+export declare const isTag: (node: ChildLike | ChildNode) => node is NodeLike | DOMNode;
 /**
  * Checks if a node is a root node (`RootLike` or `RootNode`),
  * a tag node (`NodeLike` or `DOMNode`), a comment node
@@ -106,32 +105,32 @@ declare const isTag: (node: ChildLike | ChildNode) => node is NodeLike | DOMNode
  * @param node The node to check.
  * @returns `true` if the node is a tag node, `false` otherwise.
  */
-declare const isNode: (node: ChildLike | ChildNode | NodeLikeAttributes | string | number) => node is ChildLike | NodeLike | DOMNode;
+export declare const isNode: (node: ChildLike | ChildNode | NodeLikeAttributes | string | number) => node is ChildLike | NodeLike | DOMNode;
 /**
  * Checks if a value is a primitive (number or string).
  * @param val The value to check.
  * @returns `true` if the value is a primitive, `false` otherwise.
  */
-declare const isPrimitive: <T extends (number | string)>(val: unknown) => val is T;
+export declare const isPrimitive: <T extends (number | string)>(val: unknown) => val is T;
 /**
  * Trim a string value.
  * @param str A string value
  * @returns The trimmed value of the same string.
  */
-declare const trim: (str: string) => string;
+export declare const trim: (str: string) => string;
 /**
  * Set of self-closing HTML tags used by the `Parser`.
  */
-declare const selfClosingTags: Set<string>;
-declare const escape: (str: string) => string;
-declare const DOM_ERROR = "DomParserError:";
+export declare const selfClosingTags: Set<string>;
+export declare const escape: (str: string) => string;
+export declare const DOM_ERROR = "DomParserError:";
 /**
  * Tokenizes an HTML string into an array of HTML tokens.
  * These tokens represent opening tags, closing tags, text content, and comments.
  * @param html The HTML string to tokenize.
  * @returns An array of `HTMLToken` objects.
  */
-declare const tokenize: (html: string, options?: TokenizerOptions) => HTMLToken[];
+export declare const tokenize: (html: string, options?: TokenizerOptions) => HTMLToken[];
 //#endregion
 //#region src/parts/selectors.d.ts
 /**
@@ -153,17 +152,17 @@ declare class SelectorCacheMap extends Map<string, MatchFunction> {
     hitRate: number;
   };
 }
-declare const selectorCache: SelectorCacheMap;
+export declare const selectorCache: SelectorCacheMap;
 /**
  * Checks if a node matches one or mode CSS selectors.
  * @param node The `DOMNode` object to test against the selector.
  * @param selector The CSS selector string.
  * @returns `true` if the node matches the selector, `false` otherwise.
  */
-declare const matchesSelector: (node: DOMNode, selector: string) => boolean;
+export declare const matchesSelector: (node: DOMNode, selector: string) => boolean;
 //#endregion
-//#region package.json.d.ts
-declare let version: string;
+//#region src/index.d.ts
+export declare const version: string;
 //#endregion
-export { ATTR_REGEX, ChildElementList, ChildLike, ChildNode, ChildNodeList, CommentLike, CommentNode, DOMNode, DOMNodeAttributes, DOM_ERROR, DomParser, DomParserOptions, DomParserResult, ElementAPI, GetAttributesOptions, HTMLToken, MatchFunction, MaybeChildNode, NodeAPI, NodeLike, NodeLikeAttributes, ParseResult, Parser, RootLike, RootNode, SelectorPart, TagAttr, TagNames, TextLike, TextNode, TextOrComment, TextToken, TokenizerOptions, charCodeAt, createBasicNode, createDocument, createElement, createNode, defineProperties, endsWith, escape, fromCharCode, getAttributes, getBaseAttributes, isNode, isObj, isPrimitive, isRoot, isTag, matchesSelector, selectorCache, selfClosingTags, startsWith, toLowerCase, toUpperCase, tokenize, trim, version };
+export { type ChildElementList, type ChildLike, type ChildNode, type ChildNodeList, type CommentLike, type CommentNode, type DOMNode, type DOMNodeAttributes, DomParser, type DomParserOptions, type DomParserResult, type ElementAPI, type GetAttributesOptions, type HTMLToken, type MatchFunction, type MaybeChildNode, type NodeAPI, type NodeLike, type NodeLikeAttributes, type ParseResult, Parser, type RootLike, type RootNode, type SelectorPart, type TagAttr, type TagNames, type TextLike, type TextNode, type TextOrComment, type TextToken, type TokenizerOptions, createBasicNode, createDocument, createElement, createNode };
 //# sourceMappingURL=index.d.cts.map

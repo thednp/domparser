@@ -1,10 +1,10 @@
 /*!
-* @thednp/domparser ESM v0.1.9
+* @thednp/domparser ESM v0.2.0
 * Copyright 2026 © thednp
 * Licensed under MIT (https://github.com/thednp/domparser/blob/master/LICENSE)
 */
 
-import { _ as toLowerCase, h as selfClosingTags, l as getBaseAttributes, v as toUpperCase, y as tokenize } from "./util-CeKWpfiV.js";
+import { _ as toLowerCase, h as selfClosingTags, l as getBaseAttributes, v as toUpperCase, y as tokenize } from "./util-C75ih6Lc.js";
 //#region src/parts/parser.ts
 /**
 * **Parser**
@@ -43,7 +43,7 @@ function Parser() {
 			const { tokenType, value, isSC } = tokens[i];
 			const currentParent = stack[stack.length - 1];
 			if (tokenType === "doctype") continue;
-			if (["text", "comment"].includes(tokenType)) {
+			if (tokenType === "text" || tokenType === "comment") {
 				currentParent.children.push({
 					nodeName: `#${tokenType}`,
 					nodeValue: value

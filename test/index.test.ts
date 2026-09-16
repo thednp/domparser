@@ -7,6 +7,10 @@ import {
   selectorCache,
   NodeLike,
   escape,
+  isRoot,
+  isNode,
+  isTag,
+  isPrimitive,
 } from "../src/index";
 import { describe, expect, test } from "vitest";
 
@@ -219,6 +223,9 @@ describe(`Test DOMParser`, () => {
     }
 
     // edge case, test cache
+    selectorCache.clear();
+    // test hitRate when empty
+    expect(selectorCache.getStats()).toEqual({ size: 0, hits: 0, misses: 0, hitRate: 0 });
     const tagNames = ['html', 'body', 'button', 'p', 'div', 'a', 'svg', 'path', "h1", "h2", 'ul', 'li']
     const classes = ["my-body", 'btn', 'container', "link", "flex", "hidden", "active"]
     const selectors = new Set<string>();
@@ -232,23 +239,19 @@ describe(`Test DOMParser`, () => {
             : idx % 4 ? (tag+'['+Object.keys(att)[0]+']')
             : tag;
           selectors.add(sel);
-          // console.log(idx, sel)
           idx += 1;
-          if (selectors.size === 100) break;
+          if (selectors.size === 101) break;
         }
-        if (selectors.size === 100) break;
+        if (selectors.size === 101) break;
       }
-      if (selectors.size === 100) break;
+      if (selectors.size === 101) break;
     }
+    // first pass: 101 unique selectors → triggers eviction at 101st
     selectors.forEach(sel => doc.querySelector(sel));
-
-    expect(selectors.size, 'exceed cache limit of 100').toEqual(100);
-    expect(selectorCache.getStats()).toEqual({
-      hitRate: 1,
-      hits: 1400,
-      misses: 0,
-      size: 100,
-    })
+    const statsAfterPass1 = selectorCache.getStats();
+    expect(statsAfterPass1.size).toEqual(100);
+    expect(statsAfterPass1.misses).toEqual(101);
+    // clear and verify reset
     selectorCache.clear();
     expect(selectorCache.getStats()).toEqual({
       hitRate: 0,
@@ -466,7 +469,7 @@ describe(`Test DOMParser`, () => {
       DomParser().parseFromString("<html><p><span><clipPath></p></html>")
     } catch (er) {
       expect(er).toBeDefined();
-      expect(er.message).toEqual("DomParserError: Mismatched closing tag: </p>. Expected closing tag for <clipPath>.")
+      expect(er.message).toEqual("DomParserError: Mismatched closing tag: </p>. Expected closing tag for <clippath>.")
     }
     try {
       // @ts-expect-error
@@ -495,6 +498,20 @@ describe(`Test DOMParser`, () => {
       expect(er).toBeDefined();
       expect(er.message).toEqual("DomParserError: Unclosed tag: <html>.")
     }
+    // case-insensitive tag matching
+    expect(DomParser().parseFromString("<DIV><BR><META charset=\"utf-8\"></DIV>").root.all).toHaveLength(3);
+    expect(DomParser().parseFromString("<HTML></HTML>").root.all).toHaveLength(1);
+    expect(DomParser({ filterTags: ["script"] }).parseFromString("<SCRIPT>test</SCRIPT>").root.all).toHaveLength(0);
+    // case-insensitive filterAttrs
+    expect(DomParser({ filterAttrs: ["DISABLED"] }).parseFromString('<button disabled></button>').root.all[0].attributes.has("disabled")).toBeFalsy();
+    // convertToNode handles empty strings and comments
+    const doc2 = DomParser().parseFromString();
+    const p = doc2.root.createElement("p", "", "real text");
+    doc2.root.append(p);
+    expect(p.textContent).toEqual("real text");
+    const span = doc2.root.createElement("span", "<!-- comment -->", "text");
+    expect(span.childNodes[0].nodeName).toEqual("#comment");
+    expect(span.childNodes[0].textContent).toEqual("<!-- comment -->");
     // expect(DomParser().parseFromString("<pre><script>let a = 0;<\/script></pre>").root.all).toHaveLength(1);
     expect(DomParser().parseFromString("<pre>&lt;script type\"js\"&gt;let a = 0;&lt;/script&gt;</pre>").root.all).toHaveLength(1);
     expect(
@@ -524,5 +541,16 @@ describe(`Test DOMParser`, () => {
     expect(DomParser().parseFromString(
       `<meta name="description>`
     ).root.all).toHaveLength(1);
+    // isRoot / isNode / isTag / isPrimitive type guards
+    const { root } = DomParser().parseFromString("<html></html>");
+    expect(isRoot(root)).toBeTruthy();
+    expect(isRoot({ nodeName: "#document", children: [] })).toBeTruthy();
+    expect(isRoot(null)).toBeFalsy();
+    expect(isNode(root)).toBeTruthy();
+    expect(isNode(null)).toBeFalsy();
+    expect(isTag(root.documentElement!)).toBeTruthy();
+    expect(isPrimitive("hello")).toBeTruthy();
+    expect(isPrimitive(42)).toBeTruthy();
+    expect(isPrimitive(null)).toBeFalsy();
   });
 });

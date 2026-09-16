@@ -1,11 +1,11 @@
 /*!
-* @thednp/domparser CJS v0.1.9
+* @thednp/domparser CJS v0.2.0
 * Copyright 2026 © thednp
 * Licensed under MIT (https://github.com/thednp/domparser/blob/master/LICENSE)
 */
 
 Object.defineProperty(exports, Symbol.toStringTag, { value: "Module" });
-const require_util = require("./util-CPoLHN9T.cjs");
+const require_util = require("./util-xq2Ufrfu.cjs");
 //#region src/parts/parser.ts
 /**
 * **Parser**
@@ -44,7 +44,7 @@ function Parser() {
 			const { tokenType, value, isSC } = tokens[i];
 			const currentParent = stack[stack.length - 1];
 			if (tokenType === "doctype") continue;
-			if (["text", "comment"].includes(tokenType)) {
+			if (tokenType === "text" || tokenType === "comment") {
 				currentParent.children.push({
 					nodeName: `#${tokenType}`,
 					nodeValue: value

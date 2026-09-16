@@ -1,11 +1,10 @@
 /*!
-* @thednp/domparser ESM v0.1.9
+* @thednp/domparser ESM v0.2.0
 * Copyright 2026 © thednp
 * Licensed under MIT (https://github.com/thednp/domparser/blob/master/LICENSE)
 */
 
-import { y as ParseResult } from "./types-BcwTVx5z.js";
-
+import { y as ParseResult } from "./types-C_vwulp0.js";
 //#region src/parts/parser.d.ts
 /**
  * **Parser**
@@ -24,9 +23,8 @@ import { y as ParseResult } from "./types-BcwTVx5z.js";
  *
  * @returns The result of the parser.
  */
-declare function Parser(): {
+export declare function Parser(): {
   parseFromString(htmlString?: string): ParseResult;
 };
 //#endregion
-export { Parser };
 //# sourceMappingURL=parser.d.ts.map

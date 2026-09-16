@@ -1,17 +1,16 @@
 // prototype.ts
-import { tokenize, trim } from "./util";
-import { matchesSelector } from "./selectors";
+import { trim } from "./util.ts";
+import { matchesSelector } from "./selectors.ts";
 import {
   defineProperties,
   DOM_ERROR,
   isNode,
   isObj,
   isPrimitive,
-  isRoot,
   isTag,
   selfClosingTags,
   toUpperCase,
-} from "./util";
+} from "./util.ts";
 
 import type {
   ChildElementList,
@@ -24,8 +23,20 @@ import type {
   RootNode,
   TagNames,
   TextNode,
-  TextToken,
-} from "./types";
+} from "./types.d.ts";
+
+/**
+ * Recursively collects all DOMNode descendants into the output array.
+ * @param node The node to collect from
+ * @param output Accumulator array
+ */
+const collectSubtree = (node: DOMNode, output: DOMNode[]) => {
+  const { children } = node;
+  for (let i = 0; i < children.length; i++) {
+    output.push(children[i]);
+    collectSubtree(children[i], output);
+  }
+};
 
 /**
  * Generates text string from node's children textContent.
@@ -163,8 +174,6 @@ function setupChildNode(
           );
           (parent as DOMNode).children.splice(childIndex + i, 0, n);
           ownerDocument?.register(n);
-          // istanbul ignore else @preserve
-          if (isTag(parent as DOMNode)) (parent as DOMNode).registerChild(n);
         }
         setupChildNode(n, parent, ownerDocument); // Setup new nodes
       });
@@ -185,8 +194,6 @@ function setupChildNode(
           );
           (parent as DOMNode).children.splice(childIndex + 1 + i, 0, n);
           ownerDocument?.register(n);
-          // istanbul ignore else @preserve
-          if (isTag(parent as DOMNode)) (parent as DOMNode).registerChild(n);
         }
         setupChildNode(n, parent, ownerDocument); // Setup new nodes
       });
@@ -242,7 +249,7 @@ export function createNode(
     },
 
     // Root document methods
-    ...(isRoot({ nodeName } as RootNode) && {
+    ...(nodeName === "#document" && {
       createElement(
         tagName:
           & string
@@ -269,7 +276,9 @@ export function createNode(
         return createBasicNode("#text", content);
       },
       getElementById(id: string) {
-        return ALL.find((node) => node.attributes.get("id") === id) ?? null;
+        const all: DOMNode[] = [];
+        collectSubtree(node as unknown as DOMNode, all);
+        return all.find((n) => n.attributes.get("id") === id) ?? null;
       },
     }),
 
@@ -330,20 +339,29 @@ export function createNode(
       node.append(...newChildren);
     },
     querySelector(selector: string) {
-      return ALL.find((n) => n.matches(selector)) ?? null;
+      const all: DOMNode[] = [];
+      collectSubtree(node as unknown as DOMNode, all);
+      return all.find((n) => n.matches(selector)) ?? null;
     },
     querySelectorAll(selector: string) {
-      return ALL.filter((n) => n.matches(selector));
+      const all: DOMNode[] = [];
+      collectSubtree(node as unknown as DOMNode, all);
+      return all.filter((n) => n.matches(selector));
     },
     getElementsByTagName(tagName: string) {
-      return tagName === "*"
-        ? ALL
-        : ALL.filter((n) => n.tagName.toLowerCase() === tagName.toLowerCase());
+      const all: DOMNode[] = [];
+      collectSubtree(node as unknown as DOMNode, all);
+      if (tagName === "*") return all;
+      const queryUpper = toUpperCase(tagName);
+      return all.filter((n) => n.nodeName === queryUpper);
     },
     getElementsByClassName(className: string) {
-      return ALL.filter((n) => {
+      const all: DOMNode[] = [];
+      collectSubtree(node as unknown as DOMNode, all);
+      const q = " " + className + " ";
+      return all.filter((n) => {
         const classAttr = n.attributes.get("class");
-        return classAttr?.split(/\s+/).includes(className) ?? false;
+        return classAttr ? (" " + classAttr + " ").includes(q) : false;
       });
     },
   };
@@ -358,17 +376,6 @@ export function createNode(
       enumerable: true,
       get: () => CHILDREN,
     },
-    // Add tag-specific property
-    ...(!nodeIsRoot
-      ? {
-        registerChild: {
-          enumerable: false,
-          value: (child: DOMNode) => {
-            ALL.push(child);
-          },
-        },
-      }
-      : {}),
   });
 
   // Add root-specific properties
@@ -376,19 +383,35 @@ export function createNode(
     defineProperties(node, {
       all: {
         enumerable: true,
-        get: () => ALL,
+        get: () => {
+          const all: DOMNode[] = [];
+          collectSubtree(node as unknown as DOMNode, all);
+          return all;
+        },
       },
       documentElement: {
         enumerable: true,
-        get: () => ALL.find((node) => toUpperCase(node.tagName) === "HTML"),
+        get: () => {
+          const all: DOMNode[] = [];
+          collectSubtree(node as unknown as DOMNode, all);
+          return all.find((n) => n.nodeName === "HTML");
+        },
       },
       head: {
         enumerable: true,
-        get: () => ALL.find((node) => toUpperCase(node.tagName) === "HEAD"),
+        get: () => {
+          const all: DOMNode[] = [];
+          collectSubtree(node as unknown as DOMNode, all);
+          return all.find((n) => n.nodeName === "HEAD");
+        },
       },
       body: {
         enumerable: true,
-        get: () => ALL.find((node) => toUpperCase(node.tagName) === "BODY"),
+        get: () => {
+          const all: DOMNode[] = [];
+          collectSubtree(node as unknown as DOMNode, all);
+          return all.find((n) => n.nodeName === "BODY");
+        },
       },
       register: {
         enumerable: false,
@@ -429,8 +452,11 @@ export function createNode(
 
 const convertToNode = (n: string | number | ChildNode) => {
   if (isPrimitive(n)) {
-    const { tokenType, value } = tokenize(String(n))[0] as TextToken;
-    return createBasicNode(`#${tokenType}`, value);
+    const s = String(n);
+    if (s.startsWith("<!--")) {
+      return createBasicNode("#comment", s);
+    }
+    return createBasicNode("#text", s);
   }
   return n;
 };
@@ -519,12 +545,12 @@ export function createElement(
   node.closest = (selector: string) => {
     if (!selector) throw new Error("DomError: selector must be a string");
     if (node.matches(selector)) return node;
-    let currentParent = node.parentNode;
-    while (!isRoot(currentParent)) {
+    let currentParent = node.parentNode as DOMNode;
+    while (currentParent && currentParent.nodeName !== "#document") {
       if (currentParent.matches(selector)) {
         return currentParent;
       }
-      currentParent = currentParent.parentNode;
+      currentParent = currentParent.parentNode as DOMNode;
     }
     return null;
   };

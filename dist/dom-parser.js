@@ -1,11 +1,11 @@
 /*!
-* @thednp/domparser ESM v0.1.9
+* @thednp/domparser ESM v0.2.0
 * Copyright 2026 © thednp
 * Licensed under MIT (https://github.com/thednp/domparser/blob/master/LICENSE)
 */
 
-import { c as getAttributes, d as isObj, g as startsWith, h as selfClosingTags, n as DOM_ERROR, v as toUpperCase, y as tokenize } from "./util-CeKWpfiV.js";
-import { n as createDocument, r as createElement, t as createBasicNode } from "./prototype-Pw5zXNuq.js";
+import { _ as toLowerCase, c as getAttributes, d as isObj, g as startsWith, h as selfClosingTags, n as DOM_ERROR, v as toUpperCase, y as tokenize } from "./util-C75ih6Lc.js";
+import { n as createDocument, r as createElement, t as createBasicNode } from "./prototype-lsaJtZTu.js";
 //#region src/parts/dom-parser.ts
 /**
 * **DomParser**
@@ -47,8 +47,8 @@ const DomParser = (config) => {
 	let unsafeTagDepth = 0;
 	let unsafeAttrs = /* @__PURE__ */ new Set();
 	const { filterTags, filterAttrs, onNodeCallback } = config || {};
-	if (filterTags?.length) unsafeTags = new Set(filterTags);
-	if (filterAttrs?.length) unsafeAttrs = new Set(filterAttrs);
+	if (filterTags?.length) unsafeTags = new Set(filterTags.map(toLowerCase));
+	if (filterAttrs?.length) unsafeAttrs = new Set(filterAttrs.map(toLowerCase));
 	const getAttrOptions = { unsafeAttrs };
 	return { parseFromString(htmlString) {
 		if (htmlString && typeof htmlString !== "string") throw new Error(`${DOM_ERROR} 1st parameter is not a string.`);
@@ -74,20 +74,27 @@ const DomParser = (config) => {
 			const currentParent = stack[stack.length - 1];
 			const isClosing = startsWith(value, "/");
 			const tagName = isClosing ? value.slice(1) : value.split(/[\s/>]/)[0];
-			const isSelfClosing = isSC || selfClosingTags.has(tagName);
-			if (tokenType === "tag" && !isSelfClosing) if (!isClosing) tagStack.push(tagName);
-			else {
-				const expectedTag = tagStack.pop();
-				if (expectedTag !== tagName) if (expectedTag === void 0) throw new Error(`${DOM_ERROR} Mismatched closing tag: </${tagName}>. No open tag found.`);
-				else throw new Error(`${DOM_ERROR} Mismatched closing tag: </${tagName}>. Expected closing tag for <${expectedTag}>.`);
+			const tagNameLower = toLowerCase(tagName);
+			const isSelfClosing = isSC || selfClosingTags.has(tagNameLower);
+			if (tokenType === "tag" && !isSelfClosing) {
+				if (!isClosing) tagStack.push(tagNameLower);
+				else {
+					const expectedTag = tagStack.pop();
+					if (expectedTag !== tagNameLower) {
+						if (expectedTag === void 0) throw new Error(`${DOM_ERROR} Mismatched closing tag: </${tagName}>. No open tag found.`);
+						else throw new Error(`${DOM_ERROR} Mismatched closing tag: </${tagName}>. Expected closing tag for <${expectedTag}>.`);
+					}
+				}
 			}
-			if (unsafeTags.has(tagName)) {
-				if (!isSelfClosing) if (!isClosing) unsafeTagDepth++;
-				else unsafeTagDepth--;
+			if (unsafeTags.has(tagNameLower)) {
+				if (!isSelfClosing) {
+					if (!isClosing) unsafeTagDepth++;
+					else unsafeTagDepth--;
+				}
 				continue;
 			}
 			if (unsafeTagDepth > 0) continue;
-			if (["text", "comment"].includes(tokenType)) {
+			if (tokenType === "text" || tokenType === "comment") {
 				newNode = createBasicNode(`#${tokenType}`, value);
 				currentParent.append(newNode);
 				continue;
@@ -97,7 +104,6 @@ const DomParser = (config) => {
 				const attributes = getAttributes(value, getAttrOptions);
 				newNode = createElement.call(root, tagName, attributes);
 				currentParent.append(newNode);
-				stack.slice(1, -1).map((parent) => parent.registerChild(newNode));
 				if (onNodeCallback) onNodeCallback(newNode, currentParent, root);
 				const charset = attributes?.charset;
 				if (tagName === "meta" && charset) root.charset = toUpperCase(charset);

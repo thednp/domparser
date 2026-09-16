@@ -1,20 +1,20 @@
 /*!
-* @thednp/domparser ESM v0.1.9
+* @thednp/domparser ESM v0.2.0
 * Copyright 2026 © thednp
 * Licensed under MIT (https://github.com/thednp/domparser/blob/master/LICENSE)
 */
 
-import { _ as toLowerCase, b as trim, d as isObj, f as isPrimitive, g as startsWith, h as selfClosingTags, i as defineProperties, m as isTag, n as DOM_ERROR, p as isRoot, u as isNode, v as toUpperCase, y as tokenize } from "./util-CeKWpfiV.js";
+import { _ as toLowerCase, b as trim, d as isObj, f as isPrimitive, g as startsWith, h as selfClosingTags, i as defineProperties, m as isTag, n as DOM_ERROR, u as isNode, v as toUpperCase } from "./util-C75ih6Lc.js";
 //#region src/parts/selectors.ts
 /**
 * Create a selector cache to help improve `match` based queries
 * (matches, querySelector, querySelectorAll).
 */
 var SelectorCacheMap = class extends Map {
+	hits = 0;
+	misses = 0;
 	constructor() {
 		super();
-		this.hits = 0;
-		this.misses = 0;
 		this.misses = 0;
 		this.hits = 0;
 	}
@@ -22,7 +22,7 @@ var SelectorCacheMap = class extends Map {
 		this.hits += 1;
 	}
 	miss() {
-		this.hits += 1;
+		this.misses += 1;
 	}
 	getMatchFunction(selector, maxSize = 100) {
 		let matchFn = this.get(selector);
@@ -32,8 +32,8 @@ var SelectorCacheMap = class extends Map {
 				const firstKey = this.keys().next().value;
 				if (firstKey) this.delete(firstKey);
 			}
-			const parts = selector.split(",").map((s) => s.trim());
-			matchFn = (node) => parts.some((part) => matchesSingleSelector(node, part));
+			const selectorGroups = selector.split(",").map((s) => parseSelector(s.trim()));
+			matchFn = (node) => selectorGroups.some((parts) => matchParts(node, parts));
 			this.set(selector, matchFn);
 		} else this.hit();
 		return matchFn;
@@ -82,29 +82,27 @@ const parseSelector = (selector) => {
 		});
 	} else parts.push({
 		type: "",
-		name: match
+		name: toLowerCase(match)
 	});
 	return parts;
 };
 /**
-* Checks if a node matches a single CSS selector.
+* Checks if a node matches pre-parsed selector parts.
 * @param node The `DOMNode` object to test against the selector.
-* @param selector The CSS selector string.
+* @param parts Pre-parsed selector parts.
 * @returns `true` if the node matches the selector, `false` otherwise.
 */
-const matchesSingleSelector = (node, selector) => {
-	return parseSelector(selector).every((part) => {
-		switch (part.type) {
-			case "#": return node.attributes.get("id") === part.value;
-			case ".": return (node.attributes.get("class")?.split(/\s+/) || []).includes(part.value);
-			case "[": {
-				const attrValue = node.attributes.get(part.name);
-				return part.value ? attrValue === part.value : attrValue !== void 0;
-			}
-			default: return toLowerCase(node.tagName) === toLowerCase(part.name);
+const matchParts = (node, parts) => parts.every((part) => {
+	switch (part.type) {
+		case "#": return node.attributes.get("id") === part.value;
+		case ".": return (node.attributes.get("class")?.split(/\s+/) || []).includes(part.value);
+		case "[": {
+			const attrValue = node.attributes.get(part.name);
+			return part.value ? attrValue === part.value : attrValue !== void 0;
 		}
-	});
-};
+		default: return toLowerCase(node.tagName) === part.name;
+	}
+});
 /**
 * Checks if a node matches one or mode CSS selectors.
 * @param node The `DOMNode` object to test against the selector.
@@ -116,6 +114,18 @@ const matchesSelector = (node, selector) => {
 };
 //#endregion
 //#region src/parts/prototype.ts
+/**
+* Recursively collects all DOMNode descendants into the output array.
+* @param node The node to collect from
+* @param output Accumulator array
+*/
+const collectSubtree = (node, output) => {
+	const { children } = node;
+	for (let i = 0; i < children.length; i++) {
+		output.push(children[i]);
+		collectSubtree(children[i], output);
+	}
+};
 /**
 * Generates text string from node's children textContent.
 * @param node The node whose children to stringify
@@ -216,7 +226,6 @@ function setupChildNode(child, parent, ownerDocument) {
 					const childIndex = parent.children.indexOf(child);
 					parent.children.splice(childIndex + i, 0, n);
 					ownerDocument?.register(n);
-					if (isTag(parent)) parent.registerChild(n);
 				}
 				setupChildNode(n, parent, ownerDocument);
 			});
@@ -232,7 +241,6 @@ function setupChildNode(child, parent, ownerDocument) {
 					const childIndex = parent.children.indexOf(child);
 					parent.children.splice(childIndex + 1 + i, 0, n);
 					ownerDocument?.register(n);
-					if (isTag(parent)) parent.registerChild(n);
 				}
 				setupChildNode(n, parent, ownerDocument);
 			});
@@ -275,7 +283,7 @@ function createNode(nodeName, ...childNodes) {
 			CHILDREN.length = 0;
 			CHILDNODES.length = 0;
 		},
-		...isRoot({ nodeName }) && {
+		...nodeName === "#document" && {
 			createElement(tagName, first, ...rest) {
 				return createElement.call(node, tagName, first, ...rest);
 			},
@@ -289,7 +297,9 @@ function createNode(nodeName, ...childNodes) {
 				return createBasicNode("#text", content);
 			},
 			getElementById(id) {
-				return ALL.find((node) => node.attributes.get("id") === id) ?? null;
+				const all = [];
+				collectSubtree(node, all);
+				return all.find((n) => n.attributes.get("id") === id) ?? null;
 			}
 		},
 		...!nodeIsRoot && { matches(selector) {
@@ -324,17 +334,29 @@ function createNode(nodeName, ...childNodes) {
 			node.append(...newChildren);
 		},
 		querySelector(selector) {
-			return ALL.find((n) => n.matches(selector)) ?? null;
+			const all = [];
+			collectSubtree(node, all);
+			return all.find((n) => n.matches(selector)) ?? null;
 		},
 		querySelectorAll(selector) {
-			return ALL.filter((n) => n.matches(selector));
+			const all = [];
+			collectSubtree(node, all);
+			return all.filter((n) => n.matches(selector));
 		},
 		getElementsByTagName(tagName) {
-			return tagName === "*" ? ALL : ALL.filter((n) => n.tagName.toLowerCase() === tagName.toLowerCase());
+			const all = [];
+			collectSubtree(node, all);
+			if (tagName === "*") return all;
+			const queryUpper = toUpperCase(tagName);
+			return all.filter((n) => n.nodeName === queryUpper);
 		},
 		getElementsByClassName(className) {
-			return ALL.filter((n) => {
-				return n.attributes.get("class")?.split(/\s+/).includes(className) ?? false;
+			const all = [];
+			collectSubtree(node, all);
+			const q = " " + className + " ";
+			return all.filter((n) => {
+				const classAttr = n.attributes.get("class");
+				return classAttr ? (" " + classAttr + " ").includes(q) : false;
 			});
 		}
 	};
@@ -346,30 +368,40 @@ function createNode(nodeName, ...childNodes) {
 		children: {
 			enumerable: true,
 			get: () => CHILDREN
-		},
-		...!nodeIsRoot ? { registerChild: {
-			enumerable: false,
-			value: (child) => {
-				ALL.push(child);
-			}
-		} } : {}
+		}
 	});
 	if (nodeIsRoot) defineProperties(node, {
 		all: {
 			enumerable: true,
-			get: () => ALL
+			get: () => {
+				const all = [];
+				collectSubtree(node, all);
+				return all;
+			}
 		},
 		documentElement: {
 			enumerable: true,
-			get: () => ALL.find((node) => toUpperCase(node.tagName) === "HTML")
+			get: () => {
+				const all = [];
+				collectSubtree(node, all);
+				return all.find((n) => n.nodeName === "HTML");
+			}
 		},
 		head: {
 			enumerable: true,
-			get: () => ALL.find((node) => toUpperCase(node.tagName) === "HEAD")
+			get: () => {
+				const all = [];
+				collectSubtree(node, all);
+				return all.find((n) => n.nodeName === "HEAD");
+			}
 		},
 		body: {
 			enumerable: true,
-			get: () => ALL.find((node) => toUpperCase(node.tagName) === "BODY")
+			get: () => {
+				const all = [];
+				collectSubtree(node, all);
+				return all.find((n) => n.nodeName === "BODY");
+			}
 		},
 		register: {
 			enumerable: false,
@@ -400,8 +432,9 @@ function createNode(nodeName, ...childNodes) {
 }
 const convertToNode = (n) => {
 	if (isPrimitive(n)) {
-		const { tokenType, value } = tokenize(String(n))[0];
-		return createBasicNode(`#${tokenType}`, value);
+		const s = String(n);
+		if (s.startsWith("<!--")) return createBasicNode("#comment", s);
+		return createBasicNode("#text", s);
 	}
 	return n;
 };
@@ -416,8 +449,10 @@ const convertToNode = (n) => {
 function createElement(tagName, first, ...args) {
 	const childNodes = [];
 	let attributes = /* @__PURE__ */ new Map();
-	if (first) if (isObj(first) && !isNode(first)) attributes = new Map(Object.entries(first));
-	else childNodes.push(convertToNode(first));
+	if (first) {
+		if (isObj(first) && !isNode(first)) attributes = new Map(Object.entries(first));
+		else childNodes.push(convertToNode(first));
+	}
 	const nodes = args.map(convertToNode).filter(isNode);
 	childNodes.push(...nodes);
 	const node = createNode.call(this, toUpperCase(tagName), ...childNodes);
@@ -461,7 +496,7 @@ function createElement(tagName, first, ...args) {
 		if (!selector) throw new Error("DomError: selector must be a string");
 		if (node.matches(selector)) return node;
 		let currentParent = node.parentNode;
-		while (!isRoot(currentParent)) {
+		while (currentParent && currentParent.nodeName !== "#document") {
 			if (currentParent.matches(selector)) return currentParent;
 			currentParent = currentParent.parentNode;
 		}
@@ -478,4 +513,4 @@ const createDocument = () => createNode.call(null, "#document");
 //#endregion
 export { matchesSelector as a, createNode as i, createDocument as n, selectorCache as o, createElement as r, createBasicNode as t };
 
-//# sourceMappingURL=prototype-Pw5zXNuq.js.map
+//# sourceMappingURL=prototype-lsaJtZTu.js.map

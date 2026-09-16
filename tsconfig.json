@@ -1,16 +1,22 @@
 {
   // https://janessagarrow.com/blog/typescript-and-esbuild/
   "compilerOptions": {
-    "lib": ["DOM", "ESNext", "DOM.Iterable"],
+    "lib": [
+      "DOM",
+      "ESNext",
+      "DOM.Iterable"
+    ],
     //  "rootDir": "./src",
     //  "baseUrl": "./",
-    //  "module": "ESNext",
-    //  "target": "ESNext",
-    //  "moduleResolution": "Bundler",
+    "module": "esnext",
+    "target": "es2022",
+    "moduleResolution": "Bundler",
     //  "allowJs": true,
-    // "forceConsistentCasingInFileNames": true,
-    //  "useDefineForClassFields": true,
-    //  "allowImportingTsExtensions": true,
+    "forceConsistentCasingInFileNames": true,
+    "useDefineForClassFields": true,
+    "allowImportingTsExtensions": true,
+    "resolvePackageJsonImports": true,
+    "noEmit": true,
     "strict": true,
     //  "sourceMap": true,
     "resolveJsonModule": true,
@@ -24,6 +30,12 @@
     //  "noEmit": true,
     "checkJs": true
   },
-  "include": ["src/*"],
-  "exclude": ["node_modules", "experiments", "coverage"]
+  "include": [
+    "src/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "experiments",
+    "coverage"
+  ]
 }

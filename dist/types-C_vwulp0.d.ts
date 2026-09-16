@@ -1,10 +1,11 @@
 /*!
-* @thednp/domparser ESM v0.1.9
+* @thednp/domparser ESM v0.2.0
 * Copyright 2026 © thednp
 * Licensed under MIT (https://github.com/thednp/domparser/blob/master/LICENSE)
 */
 
 //#region src/parts/types.d.ts
+// types.ts
 type TagNames = keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap;
 type TagAttr<T extends TagNames> = (HTMLElementTagNameMap & SVGElementTagNameMap)[T];
 /**
@@ -33,6 +34,7 @@ type TextNode = TextLike & {
 type TextLike = {
   nodeName: string;
   nodeValue: string;
+  // just shut up Typescript
   tagName?: string;
   children?: ChildLike[];
   attributes?: Record<string, string>;
@@ -52,6 +54,7 @@ type CommentNode = CommentLike & {
 type CommentLike = {
   nodeName: string;
   nodeValue: string;
+  // just shut up Typescript
   tagName?: string;
   children?: ChildLike[];
   attributes?: Record<string, string>;
@@ -119,7 +122,7 @@ type MaybeChildNode = ChildNode | string | number;
 /**
  * Represents the root document node
  */
-type RootNode = Omit<NodeAPI, "nodeName" | "ownerDocument"> & Omit<ElementAPI, "attributes" | "tagName" | "registerChild"> & {
+type RootNode = Omit<NodeAPI, "nodeName" | "ownerDocument"> & Omit<ElementAPI, "attributes" | "tagName"> & {
   nodeName: "#document";
   charset?: string;
   doctype?: string;
@@ -146,6 +149,7 @@ type RootLike = {
  * HTML parsing token
  */
 type HTMLToken = {
+  // tokenType: string;
   tokenType: "tag" | "text" | "comment" | "doctype";
   value: string;
   isSC?: boolean;
@@ -214,4 +218,4 @@ type GetAttributesOptions = {
 type MatchFunction = (node: DOMNode) => boolean;
 //#endregion
 export { TagAttr as C, TextOrComment as D, TextNode as E, TextToken as O, SelectorPart as S, TextLike as T, NodeLike as _, CommentLike as a, RootLike as b, DOMNodeAttributes as c, ElementAPI as d, GetAttributesOptions as f, NodeAPI as g, MaybeChildNode as h, ChildNodeList as i, TokenizerOptions as k, DomParserOptions as l, MatchFunction as m, ChildLike as n, CommentNode as o, HTMLToken as p, ChildNode as r, DOMNode as s, ChildElementList as t, DomParserResult as u, NodeLikeAttributes as v, TagNames as w, RootNode as x, ParseResult as y };
-//# sourceMappingURL=types-BcwTVx5z.d.ts.map
+//# sourceMappingURL=types-C_vwulp0.d.ts.map

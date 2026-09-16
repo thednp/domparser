@@ -1,26 +1,23 @@
-/*!
-* @thednp/domparser CJS v0.1.9
-* Copyright 2026 © thednp
-* Licensed under MIT (https://github.com/thednp/domparser/blob/master/LICENSE)
-*/
+// types.ts
+export type TagNames = keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap;
+export type TagAttr<T extends TagNames> =
+  (HTMLElementTagNameMap & SVGElementTagNameMap)[T];
 
-//#region src/parts/types.d.ts
-type TagNames = keyof HTMLElementTagNameMap | keyof SVGElementTagNameMap;
-type TagAttr<T extends TagNames> = (HTMLElementTagNameMap & SVGElementTagNameMap)[T];
 /**
  * Represents a text node in the DOM
  */
-type NodeLike = {
+export type NodeLike = {
   tagName: string;
   nodeName: string;
   attributes: NodeLikeAttributes;
   children: ChildLike[];
   nodeValue?: string;
 };
+
 /**
  * Represents a text node in the DOM
  */
-type TextNode = TextLike & {
+export type TextNode = TextLike & {
   remove: () => void;
   nodeName: "#text";
   get textContent(): string;
@@ -30,17 +27,20 @@ type TextNode = TextLike & {
   before: (...nodes: ChildNodeList) => void;
   after: (...nodes: ChildNodeList) => void;
 };
-type TextLike = {
+
+export type TextLike = {
   nodeName: string;
   nodeValue: string;
+  // just shut up Typescript
   tagName?: string;
   children?: ChildLike[];
   attributes?: Record<string, string>;
 };
+
 /**
  * Represents a comment node in the DOM
  */
-type CommentNode = CommentLike & {
+export type CommentNode = CommentLike & {
   remove: () => void;
   nodeName: "#comment";
   readonly textContent: string;
@@ -49,22 +49,25 @@ type CommentNode = CommentLike & {
   before: (...nodes: ChildNodeList) => void;
   after: (...nodes: ChildNodeList) => void;
 };
-type CommentLike = {
+export type CommentLike = {
   nodeName: string;
   nodeValue: string;
+  // just shut up Typescript
   tagName?: string;
   children?: ChildLike[];
   attributes?: Record<string, string>;
 };
-type TextOrComment = TextNode | CommentNode;
-type ChildNode = DOMNode | TextNode | CommentNode;
-type ChildLike = NodeLike | TextLike | CommentLike;
-type ChildNodeList = ChildNode[];
-type ChildElementList = DOMNode[];
+
+export type TextOrComment = TextNode | CommentNode;
+export type ChildNode = DOMNode | TextNode | CommentNode;
+export type ChildLike = NodeLike | TextLike | CommentLike;
+export type ChildNodeList = ChildNode[];
+export type ChildElementList = DOMNode[];
+
 /**
  * Node API
  */
-type NodeAPI = {
+export type NodeAPI = {
   nodeName: string;
   readonly ownerDocument: RootNode;
   readonly parentElement: DOMNode | null;
@@ -76,10 +79,11 @@ type NodeAPI = {
   before: (...nodes: ChildNodeList) => void;
   after: (...nodes: ChildNodeList) => void;
 };
+
 /**
  * Node API
  */
-type ElementAPI = {
+export type ElementAPI = {
   readonly tagName: string & TagNames;
   readonly attributes: Map<string, string>;
   readonly textContent: string;
@@ -111,107 +115,134 @@ type ElementAPI = {
   cleanup: () => void;
   children: DOMNode[];
 };
+
 /**
  * Represents an element node in the DOM
  */
-type DOMNode = NodeAPI & ElementAPI;
-type MaybeChildNode = ChildNode | string | number;
+export type DOMNode = NodeAPI & ElementAPI;
+export type MaybeChildNode = ChildNode | string | number;
+
 /**
  * Represents the root document node
  */
-type RootNode = Omit<NodeAPI, "nodeName" | "ownerDocument"> & Omit<ElementAPI, "attributes" | "tagName" | "registerChild"> & {
-  nodeName: "#document";
-  charset?: string;
-  doctype?: string;
-  readonly all: DOMNode[];
-  readonly documentElement: DOMNode | undefined;
-  readonly head: DOMNode | undefined;
-  readonly body: DOMNode | undefined;
-  register: (node: DOMNode) => void;
-  deregister: (node: DOMNode) => void;
-  getElementById: (id: string) => DOMNode | null;
-  createElement: (tagName: string & TagNames, first?: MaybeChildNode | NodeLikeAttributes, ...childNodes: MaybeChildNode[]) => DOMNode;
-  createElementNS: (namespace: string, tagName: string & keyof SVGElementTagNameMap, first?: MaybeChildNode | NodeLikeAttributes, ...childNodes: MaybeChildNode[]) => DOMNode;
-  createComment: (value: string) => CommentNode;
-  createTextNode: (value: string) => TextNode;
-};
+export type RootNode =
+  & Omit<NodeAPI, "nodeName" | "ownerDocument">
+  & Omit<ElementAPI, "attributes" | "tagName">
+  & {
+    nodeName: "#document";
+    charset?: string;
+    doctype?: string;
+    readonly all: DOMNode[];
+    readonly documentElement: DOMNode | undefined;
+    readonly head: DOMNode | undefined;
+    readonly body: DOMNode | undefined;
+    register: (node: DOMNode) => void;
+    deregister: (node: DOMNode) => void;
+    getElementById: (id: string) => DOMNode | null;
+    createElement: (
+      tagName: string & TagNames,
+      first?: MaybeChildNode | NodeLikeAttributes,
+      ...childNodes: MaybeChildNode[]
+    ) => DOMNode;
+    createElementNS: (
+      namespace: string,
+      tagName: string & keyof SVGElementTagNameMap,
+      first?: MaybeChildNode | NodeLikeAttributes,
+      ...childNodes: MaybeChildNode[]
+    ) => DOMNode;
+    createComment: (value: string) => CommentNode;
+    createTextNode: (value: string) => TextNode;
+  };
+
 /**
  * Represents a lighter root document node
  */
-type RootLike = {
+export type RootLike = {
   nodeName: "#document";
   children: ChildLike[];
 };
+
 /**
  * HTML parsing token
  */
-type HTMLToken = {
+export type HTMLToken = {
+  // tokenType: string;
   tokenType: "tag" | "text" | "comment" | "doctype";
   value: string;
   isSC?: boolean;
 };
-interface TokenizerOptions {
+
+export interface TokenizerOptions {
   /** Maximum size in bytes for script content. Default 102400 (100KB) */
   maxScriptSize?: number;
   /** Chunk size in bytes. Default 65536 (64KB) */
   chunkSize?: number;
 }
-type TextToken = {
+
+export type TextToken = {
   tokenType: "text" | "comment";
   value: string;
 };
+
 /**
  * Parser configuration options
  */
-type DomParserOptions = {
-  onNodeCallback: (node: DOMNode, parent: RootNode | DOMNode, root: RootNode) => ChildNode;
+export type DomParserOptions = {
+  onNodeCallback: (
+    node: DOMNode,
+    parent: RootNode | DOMNode,
+    root: RootNode,
+  ) => ChildNode;
   filterTags: string[];
   filterAttrs: string[];
 };
+
 /**
  * Parser result containing the simplidied DOM tree
  * and component/tag information
  */
-type ParseResult = {
+export type ParseResult = {
   root: RootLike;
   components: string[];
   tags: string[];
 };
+
 /**
  * Parser result containing the DOM tree
  * and component/tag information
  */
-type DomParserResult = {
+export type DomParserResult = {
   root: RootNode;
   components: string[];
   tags: string[];
 };
+
 /**
  * Represents a part of a CSS selector
  */
-type SelectorPart = {
+export type SelectorPart = {
   type: "#" | "." | "[" | "";
   name: string;
   value?: string;
 };
+
 /**
  * Represents NodeLike attributes
  */
-type NodeLikeAttributes = Record<string, string>;
+export type NodeLikeAttributes = Record<string, string>;
 /**
  * Represents DOMNode attributes
  */
-type DOMNodeAttributes = Map<string, string>;
+export type DOMNodeAttributes = Map<string, string>;
+
 /**
  * Options for the attributes parser.
  */
-type GetAttributesOptions = {
+export type GetAttributesOptions = {
   unsafeAttrs: Set<string>;
 };
+
 /**
  * Selector match function
  */
-type MatchFunction = (node: DOMNode) => boolean;
-//#endregion
-export { TagAttr as C, TextOrComment as D, TextNode as E, TextToken as O, SelectorPart as S, TextLike as T, NodeLike as _, CommentLike as a, RootLike as b, DOMNodeAttributes as c, ElementAPI as d, GetAttributesOptions as f, NodeAPI as g, MaybeChildNode as h, ChildNodeList as i, TokenizerOptions as k, DomParserOptions as l, MatchFunction as m, ChildLike as n, CommentNode as o, HTMLToken as p, ChildNode as r, DOMNode as s, ChildElementList as t, DomParserResult as u, NodeLikeAttributes as v, TagNames as w, RootNode as x, ParseResult as y };
-//# sourceMappingURL=types-nb0dzUo9.d.cts.map
+export type MatchFunction = (node: DOMNode) => boolean;

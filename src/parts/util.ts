@@ -10,7 +10,7 @@ import type {
   RootLike,
   RootNode,
   TokenizerOptions,
-} from "./types";
+} from "./types.d.ts";
 
 // general utils
 
@@ -229,24 +229,17 @@ export const selfClosingTags = new Set([
   "polyline",
 ]);
 
+const ESCAPE_MAP: Record<string, string> = {
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&#039;",
+};
+
 export const escape = (str: string) => {
-  if ((str === null) || (str === "")) {
-    return "";
-  } else {
-    str = str.toString();
-  }
-
-  const map: Record<string, string> = {
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#039;",
-  };
-
-  return str.replace(/[&<>"']/g, (m) => {
-    return map[m];
-  });
+  if (!str) return "";
+  return str.replace(/[&<>"']/g, (m) => ESCAPE_MAP[m]);
 };
 
 export const DOM_ERROR = "DomParserError:";
@@ -285,6 +278,7 @@ export const tokenize = (
   let inComment = false;
   let inStyleScript = false;
   let currentChunkStart = 0;
+  let hasEquals = false;
 
   while (currentChunkStart < len) {
     const chunkEnd = Math.min(currentChunkStart + chunkSize, len);
@@ -359,7 +353,7 @@ export const tokenize = (
       }
 
       if (
-        (inTag && token.includes("=")) &&
+        (inTag && hasEquals) &&
         (char === 34 || char === 39)
       ) {
         if (!inQuote) {
@@ -396,6 +390,7 @@ export const tokenize = (
         }
 
         inTag = true;
+        hasEquals = false;
       } else if (
         char === 62 && inTag && !inTemplate
       ) { // 0x3e | ">"
@@ -427,8 +422,10 @@ export const tokenize = (
         token = "";
         inTag = false;
         inQuote = false;
+        hasEquals = false;
       } else {
         token += fromCharCode(char);
+        if (char === 61) hasEquals = true; // "=" detected
       }
     }
     currentChunkStart = chunkEnd;
